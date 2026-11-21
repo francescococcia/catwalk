@@ -9,3 +9,6 @@ dependencies = [
 
 [tool.uv]
 package = false
+
+[tool.mistralai.agents]
+entrypoint = "serve_entry:agent"

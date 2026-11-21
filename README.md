@@ -15,6 +15,7 @@ ollama create vigil -f harness/Modelfile
 uv run --project engine engine/run.py demo-app
 ```
 - Add `--ask` to require an Approve click, `--no-narrate` to skip Ministral, and `--mode mistral` (with `MISTRAL_API_KEY` set) to use the hosted Large 4 agent.
+- **Mistral Studio / Vibe Code Web:** `uv run --project engine agents serve engine` runs the Large 4 Detective on your laptop, registers it as the managed agent `vigil-detective` in your workspace, and prints a Vibe Code Web link (chat with it, e.g. "check the app") and a Studio debug link (its sessions and traces). Steps are logged to `engine/runs/serve-*.jsonl`. Fixes (`apply_fix`) ask for approval.
 - After a FIXED run, reset the demo bug: `Copy-Item engine\fixtures\orders_id_route.ts.orig "demo-app\app\api\orders\[id]\route.ts" -Force`
 - Tests: `python harness/test_vigil.py` · `uv run --project engine engine/test_engine.py` (needs demo-app running) · `uv run --project engine python engine/test_mistral_layer.py`
 - How the parts fit: [engine/CONTRACT.md](engine/CONTRACT.md) · Vibe skill: [.vibe/skills/vigil/SKILL.md](.vibe/skills/vigil/SKILL.md) · scanner: [harness/README.md](harness/README.md)
