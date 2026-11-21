@@ -2,3 +2,5 @@
 __pycache__/
 engine/runs/
 .venv/
+vigil-detective/
+REPORT.md
