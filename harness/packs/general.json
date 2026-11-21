@@ -16,7 +16,7 @@
       "*.yml",
       "*.yaml"
     ],
-    "trigger": "(api[_-]?key|secret|token|password|passwd|private[_-]?key)\\w*\\s*[:=]\\s*[\"'][^\"'\\s]{12,}[\"']",
+    "trigger": "(api[_-]?key|secret|token|password|passwd|private[_-]?key)\\w*\\s*[:=]\\s*[\"'](?![a-z0-9_]+(?:\\.[a-z0-9_]+)+[\"'])(?![A-Z][A-Z0-9_]*[\"'])[^\"'\\s]{12,}[\"']",
     "ask": "Is this a real credential committed to the repo (not a placeholder, test fixture or env var name)?",
     "fix": "Move the value to an environment variable / secret manager, rotate the leaked credential, and add the file pattern to .gitignore.",
     "level": "block",
