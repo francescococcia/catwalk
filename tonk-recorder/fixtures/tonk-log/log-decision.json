@@ -1,0 +1,60 @@
+{
+  "_note": "VERIFIED shape of `tonk log decision --limit N --json` on the dev build (tonk-dev, PR #1146): same tonk.log-changes.v1 envelope as log-change.json — one row per claim. R5 folds these: decisions at/before a point, drop superseded, apply decision-status up to the point (SPEC §7.3). A retract row has change: 'retract' and supersedes: [<version of the retracted claim>].",
+  "schemaVersion": "tonk.log-changes.v1",
+  "rows": [
+    {
+      "version": "5@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 5,
+      "change": "assert",
+      "entity": "did:key:z6MkFakeDecision2",
+      "attribute": "tonk.recorder.decision/title",
+      "value": "Blob threshold is 64 KB, inline below",
+      "supersedes": []
+    },
+    {
+      "version": "5@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 5,
+      "change": "assert",
+      "entity": "did:key:z6MkFakeDecision2",
+      "attribute": "tonk.recorder.decision/supersedes",
+      "value": "did:key:z6MkFakeDecision1",
+      "supersedes": []
+    },
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkFakeDecision1",
+      "attribute": "tonk.recorder.decision/title",
+      "value": "Store diffs larger than 64 KB as blobs",
+      "supersedes": []
+    },
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkFakeDecision1",
+      "attribute": "tonk.recorder.decision/by",
+      "value": "hermes",
+      "supersedes": []
+    },
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkFakeStatus1",
+      "attribute": "tonk.recorder.decision-status/decision",
+      "value": "did:key:z6MkFakeDecision1",
+      "supersedes": []
+    },
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkFakeStatus1",
+      "attribute": "tonk.recorder.decision-status/status",
+      "value": "accepted:",
+      "supersedes": []
+    }
+  ]
+}

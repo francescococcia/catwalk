@@ -1,0 +1,78 @@
+{
+  "_note": "VERIFIED shape of `tonk log change --limit N --json` on the dev build (tonk-dev, PR #1146). NOTE: `change` is a POSITIONAL concept arg, not a subcommand. One row per recorded claim (attribute-level), grouped by revision, newest first. `value` is the claim value (strings unquoted, keywords as 'vibe:', entities as URIs). `tonk log <concept> <entity>` narrows to one entity; `--revision <edition>@<origin>` shows exactly one revision.",
+  "schemaVersion": "tonk.log-changes.v1",
+  "rows": [
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkGycfjubJ1C8nDaf5d45p4Q1YkzJBntC7pV1QVv8976Tk",
+      "attribute": "tonk.recorder.change/session",
+      "value": "vibe-session-aaa",
+      "supersedes": []
+    },
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkGycfjubJ1C8nDaf5d45p4Q1YkzJBntC7pV1QVv8976Tk",
+      "attribute": "tonk.recorder.change/turn",
+      "value": "turn-2",
+      "supersedes": []
+    },
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkGycfjubJ1C8nDaf5d45p4Q1YkzJBntC7pV1QVv8976Tk",
+      "attribute": "tonk.recorder.change/redacted",
+      "value": true,
+      "supersedes": []
+    },
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "change": "assert",
+      "entity": "did:key:z6MkGycfjubJ1C8nDaf5d45p4Q1YkzJBntC7pV1QVv8976Tk",
+      "attribute": "tonk.recorder.change/diff-blob",
+      "value": "blob:zFakeSecretDiffBlobHash0000000000000000000000",
+      "supersedes": []
+    },
+    {
+      "version": "3@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 3,
+      "change": "assert",
+      "entity": "did:key:z6Mk93VWAakQuuerFhwJXXtLHz71S3SpeH1JipnhDjxyrtsG",
+      "attribute": "tonk.recorder.change/session",
+      "value": "vibe-session-aaa",
+      "supersedes": []
+    },
+    {
+      "version": "3@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 3,
+      "change": "assert",
+      "entity": "did:key:z6Mk93VWAakQuuerFhwJXXtLHz71S3SpeH1JipnhDjxyrtsG",
+      "attribute": "tonk.recorder.change/turn",
+      "value": "turn-1",
+      "supersedes": []
+    },
+    {
+      "version": "3@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 3,
+      "change": "assert",
+      "entity": "did:key:z6Mk93VWAakQuuerFhwJXXtLHz71S3SpeH1JipnhDjxyrtsG",
+      "attribute": "tonk.recorder.change/harness",
+      "value": "vibe:",
+      "supersedes": []
+    },
+    {
+      "version": "3@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 3,
+      "change": "assert",
+      "entity": "did:key:z6Mk93VWAakQuuerFhwJXXtLHz71S3SpeH1JipnhDjxyrtsG",
+      "attribute": "tonk.recorder.change/lines-added",
+      "value": 150,
+      "supersedes": []
+    }
+  ]
+}

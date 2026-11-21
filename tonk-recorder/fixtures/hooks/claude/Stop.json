@@ -1,0 +1,7 @@
+{
+  "session_id": "cc-session-1",
+  "transcript_path": "/tmp/fake-home/.claude/projects/proj/session-1.jsonl",
+  "cwd": "/tmp/fake-home/proj",
+  "hook_event_name": "Stop",
+  "stop_hook_active": false
+}

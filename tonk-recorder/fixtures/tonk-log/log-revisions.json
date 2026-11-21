@@ -1,0 +1,41 @@
+{
+  "_note": "VERIFIED shape of `tonk log --limit N --json` on the dev build (tonk-dev, PR #1146; reports version 0.6.16-rc.1). One eval = one revision: edition increments 1:1 (genesis is 0@<origin>). version = <edition>@<origin-base58>. R5 folds these.",
+  "schemaVersion": "tonk.log.v1",
+  "rows": [
+    {
+      "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 4,
+      "issuer": "did:key:z6MkepfcNvuc3Jg6thyyKyBgxnTixxdTfQKN8MCpXZxmyf1e",
+      "authority": "did:key:z6MksadeyjVucXoiFBpuoZeTFfYUP3aKKByrccfGCYnj9cGL",
+      "parents": ["3@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1"]
+    },
+    {
+      "version": "3@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 3,
+      "issuer": "did:key:z6MkepfcNvuc3Jg6thyyKyBgxnTixxdTfQKN8MCpXZxmyf1e",
+      "authority": "did:key:z6MksadeyjVucXoiFBpuoZeTFfYUP3aKKByrccfGCYnj9cGL",
+      "parents": ["2@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1"]
+    },
+    {
+      "version": "2@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 2,
+      "issuer": "did:key:z6MkepfcNvuc3Jg6thyyKyBgxnTixxdTfQKN8MCpXZxmyf1e",
+      "authority": "did:key:z6MksadeyjVucXoiFBpuoZeTFfYUP3aKKByrccfGCYnj9cGL",
+      "parents": ["1@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1"]
+    },
+    {
+      "version": "1@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 1,
+      "issuer": "did:key:z6MkepfcNvuc3Jg6thyyKyBgxnTixxdTfQKN8MCpXZxmyf1e",
+      "authority": "did:key:z6MksadeyjVucXoiFBpuoZeTFfYUP3aKKByrccfGCYnj9cGL",
+      "parents": ["0@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1"]
+    },
+    {
+      "version": "0@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1",
+      "edition": 0,
+      "issuer": "did:key:z6MkepfcNvuc3Jg6thyyKyBgxnTixxdTfQKN8MCpXZxmyf1e",
+      "authority": "did:key:z6MksadeyjVucXoiFBpuoZeTFfYUP3aKKByrccfGCYnj9cGL",
+      "parents": []
+    }
+  ]
+}

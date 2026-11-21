@@ -1,0 +1,170 @@
+# packs/roles.notation — coordination pack: roles, agents, tasks, notes.
+#
+# Loaded after packs/recorder.notation (idempotent, same rules). Agents never
+# message each other directly: they coordinate through these records.
+#   role         a role installed on the space, with its instructions
+#   agent        an agent registering itself under a role (add-only; an
+#                agent's current role = its latest record by `at`)
+#   task         work one agent asks of a role
+#   task-status  add-only status of a task (:open is implied; :claimed, :done,
+#                :blocked); current = latest by `at`
+#   note         a message left for a role
+# All records are add-only, like decisions: never edit, add a newer record.
+
+attribute!: &role-name
+  description: "Role name, lower-case (builder, reviewer, …)"
+  the: tonk.recorder.role/name
+  as: text
+
+attribute!: &role-instructions
+  description: "What an agent holding this role does and how it works with the other roles"
+  the: tonk.recorder.role/instructions
+  as: text
+
+attribute!: &role-at
+  description: "Timestamp the role was installed, ISO 8601 UTC"
+  the: tonk.recorder.role/at
+  as: text
+
+concept!: &role
+  description: "A role installed on the space. Latest record per name wins."
+  with:
+    name: role-name
+    instructions: role-instructions
+    at: role-at
+
+attribute!: &agent-name
+  description: "Agent name (unique per working folder)"
+  the: tonk.recorder.agent/name
+  as: text
+
+attribute!: &agent-role
+  description: "Name of the role this agent plays"
+  the: tonk.recorder.agent/role
+  as: text
+
+attribute!: &agent-harness
+  description: "Harness the agent runs in (vibe, claude, …)"
+  the: tonk.recorder.agent/harness
+  as: text
+
+attribute!: &agent-at
+  description: "Timestamp of this registration, ISO 8601 UTC"
+  the: tonk.recorder.agent/at
+  as: text
+
+concept!: &agent
+  description: "An agent registering itself under a role. Add-only; current role = latest by at."
+  with:
+    name: agent-name
+    role: agent-role
+    harness: agent-harness
+    at: agent-at
+
+attribute!: &task-title
+  description: "One-line statement of the work"
+  the: tonk.recorder.task/title
+  as: text
+
+attribute!: &task-detail
+  description: "What done looks like, and anything the taker needs to know"
+  the: tonk.recorder.task/detail
+  as: text
+
+attribute!: &task-for
+  description: "Name of the role this task is for"
+  the: tonk.recorder.task/for
+  as: text
+
+attribute!: &task-by
+  description: "Agent that asked for the work"
+  the: tonk.recorder.task/by
+  as: text
+
+attribute!: &task-at
+  description: "Timestamp the task was added, ISO 8601 UTC"
+  the: tonk.recorder.task/at
+  as: text
+
+concept!: &task
+  description: "Work one agent asks of a role."
+  with:
+    title: task-title
+    detail: task-detail
+    for: task-for
+    by: task-by
+    at: task-at
+
+attribute!: &task-status-task
+  description: "Title of the task this status is about (exact text)"
+  the: tonk.recorder.task-status/task
+  as: text
+
+attribute!: &task-status-status
+  description: "claimed | done | blocked"
+  the: tonk.recorder.task-status/status
+  as: text
+
+attribute!: &task-status-by
+  description: "Agent that set this status"
+  the: tonk.recorder.task-status/by
+  as: text
+
+attribute!: &task-status-note
+  description: "One line: what was done, or what is blocking"
+  the: tonk.recorder.task-status/note
+  as: text
+
+attribute!: &task-status-at
+  description: "Timestamp of this status, ISO 8601 UTC — current status = latest at"
+  the: tonk.recorder.task-status/at
+  as: text
+
+concept!: &task-status
+  description: "Status of a task. Add-only; current = latest by at; no record = open."
+  with:
+    task: task-status-task
+    status: task-status-status
+    by: task-status-by
+    note: task-status-note
+    at: task-status-at
+
+attribute!: &note-to
+  description: "Name of the role this note is for (or all)"
+  the: tonk.recorder.note/to
+  as: text
+
+attribute!: &note-from
+  description: "Agent that left the note"
+  the: tonk.recorder.note/from
+  as: text
+
+attribute!: &note-body
+  description: "The message"
+  the: tonk.recorder.note/body
+  as: text
+
+attribute!: &note-at
+  description: "Timestamp of the note, ISO 8601 UTC"
+  the: tonk.recorder.note/at
+  as: text
+
+concept!: &note
+  description: "A message left for a role."
+  with:
+    to: note-to
+    from: note-from
+    body: note-body
+    at: note-at
+
+# --- starter roles ----------------------------------------------------------
+
+role!:
+  name: "builder"
+  instructions: "You write the code. Before starting, read the open tasks for builder and claim one (add a task-status claimed) so no one else takes it. Work only on what you claimed. When it is finished, add a task-status done with one line on what changed, then add a task for reviewer asking for a review of it. If you make a choice others must live with, record it as a decision. If you are blocked, add a task-status blocked saying on what."
+  at: "2026-11-21T00:00:00Z"
+
+role!:
+  name: "reviewer"
+  instructions: "You review what builders finish; you do not write features. Read the open tasks for reviewer and claim one. Read the change records and diffs for that work. If it is right, add a task-status done saying so. If it is not, add a task for builder that states exactly what must change and why, then mark your review task done. Leave a note for builder when something needs explaining rather than changing."
+  at: "2026-11-21T00:00:00Z"

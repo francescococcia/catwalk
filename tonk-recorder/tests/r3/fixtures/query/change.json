@@ -1,0 +1,4 @@
+[
+  { "agent": "agent-b", "prompt": "add tests for auth\nplease", "files": ["tests/auth.test.js"], "at": "2026-11-21T09:00:00Z" },
+  { "agent": "agent-a", "prompt": "my own earlier change", "files": ["src/mine.js"], "at": "2026-11-21T08:00:00Z" }
+]

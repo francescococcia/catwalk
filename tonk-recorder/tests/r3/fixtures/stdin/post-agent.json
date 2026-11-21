@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "post_agent",
+  "session_id": "sess-1",
+  "parent_session_id": null,
+  "transcript_path": "/tmp/fake/transcript.jsonl",
+  "cwd": "{{CWD}}",
+  "agent_name": "agent-a",
+  "turn_id": "turn-1",
+  "response_text": "added POST /login in src/auth.js"
+}

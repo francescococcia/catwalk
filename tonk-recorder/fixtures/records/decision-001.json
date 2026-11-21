@@ -1,0 +1,10 @@
+{
+  "title": "Store diffs larger than 64 KB as blobs",
+  "chosen": "A diff over 64 KB goes through `tonk blob add` and the change references it as blob:<hash>",
+  "why": "Keeps revisions small; the blob store dedupes large payloads and `tonk blob cat` reads them back.",
+  "rejected": "Always inline the diff in the change record",
+  "about": ["vibe-session-aaa:turn-1", "src/writer"],
+  "supersedes": null,
+  "by": "hermes",
+  "at": "2026-11-21T13:00:00Z"
+}

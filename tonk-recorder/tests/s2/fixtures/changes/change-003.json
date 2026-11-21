@@ -1,0 +1,25 @@
+{
+  "id": "chg-0003",
+  "session": "vibe-session-bbb",
+  "turn": "turn-7",
+  "parentSession": null,
+  "agent": "mira",
+  "harness": "vibe",
+  "prompt": "Rename the old view and drop the legacy fixture",
+  "response": "Renamed views/old.html to views/home.html and deleted fixtures/legacy.json.",
+  "project": "mistral_hackathon",
+  "branch": "main",
+  "base": "1112223334445556667778889990aabbccddeeff",
+  "head": "2223334445556667778889990aabbccddeeff00",
+  "commit": "c3d4e5f60718293a4b5c6d7e8f9012345678ab",
+  "files": [
+    { "path": "views/old.html", "status": "renamed", "added": 3, "removed": 3 },
+    { "path": "fixtures/legacy.json", "status": "deleted", "added": 0, "removed": 58 }
+  ],
+  "linesAdded": 3,
+  "linesRemoved": 61,
+  "diff": "diff --git a/views/old.html b/views/home.html\nsimilarity index 90%\nrename from views/old.html\nrename to views/home.html\ndiff --git a/fixtures/legacy.json b/fixtures/legacy.json\ndeleted file mode 100644\nindex 1234567..0000000\n--- a/fixtures/legacy.json\n+++ /dev/null\n@@ -1,58 +0,0 @@\n-{\n-  \"legacy\": true\n-}\n",
+  "diffBlob": null,
+  "redacted": false,
+  "at": "2026-11-21T10:00:00Z"
+}

@@ -1,0 +1,387 @@
+# packs/recorder.notation — structure pack for the Tonk recorder (S1)
+#
+# Defines the six concepts of SPEC §5 plus the lens concepts for the
+# many-valued fields (change-file for `files`, decision-about for `about`;
+# the same pattern covers any future `needs` lens — see contracts/records.md).
+#
+# Load idempotently, versioned: evaluate this whole document with
+#   tonk eval --no-sync packs/recorder.notation
+# Re-evaluating commits nothing (identical bodies are no-ops). Before
+# loading, check the version:
+#   tonk eval -c 'tonk.recorder.pack: { this: id:tonk-recorder-pack, schema-version: ?v }'
+# and refuse to load if schema-version is greater than the version this
+# build supports (PACK_SCHEMA_VERSION below).
+#
+# Field names/types are the contract in contracts/records.md — do not edit
+# one side without the other. Verified against tonk 0.8.0 (cli-checks.md).
+
+# --- pack identity + schema version --------------------------------------
+
+tonk.recorder.pack!:
+  this: id:tonk-recorder-pack
+  name: "recorder"
+  schema-version: 1
+  description: "Structure pack for the tonk recorder (SPEC §5). PACK_SCHEMA_VERSION = 1"
+
+# --- change (SPEC §5.1) ---------------------------------------------------
+
+attribute!: &change-session
+  description: "Harness session id of the change (hook stdin session_id)"
+  the: tonk.recorder.change/session
+  as: text
+
+attribute!: &change-turn
+  description: "Turn id within the session (hook stdin turn_id)"
+  the: tonk.recorder.change/turn
+  as: text
+
+attribute!: &change-parent-session
+  description: "Parent session id when the turn ran inside a subagent"
+  the: tonk.recorder.change/parent-session
+  as: text
+
+attribute!: &change-agent
+  description: "Agent that made the change (agent_name + harness + join --agent-name)"
+  the: tonk.recorder.change/agent
+  as: text
+
+attribute!: &change-harness
+  description: "Harness that recorded the change"
+  the: tonk.recorder.change/harness
+  as: entity
+
+attribute!: &change-prompt
+  description: "The prompt of the turn (pre_agent.prompt, stashed by turn_id)"
+  the: tonk.recorder.change/prompt
+  as: text
+
+attribute!: &change-response
+  description: "The agent's response text (post_agent.response_text)"
+  the: tonk.recorder.change/response
+  as: text
+
+attribute!: &change-project
+  description: "Project directory name the turn ran in"
+  the: tonk.recorder.change/project
+  as: text
+
+attribute!: &change-branch
+  description: "Git branch the turn ran on (recorder only records on main)"
+  the: tonk.recorder.change/branch
+  as: text
+
+attribute!: &change-base
+  description: "Git tree hash of the before-snapshot"
+  the: tonk.recorder.change/base
+  as: text
+
+attribute!: &change-head
+  description: "Git tree hash of the after-snapshot"
+  the: tonk.recorder.change/head
+  as: text
+
+attribute!: &change-commit
+  description: "Git HEAD commit the turn sat on (links a code point to a space revision)"
+  the: tonk.recorder.change/commit
+  as: text
+
+attribute!: &change-lines-added
+  description: "Lines added in the turn (git diff --numstat, summed)"
+  the: tonk.recorder.change/lines-added
+  as: natural
+
+attribute!: &change-lines-removed
+  description: "Lines removed in the turn (git diff --numstat, summed)"
+  the: tonk.recorder.change/lines-removed
+  as: natural
+
+attribute!: &change-diff
+  description: "Inline diff text, set when the diff is at most 64 KB"
+  the: tonk.recorder.change/diff
+  as: text
+
+attribute!: &change-diff-blob
+  description: "blob:<hash> of the diff when it exceeds 64 KB (tonk blob add)"
+  the: tonk.recorder.change/diff-blob
+  as: entity
+
+attribute!: &change-redacted
+  description: "True when the secret scan replaced anything in the diff with [redacted]"
+  the: tonk.recorder.change/redacted
+  as: boolean
+
+attribute!: &change-at
+  description: "Timestamp of the change, ISO 8601 UTC"
+  the: tonk.recorder.change/at
+  as: text
+
+concept!: &change
+  description: "One agent turn that changed files, recorded by the harness hook"
+  with:
+    session: change-session
+    turn: change-turn
+    agent: change-agent
+    harness: change-harness
+    prompt: change-prompt
+    project: change-project
+    branch: change-branch
+    base: change-base
+    head: change-head
+    commit: change-commit
+    lines-added: change-lines-added
+    lines-removed: change-lines-removed
+    redacted: change-redacted
+    at: change-at
+  maybe:
+    parent-session: change-parent-session
+    response: change-response
+    diff: change-diff
+    diff-blob: change-diff-blob
+
+# --- lens: change-file (many-valued `files` of a change) -------------------
+
+attribute!: &change-file-change
+  description: "The change instance this changed path belongs to"
+  the: tonk.recorder.change-file/change
+  as: entity
+
+attribute!: &change-file-path
+  description: "Repo-relative path of the changed file"
+  the: tonk.recorder.change-file/path
+  as: text
+
+attribute!: &change-file-status
+  description: "Git status of the path: :added | :modified | :deleted | :renamed"
+  the: tonk.recorder.change-file/status
+  as: entity
+
+attribute!: &change-file-added
+  description: "Lines added in this path"
+  the: tonk.recorder.change-file/added
+  as: natural
+
+attribute!: &change-file-removed
+  description: "Lines removed in this path"
+  the: tonk.recorder.change-file/removed
+  as: natural
+
+concept!: &change-file
+  description: "One changed path of a change record (lens for change.files)"
+  with:
+    change: change-file-change
+    path: change-file-path
+    status: change-file-status
+    added: change-file-added
+    removed: change-file-removed
+
+# --- decision (SPEC §5.2) ---------------------------------------------------
+
+attribute!: &decision-title
+  description: "One-line title of the decision"
+  the: tonk.recorder.decision/title
+  as: text
+
+attribute!: &decision-chosen
+  description: "What was decided"
+  the: tonk.recorder.decision/chosen
+  as: text
+
+attribute!: &decision-why
+  description: "The reasoning behind the decision"
+  the: tonk.recorder.decision/why
+  as: text
+
+attribute!: &decision-rejected
+  description: "Alternatives that were considered and rejected"
+  the: tonk.recorder.decision/rejected
+  as: text
+
+attribute!: &decision-supersedes
+  description: "An earlier decision instance this one supersedes (never edit; supersede)"
+  the: tonk.recorder.decision/supersedes
+  as: entity
+
+attribute!: &decision-by
+  description: "Agent or person who recorded the decision"
+  the: tonk.recorder.decision/by
+  as: text
+
+attribute!: &decision-at
+  description: "Timestamp of the decision, ISO 8601 UTC"
+  the: tonk.recorder.decision/at
+  as: text
+
+concept!: &decision
+  description: "A decision between real alternatives. Add-only: never edit; supersede."
+  with:
+    title: decision-title
+    chosen: decision-chosen
+    why: decision-why
+    by: decision-by
+    at: decision-at
+  maybe:
+    rejected: decision-rejected
+    supersedes: decision-supersedes
+
+# --- lens: decision-about (many-valued `about` of a decision) --------------
+
+attribute!: &decision-about-decision
+  description: "The decision instance this target belongs to"
+  the: tonk.recorder.decision-about/decision
+  as: entity
+
+attribute!: &decision-about-target
+  description: "What the decision is about: a change, a change-file, or a named area (id:…)"
+  the: tonk.recorder.decision-about/target
+  as: entity
+
+concept!: &decision-about
+  description: "One target a decision is about (lens for decision.about)"
+  with:
+    decision: decision-about-decision
+    target: decision-about-target
+
+# --- decision-status (SPEC §5.2, add-only) ---------------------------------
+
+attribute!: &decision-status-decision
+  description: "The decision instance this status record is about"
+  the: tonk.recorder.decision-status/decision
+  as: entity
+
+attribute!: &decision-status-status
+  description: "Status keyword: :proposed | :accepted | :rejected (see state machine in records.md)"
+  the: tonk.recorder.decision-status/status
+  as: entity
+
+attribute!: &decision-status-by
+  description: "Who set this status"
+  the: tonk.recorder.decision-status/by
+  as: text
+
+attribute!: &decision-status-at
+  description: "Timestamp of the status record, ISO 8601 UTC — current status = latest `at`"
+  the: tonk.recorder.decision-status/at
+  as: text
+
+concept!: &decision-status
+  description: "Status of a decision. Add-only; current = latest by at."
+  with:
+    decision: decision-status-decision
+    status: decision-status-status
+    by: decision-status-by
+    at: decision-status-at
+
+# --- session (SPEC §5.3) ----------------------------------------------------
+
+attribute!: &session-id
+  description: "Harness session id (hook stdin session_id)"
+  the: tonk.recorder.session/id
+  as: text
+
+attribute!: &session-agent
+  description: "Agent that ran the session"
+  the: tonk.recorder.session/agent
+  as: text
+
+attribute!: &session-harness
+  description: "Harness of the session"
+  the: tonk.recorder.session/harness
+  as: entity
+
+attribute!: &session-project
+  description: "Project directory the session ran in"
+  the: tonk.recorder.session/project
+  as: text
+
+attribute!: &session-started
+  description: "Session start timestamp, ISO 8601 UTC"
+  the: tonk.recorder.session/started
+  as: text
+
+attribute!: &session-ended
+  description: "Session end timestamp, ISO 8601 UTC (set at session-end)"
+  the: tonk.recorder.session/ended
+  as: text
+
+attribute!: &session-changes
+  description: "Number of change records the session wrote"
+  the: tonk.recorder.session/changes
+  as: natural
+
+concept!: &session
+  description: "One harness session that recorded into the space"
+  with:
+    id: session-id
+    agent: session-agent
+    harness: session-harness
+    project: session-project
+    started: session-started
+    changes: session-changes
+  maybe:
+    ended: session-ended
+
+# --- tool (SPEC §5.4) -------------------------------------------------------
+
+attribute!: &tool-name
+  description: "Wrapper/tool name (placeholder: tonk-recorder)"
+  the: tonk.recorder.tool/name
+  as: text
+
+attribute!: &tool-version
+  description: "Published version (semver)"
+  the: tonk.recorder.tool/version
+  as: text
+
+attribute!: &tool-blob
+  description: "blob:<hash> / asset:<hash> of the tool.mjs bytes in the space"
+  the: tonk.recorder.tool/blob
+  as: entity
+
+attribute!: &tool-sha256
+  description: "Hex sha256 of the blob bytes; install verifies against this"
+  the: tonk.recorder.tool/sha256
+  as: text
+
+attribute!: &tool-publisher
+  description: "did:key:… of the publishing identity; must be in trusted-publisher"
+  the: tonk.recorder.tool/publisher
+  as: entity
+
+attribute!: &tool-published-at
+  description: "Publish timestamp, ISO 8601 UTC"
+  the: tonk.recorder.tool/published-at
+  as: text
+
+attribute!: &tool-changelog
+  description: "One-line changelog"
+  the: tonk.recorder.tool/changelog
+  as: text
+
+concept!: &tool
+  description: "One published version of the recorder logic blob"
+  with:
+    name: tool-name
+    version: tool-version
+    blob: tool-blob
+    sha256: tool-sha256
+    publisher: tool-publisher
+    published-at: tool-published-at
+    changelog: tool-changelog
+
+# --- trusted-publisher (SPEC §5.5) ------------------------------------------
+
+attribute!: &trusted-publisher-identity
+  description: "did:key:… allowed to publish tool records that installed recorders accept"
+  the: tonk.recorder.trusted-publisher/identity
+  as: entity
+
+attribute!: &trusted-publisher-at
+  description: "When this identity was trusted, ISO 8601 UTC"
+  the: tonk.recorder.trusted-publisher/at
+  as: text
+
+concept!: &trusted-publisher
+  description: "An identity allowed to publish tool records (set by the space owner)"
+  with:
+    identity: trusted-publisher-identity
+    at: trusted-publisher-at
