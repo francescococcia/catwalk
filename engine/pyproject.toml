@@ -1,0 +1,11 @@
+[project]
+name = "vigil-engine"
+version = "0.1.0"
+description = "Vigil engine: rule-driven security proofs for vibe-coded apps (engine stdlib only; mistralai-agents for --mode mistral)"
+requires-python = ">=3.12"
+dependencies = [
+    "mistralai-agents>=1.1.3",
+]
+
+[tool.uv]
+package = false
