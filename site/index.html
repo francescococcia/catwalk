@@ -213,6 +213,11 @@ details p{color:var(--dim); max-width:70ch; padding-bottom:22px; margin:0}
 .dock a:last-child{border-bottom:0}
 footer{padding:36px 0 48px; font-size:12px; text-transform:uppercase; color:var(--dim)}
 footer .container{display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px}
+.shots{list-style:none; margin:24px 0 0; padding:0; display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+.shots img{display:block; width:100%; height:auto; border-radius:24px}
+.shots span{display:block; margin-top:8px; font-size:14px}
+@media (max-width:760px){.shots{grid-template-columns:repeat(2,1fr)}}
+.team a{color:inherit}
 footer ul{list-style:none; display:flex; flex-wrap:wrap; gap:8px 22px; padding:0; margin:0}
 footer a{text-decoration:none; transition:color .3s} footer a:hover{color:var(--neon)}
 
@@ -267,9 +272,9 @@ footer a{text-decoration:none; transition:color .3s} footer a:hover{color:var(--
           <a href="#quickstart">Try it</a>
         </nav>
         <div class="social">
-          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
-          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md" aria-label="Vigil security report"><svg><use href="#i-file"/></svg></a>
-          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/catwalk" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/catwalk/blob/main/harness/sample-report.md" aria-label="Sample Vigil security report"><svg><use href="#i-file"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/catwalk/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
         </div>
       </header>
 
@@ -284,9 +289,9 @@ footer a{text-decoration:none; transition:color .3s} footer a:hover{color:var(--
           <a class="liquid-glass hov" href="#quickstart">Try it</a>
         </div>
         <div class="social only-m">
-          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
-          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md" aria-label="Vigil security report"><svg><use href="#i-file"/></svg></a>
-          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/catwalk" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/catwalk/blob/main/harness/sample-report.md" aria-label="Sample Vigil security report"><svg><use href="#i-file"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/catwalk/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
         </div>
       </div>
     </div>
@@ -314,7 +319,7 @@ footer a{text-decoration:none; transition:color .3s} footer a:hover{color:var(--
     <div class="container">
       <div class="row">
         <h2>Three parts of<span class="indent"><span class="script">One</span> loop</span></h2>
-        <a class="seeall" href="https://github.com/francescococcia/ministral">
+        <a class="seeall" href="https://github.com/francescococcia/catwalk">
           <div><span class="big">See</span><span class="sm">the<br>repo</span></div><i></i>
         </a>
       </div>
@@ -407,7 +412,7 @@ footer a{text-decoration:none; transition:color .3s} footer a:hover{color:var(--
 
       <div class="cols" style="margin-top:70px">
         <div class="pane liquid-glass reveal">
-          <div class="pane-bar"><span>REPORT.md · redacted evidence</span></div>
+          <div class="pane-bar"><span>Vigil report · redacted evidence</span></div>
 <pre tabindex="0"><span class="c"># attack: idor_read</span>
 GET /api/orders/ord_b1 (logged in as alice) -> <span class="r">HTTP 200</span>
 {"id": "ord_b1", "user_id": 2, "item": "Le Chonk plush",
@@ -424,7 +429,7 @@ GET /api/orders/ord_b1 (logged in as alice) -> <span class="g">HTTP 404</span>
           </div>
           <div class="tags"><span>OWASP API1:2023</span><span>OWASP A01:2021</span><span>CWE-639</span><span>NIST 800-53 AC-3</span><span>ISO 27001:2022 A.5.15</span></div>
           <p class="dim" style="font-size:12px; margin:12px 0 24px">Mappings are guidance, not a certification.</p>
-          <div class="cta" style="margin:0"><a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md">Read the full report</a></div>
+          <div class="cta" style="margin:0"><a class="liquid-glass hov" href="https://github.com/francescococcia/catwalk/blob/main/harness/sample-report.md">Read a sample report</a></div>
         </div>
       </div>
 
@@ -461,6 +466,20 @@ GET /api/orders/ord_b1 (logged in as alice) -> <span class="g">HTTP 404</span>
           <div id="slide"></div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- SCREENS: captures from the recorded demo (iPhone simulator, mistral-vibe PR #140) -->
+  <section class="block" id="screens" style="padding-top:0">
+    <div class="container">
+      <h2>From the real app</h2>
+      <p class="dim">Captured from our demo run on Mistral Vibe pull request #140.</p>
+      <ul class="shots">
+        <li class="reveal"><img src="shots/link.jpg" width="420" height="710" loading="lazy" alt="DevTok start screen: paste a pull request link and tap Explain this PR"><span>Paste a PR link</span></li>
+        <li class="reveal"><img src="shots/reel.jpg" width="420" height="710" loading="lazy" alt="A DevTok reel: an animated system map with the caption Plug and play exporters"><span>A 60-second reel per role</span></li>
+        <li class="reveal"><img src="shots/quiz.jpg" width="420" height="710" loading="lazy" alt="Vibe check quiz with three answers about the observability config"><span>A quick vibe check</span></li>
+        <li class="reveal"><img src="shots/decide.jpg" width="420" height="710" loading="lazy" alt="Ready to decide screen: what changed and a checklist before merge"><span>Decide with a checklist</span></li>
+      </ul>
     </div>
   </section>
 
@@ -530,25 +549,24 @@ python devtok/pipeline/server.py --port 8770</pre>
       </div>
     </div>
     <div class="dock liquid-glass">
-      <a class="hov" href="https://github.com/francescococcia/ministral" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
-      <a class="hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md" aria-label="Vigil security report"><svg><use href="#i-file"/></svg></a>
-      <a class="hov" href="https://github.com/francescococcia/ministral/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
+      <a class="hov" href="https://github.com/francescococcia/catwalk" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
+      <a class="hov" href="https://github.com/francescococcia/catwalk/blob/main/harness/sample-report.md" aria-label="Sample Vigil security report"><svg><use href="#i-file"/></svg></a>
+      <a class="hov" href="https://github.com/francescococcia/catwalk/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
     </div>
   </section>
 </main>
 
 <footer>
   <div class="container">
-    <span>Le Chonk in London · Mistral Vibe hackathon · 21 November 2026<br>Mistral Vibe + Large 4 + Ministral 3B (Ollama) + Voxtral voices</span>
+    <span>Le Chonk in London · Mistral Vibe hackathon · 21 November 2026<br>Mistral Vibe + Large 4 + Ministral 3B (Ollama) + Voxtral voices<br><span class="team">Built by <a href="https://github.com/francescococcia">@francescococcia</a>, <a href="https://github.com/SoloninMichael">@SoloninMichael</a> and <a href="https://github.com/goblinoats">@goblinoats</a></span></span>
     <ul>
-      <li><a href="https://github.com/francescococcia/ministral">Repo</a></li>
-      <li><a href="https://github.com/francescococcia/ministral/blob/main/PITCH.md">Pitch</a></li>
-      <li><a href="https://github.com/francescococcia/ministral/blob/main/DEMO.md">Demo script</a></li>
-      <li><a href="https://github.com/francescococcia/ministral/blob/main/REPORT.md">Vigil report</a></li>
-      <li><a href="https://github.com/francescococcia/ministral/tree/main/engine/runs">Run logs</a></li>
-      <li><a href="https://github.com/francescococcia/ministral/blob/main/devtok/README.md">DevTok</a></li>
-      <li><a href="https://github.com/francescococcia/ministral/blob/main/tonk-recorder/README.md">Tonk recorder</a></li>
-      <li><a href="https://github.com/francescococcia/ministral/blob/main/reviews/mistral-vibe-pr140.md">Review of a real Mistral Vibe PR</a></li>
+      <li><a href="https://github.com/francescococcia/catwalk">Repo</a></li>
+      <li><a href="https://github.com/francescococcia/catwalk/blob/main/PITCH.md">Pitch</a></li>
+      <li><a href="https://github.com/francescococcia/catwalk/blob/main/DEMO.md">Demo script</a></li>
+      <li><a href="https://github.com/francescococcia/catwalk/blob/main/harness/sample-report.md">Sample Vigil report</a></li>
+      <li><a href="https://github.com/francescococcia/catwalk/blob/main/devtok/README.md">DevTok</a></li>
+      <li><a href="https://github.com/francescococcia/catwalk/blob/main/tonk-recorder/README.md">Tonk recorder</a></li>
+      <li><a href="https://github.com/francescococcia/catwalk/blob/main/reviews/mistral-vibe-pr140.md">Review of a real Mistral Vibe PR</a></li>
     </ul>
   </div>
 </footer>
