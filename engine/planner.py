@@ -18,8 +18,35 @@ from __future__ import annotations
 import difflib
 import re
 
-# Known demo order ids per user (attacker alice attacks bob's order).
-VICTIM = {"alice": "ord_b1", "bob": "ord_a1"}
+import profile as profile_mod
+
+AUTH_PRESENT = re.compile(r"(getServerSession|getSession\w*\(|auth\(|currentUser|getUser\(|requireUser|verifyToken|clerk|withAuth)", re.I)
+
+
+def pick_attack_params(prof: dict) -> tuple[str, str | None]:
+    """(attacker, victim_record) from the target profile: first user vs another user's first record."""
+    names = list(prof["users"])
+    attacker = names[0]
+    for other in names[1:]:
+        if prof["users"][other]["records"]:
+            return attacker, prof["users"][other]["records"][0]
+    return attacker, None
+
+
+def make_auth_fix(text: str) -> tuple[str, str] | None:
+    """Insert a 401 session guard at the top of the exported handler. Returns (new_text, reason) or None."""
+    if AUTH_PRESENT.search(text):
+        return None  # an auth check is already present; the attack should have been BLOCKED
+    m = re.search(r"export\s+(?:async\s+)?function\s+(?:GET|POST|PUT|PATCH|DELETE)\b[^{]*\{", text)
+    if not m:
+        return None
+    guard = ("\n  const userId = await getSessionUserId();"
+             "\n  if (!userId) {"
+             '\n    return NextResponse.json({ error: "not authenticated" }, { status: 401 });'
+             "\n  }")
+    new = text[:m.end()] + guard + text[m.end():]
+    return new, ("Add a session check at the top of the handler: `const userId = await getSessionUserId(); "
+                 "if (!userId) return 401`. Anonymous requests must never reach the record lookup.")
 
 
 def make_fix(text: str) -> tuple[str, str] | None:
@@ -48,26 +75,44 @@ def plan(app_path, tools, gate, emit) -> str:
         think("No finding comes with an attack I am allowed to run, so I go with the scanner's verdict.")
         return "BLOCK" if scan["result"] == "BLOCK" else "PASS"
 
-    verdicts = [_investigate(f, tools, gate, think) for f in provable]
+    prof = getattr(tools, "profile", None) or profile_mod.load_profile(app_path)
+    verdicts = [_investigate(f, tools, gate, think, prof) for f in provable]
     if scan["result"] == "BLOCK":
         verdicts.append("BLOCK")  # a block-level rule elsewhere still blocks after the proofs
     return next((v for v in ("PROVEN", "ERROR", "BLOCK", "FIXED") if v in verdicts), "PASS")
 
 
-def _investigate(f, tools, gate, think) -> str:
+def _investigate(f, tools, gate, think, prof) -> str:
     think(f"The scanner suspects '{f['title']}' in {f['file']} line {f['line']}. "
           "A suspicion is not a proof, so I will read the code and then try the attack for real.")
     src = tools.read_file(f["file"])
     if "error" in src:
         think(f"I cannot read {f['file']} ({src['error']}), so I stop here.")
         return "ERROR"
-    if f["attack"] != "idor_read":
-        think(f"I have no scripted plan for attack '{f['attack']}'.")
+
+    attacker, victim = pick_attack_params(prof)  # users and records come from .vigil/target.json
+    atk = f.get("attack")
+    if atk == "idor_read":
+        if not victim or not prof["users"][attacker]["records"]:
+            think("The profile has no second user with records, so idor_read cannot run.")
+            return "ERROR"
+        params = {"attacker": attacker, "victim_order": victim}
+        fix_fn, fix_kind = make_fix, "an ownership check"
+        think("The handler checks that you are logged in but loads the record by id alone. "
+              f"I will log in as {attacker} and ask for {victim}, a record that belongs to someone else.")
+    elif atk == "unauth_read":
+        record = victim or (prof["users"][attacker]["records"] or [None])[0]
+        if not record:
+            think("The profile lists no record to test anonymously.")
+            return "ERROR"
+        params = {"record": record}
+        fix_fn, fix_kind = make_auth_fix, "a login check"
+        think(f"This route may answer without any login. I will ask for {record} with no credentials at all.")
+    else:
+        think(f"I have no scripted plan for attack '{atk}'.")
         return "ERROR"
-    params = {"attacker": "alice", "victim_order": VICTIM["alice"]}
-    think("The handler checks that you are logged in but loads the order by id alone. "
-          f"I will log in as alice and ask for {params['victim_order']}, an order that belongs to bob.")
-    proof = tools.run_proof("idor_read", params)
+
+    proof = tools.run_proof(atk, params)
     if proof.get("status") == "ERROR":
         think("The proof could not run (app down or login failed). That is an error, not a pass.")
         return "ERROR"
@@ -75,8 +120,8 @@ def _investigate(f, tools, gate, think) -> str:
         think("The attack was blocked, so this suspicion is a false alarm.")
         return "PASS"
 
-    think("Proven: alice read bob's private order. Now I write the smallest fix: an ownership check.")
-    fix = make_fix(src["content"])
+    think(f"Proven. Now I write the smallest fix: {fix_kind}.")
+    fix = fix_fn(src["content"])
     if not fix:
         think("I could not find a safe place to insert the check automatically. Leaving it for a human.")
         return "PROVEN"
@@ -94,12 +139,12 @@ def _investigate(f, tools, gate, think) -> str:
         return "PROVEN"
     try:
         think("Fix applied. I run the same attack again, giving the dev server a few seconds to reload.")
-        again = tools.run_proof("idor_read", params, retry=True)
+        again = tools.run_proof(atk, params, retry=True)
         if again.get("status") == "BLOCKED" and again["control"]["ok"]:
-            think("Blocked now, and alice can still read her own order. The fix holds.")
+            think("Blocked now, and the owner can still read their own record. The fix holds.")
             return "FIXED"
         why = ("the attack still works" if again.get("status") == "PROVEN"
-               else "the owner can no longer read their own order" if again.get("status") == "BLOCKED"
+               else "the owner can no longer read their own record" if again.get("status") == "BLOCKED"
                else "the app did not answer after the fix")
     except Exception as e:  # any crash after writing must still roll back
         why = f"re-proof crashed ({type(e).__name__})"

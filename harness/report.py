@@ -236,12 +236,13 @@ def build(app: Path, stack: set, findings: list[dict], events: list[dict], run_n
           f"1. **Rules (deterministic):** `harness/vigil.py` with the packs {', '.join(sorted(stack))} matched regex rules on the source "
           "(comments stripped for protection checks). Rules decide what is a finding; nothing else can remove one.",
           "2. **Local Ministral:** explains each suspect in plain English. Its notes are shown above but never change a severity or verdict.",
-          "3. **Red team (engine):** only allowlisted attacks (`idor_read`) against a **local** target with fixed demo accounts; "
+          "3. **Red team (engine):** only allowlisted attacks (`idor_read`, `unauth_read`) against the **local** target declared in "
+          "`<app>/.vigil/target.json` (loopback only; users, records, routes and passwords come from that file, never from the model); "
           "a positive control checks the owner can still read their own data, so a broken route cannot look \"fixed\".",
           "4. **Fix + re-proof:** the fix is applied through an approval gate, then the same attack is re-run; still proven = automatic rollback.",
           "5. **Dependencies:** " + ("`npm audit --json` and `npm outdated --json` per package.json. npm audit sends the lockfile's package list (not code) to the npm registry."
                                      if used_deps else "not run for this report."), "",
-          "**Not tested:** attacks other than `idor_read` (no SQLi/XSS exploitation, no brute force, no DoS); authenticated "
+          "**Not tested:** attacks other than `idor_read`/`unauth_read` (no SQLi/XSS exploitation, no brute force, no DoS); authenticated "
           "crawling/DAST of every route; business-logic flaws outside the rules; cloud, network and infrastructure configuration; "
           "secrets already in git history; whether vulnerable dependency code is actually reachable; files over 200 KB and "
           "folders like node_modules/.next. A clean result means \"no rule fired\", not \"secure\".", ""]

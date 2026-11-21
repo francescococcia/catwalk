@@ -3,6 +3,7 @@
     "id": "nextjs-api-no-auth",
     "title": "Next.js API route with no auth check",
     "severity": "high",
+    "attack": "unauth_read",
     "files": [
       "*app/api/*route.ts",
       "*app/api/*route.js",

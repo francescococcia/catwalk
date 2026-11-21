@@ -20,12 +20,14 @@ import uuid
 from pathlib import Path
 
 import attacks
+import profile as profile_mod
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "harness"))
 import vigil  # noqa: E402
 
 MAX_BYTES = 200_000
-DENY_DIRS = {"data", "node_modules", ".next", ".git"}
+# .vigil/ holds target.json with the test passwords: never readable, scannable or writable.
+DENY_DIRS = {"data", "node_modules", ".next", ".git", ".vigil"}
 # Same trigger as harness/packs/general.json "hardcoded-secret", with the quoted value captured so it can be masked.
 SECRET_RE = re.compile(r"""((?:api[_-]?key|secret|token|password|passwd|private[_-]?key)\w*\s*[:=]\s*)(["'])[^"'\s]{12,}\2""", re.I)
 CHARACTER = {"vigil_scan": "scout", "read_file": "detective", "run_proof": "detective",
@@ -43,9 +45,15 @@ def _noop_emit(*a, **k):
 class Tools:
     def __init__(self, app_path, target=None, emit=None, approved=None):
         self.root = Path(app_path).resolve()
-        self.target = target
         self.emit = emit or _noop_emit
         self.approved = approved
+        try:  # the repo's .vigil/target.json decides address/routes/users; target only overrides the address
+            self.profile = profile_mod.load_profile(self.root, target)
+            self.profile_error = None
+        except ValueError as e:
+            self.profile = profile_mod.normalize(profile_mod.DEFAULT_PROFILE, target, source="fallback")
+            self.profile_error = str(e)
+        self.target = self.profile["target"]
         self.backups: dict[str, tuple[Path, bytes]] = {}
         try:
             lines = (self.root / ".gitignore").read_text(encoding="utf-8").splitlines()
@@ -112,7 +120,11 @@ class Tools:
                 f["file"] = (p / f["file"]).relative_to(self.root).as_posix()
                 f["match"] = mask(f["match"] or "")
                 out.append(f)
-            return {"result": vigil.result(findings), "tree": tree, "findings": out}
+            # the profile WITHOUT passwords: lets a hosted model pick valid users/records/routes
+            prof = profile_mod.sanitized(self.profile)
+            if self.profile_error:
+                prof["error"] = self.profile_error
+            return {"result": vigil.result(findings), "tree": tree, "findings": out, "profile": prof}
         return self._call("vigil_scan", {"path": path}, go,
                           lambda r: f"scan {r['result']}: {len(r['findings'])} finding(s) in {len(r['tree'])} files")
 
@@ -127,19 +139,36 @@ class Tools:
                           lambda r: f"read {r['path']} ({r['content'].count(chr(10)) + 1} lines)")
 
     def run_proof(self, attack: str, params: dict, retry: bool = False) -> dict:
+        if self.profile_error:
+            res = {"status": "ERROR", "attack": attack, "params": params,
+                   "error": f"invalid target profile: {self.profile_error}",
+                   "evidence": {}, "control": {"ok": False, "detail": "not run"}, "evidence_local": {}}
+            self._call("run_proof", {"attack": attack, "params": params}, lambda: res,
+                       lambda r: f"proof {r['status']}: {r['error']}")
+            return res
         res = self._call("run_proof", {"attack": attack, "params": params},
-                         lambda: attacks.run(attack, params, self.target, retry),
+                         lambda: attacks.run(attack, params, profile=self.profile, retry=retry),
                          lambda r: f"proof {r['status']}" + (f": {r['error']}" if r.get("error") else ""))
         if "status" in res:
             p = res["params"]
-            who, vic = p.get("attacker"), p.get("victim_order")
-            text = {"PROVEN": f"PROVEN: {who} read someone else's order {vic} just by changing the id in the URL.",
-                    "BLOCKED": f"BLOCKED: {who} could not read order {vic}.",
-                    }.get(res["status"], f"ERROR: the proof could not run ({res.get('error', 'unknown')}).")
+            atk = res.get("attack")
+            if atk == "idor_read":
+                who, vic = p.get("attacker"), p.get("victim_order")
+                text = {"PROVEN": f"PROVEN: {who} read someone else's record {vic} just by changing the id in the URL.",
+                        "BLOCKED": f"BLOCKED: {who} could not read record {vic}.",
+                        }.get(res["status"], f"ERROR: the proof could not run ({res.get('error', 'unknown')}).")
+            elif atk == "unauth_read":
+                rec = p.get("record")
+                code = res["evidence"].get("status_code")
+                text = {"PROVEN": f"PROVEN: record {rec} was served to an anonymous request — no login at all.",
+                        "BLOCKED": f"BLOCKED: the anonymous request for {rec} was refused (HTTP {code}).",
+                        }.get(res["status"], f"ERROR: the proof could not run ({res.get('error', 'unknown')}).")
+            else:
+                text = f"{res['status']}: {atk} {p}"
             if res["status"] != "ERROR":
-                text += " Control: " + ("the owner can still read their own order." if res["control"]["ok"]
-                                        else "the owner can NOT read their own order any more.")
-            self.emit("proof", "detective", text, status=res["status"], attack=res["attack"], params=p,
+                text += " Control: " + ("the owner can still read their own record." if res["control"]["ok"]
+                                        else "the owner can NOT read their own record any more.")
+            self.emit("proof", "detective", text, status=res["status"], attack=atk, params=p,
                       evidence=res["evidence"], evidence_local=res["evidence_local"], control=res["control"])
         return res
 

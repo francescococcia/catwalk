@@ -41,6 +41,8 @@ From the repository root:
      uv run --project engine engine/run.py <path>
      ```
      The agent proves the problem, applies its own fix, attacks again, and rolls the fix back if the attack still works. Tell the user to open the page it prints to watch it. (Add `--ask` to the command if a human must click Approve first.)
+
+     The engine works on any repo through a target profile: `<path>/.vigil/target.json` declares the app's local address, the login route, the test users with their passwords and records, and the record route to test (see `engine/CONTRACT.md`). Attacks only go to that loopback address and take users/ids/passwords from the file only — the agent never sees or sends them.
    - `BLOCK` (exit code `1`): problems that are certain on their own (exposed secrets, tables without RLS, text manipulating AI reviewers). Fix these yourself, below.
 
 Use the quick check while iterating, and the full check once at the end so `harness/report.json` can be replayed in `harness/viewer/`.

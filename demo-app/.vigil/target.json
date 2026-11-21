@@ -1,0 +1,18 @@
+{
+  "target": "http://localhost:3001",
+  "login": {
+    "path": "/api/login",
+    "username_field": "username",
+    "password_field": "password",
+    "session_cookie": "vigil_session"
+  },
+  "users": [
+    { "name": "alice", "password": "alice123", "records": ["ord_a1", "ord_a2"] },
+    { "name": "bob", "password": "bob123", "records": ["ord_b1", "ord_b2"] }
+  ],
+  "routes": {
+    "record": "/api/orders/{id}"
+  },
+  "record_id_pattern": "^ord_[a-z0-9]{1,16}$",
+  "secret_field": "secret_note"
+}

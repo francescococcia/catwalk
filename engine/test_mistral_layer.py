@@ -145,7 +145,7 @@ def _scripted_run(allow, fix_holds=True):
     model = t.ScriptedModel([
         t.call("vigil_scan", path="."),
         t.call("read_app_file", path="route.ts"),
-        t.call("run_proof", attack="idor_read", attacker="alice", victim_order="ord_b1"),
+        t.call("run_proof", attack="idor_read", params={"attacker": "alice", "victim_order": "ord_b1"}),
         t.call("apply_fix", file="route.ts", new_content="new\n"),
         t.reply("Done."),
     ])

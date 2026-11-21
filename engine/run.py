@@ -23,6 +23,7 @@ from urllib.parse import parse_qs, urlsplit
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import planner  # noqa: E402
+import profile  # noqa: E402
 from tools import Tools  # noqa: E402
 
 LIVE_HTML = HERE.parent / "harness" / "viewer" / "live.html"
@@ -148,8 +149,9 @@ def run(app_path, target, mode, log: EventLog, gate: Gate | None = None) -> str:
     emit = log.emit
     gate = gate or Gate(emit)
     tools = Tools(app_path, target=target, emit=emit, approved=gate.approved)
-    emit("run_started", "scout", f"Checking {Path(app_path).name} against {target} ({mode} mode).",
-         app=str(app_path), target=target, mode=mode)
+    emit("run_started", "scout", f"Checking {Path(app_path).name} against {tools.target} ({mode} mode). "
+         f"Target profile: {tools.profile.get('_source')}.",
+         app=str(app_path), target=tools.target, mode=mode)
     impl = planner
     if mode == "mistral":
         m = _optional("mistral_agent")
@@ -277,7 +279,8 @@ def make_scout(app: Path):
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="vigil-engine")
     ap.add_argument("app_path")
-    ap.add_argument("--target", default=os.environ.get("VIGIL_TARGET_URL", "http://localhost:3001"))
+    ap.add_argument("--target", default=os.environ.get("VIGIL_TARGET_URL"),
+                    help="override the target address from <app>/.vigil/target.json (must stay loopback)")
     ap.add_argument("--mode", choices=["offline", "mistral"], default="offline")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-narrate", action="store_true")
@@ -288,6 +291,12 @@ def main(argv=None) -> int:
     if not app.is_dir():
         print(f"not a directory: {app}", file=sys.stderr)
         return 2
+    try:  # fail fast on a missing/unsafe profile: address, routes, users, passwords all come from it
+        prof = profile.load_profile(app, a.target)
+    except ValueError as e:
+        print(f"invalid target profile for {app}: {e}", file=sys.stderr)
+        return 2
+    a.target = prof["target"]
 
     narr = None
     if not a.no_narrate:
