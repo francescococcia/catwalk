@@ -8,6 +8,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { makeCat, ARM_A, ARM_B } from './cat.js';
+import { studioScene, deskScene } from './scenes.js';
 import { glowTexture } from './textures.js';
 import { clamp, lerp, smooth, easeInOut, easeOut, range, V, ikArm } from './anim.js';
 
@@ -35,7 +36,7 @@ if (INS) {
 }
 
 // ---------------------------------------------------------------- renderer + post
-const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(1);
 renderer.setSize(W, H);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -56,7 +57,8 @@ scene.environmentIntensity = 0.35;
 }
 const camera = new THREE.PerspectiveCamera(40, W / H, 0.05, 400);
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(W, H, { samples: 4, type: THREE.HalfFloatType }));
-composer.addPass(new RenderPass(scene, camera));
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
 const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.3, 0.4, 1.05);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
@@ -188,7 +190,7 @@ for (const e of edges) {
 }
 
 // ---------------------------------------------------------------- the cat narrator
-const CS = 0.95;
+const CS = 0.7; // the narrator stays small next to the map
 const cat = makeCat(); cat.root.scale.setScalar(CS); scene.add(cat.root);
 
 // ---------------------------------------------------------------- shots -> camera / focus timeline
@@ -212,6 +214,30 @@ function camPose(i) {
 function catAnchor(i) {
   const p = pos[focusOf(i)];
   return isOverview(i) ? center.clone().add(V(-1.6, 0, depth / 2 + 1.2)) : p.clone().add(V(-1.35, 0, 1.55));
+}
+
+// ---------------------------------------------------------------- material scenes (studio / desk) and the corner cat
+const SCENE = spec.scene || null; // {type: 'studio'|'desk', data}
+let ALT = null;
+const lblEl = document.getElementById('lbl');
+if (SCENE) {
+  const ctx = { graph, reel, shots, focusOf: i => shots[i]?.highlight_component_id || reel.focus_component_id, words, W, H, lbl: lblEl,
+                data: SCENE.data, duration: DURATION, prTitle: spec.pr_title };
+  ALT = SCENE.type === 'desk' ? deskScene(ctx) : studioScene(ctx);
+  ALT.scene.environment = scene.environment; ALT.scene.environmentIntensity = 0.35;
+}
+// skill-style reels: a small 3D cat in the corner, rendered over the clip on a transparent canvas
+let corner = null;
+if (STY) {
+  const cs = new THREE.Scene();
+  cs.environment = scene.environment; cs.environmentIntensity = 0.5;
+  cs.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.2));
+  const kl = new THREE.DirectionalLight(0xffffff, 1.6); kl.position.set(-2, 4, 5); cs.add(kl);
+  const c = makeCat(); cs.add(c.root);
+  const cc = new THREE.PerspectiveCamera(22, W / H, 0.1, 50);
+  corner = { scene: cs, cat: c, cam: cc };
+  renderer.domElement.style.position = 'absolute'; renderer.domElement.style.zIndex = '3'; renderer.domElement.style.pointerEvents = 'none';
+  document.getElementById('sub').style.top = '1110px'; // keep subtitles clear of the corner cat
 }
 
 // ---------------------------------------------------------------- overlays
@@ -345,7 +371,26 @@ window.renderAt = (t) => {
   let blink = 0; for (let b = 1.3; b < DURATION; b += 3.1) blink = Math.max(blink, 1 - Math.abs(t - b) / 0.08);
   cat.setFace({ blink: clamp(blink), brows: breaking ? -0.4 : 0.2 * point, browTilt: breaking ? 0.5 : 0, look: [0, -0.1], squint: breaking ? 0.4 : 0 });
 
-  if (!STY) composer.render();
+  if (corner) { // small cat bottom-right, talking along with the voice
+    const c = corner.cat;
+    corner.cam.position.set(-0.94, 3.06, 17.5); corner.cam.lookAt(-0.94, 3.06, 0); corner.cam.updateMatrixWorld();
+    c.root.position.set(0, 0, 0); c.root.rotation.y = -0.35 + Math.sin(t * 0.6) * 0.1;
+    c.setPose({ chest: [Math.sin(t * 2) * 0.02, 0, 0], head: [0, 0, Math.sin(t * 1.1) * 0.08], neck: [0.05, 0.15, 0] });
+    c.setTail(t, 1); c.root.updateMatrixWorld(true);
+    const L = (x, y, z) => c.root.localToWorld(V(x, y, z)), h = V(0, 0, 1).applyQuaternion(c.root.quaternion);
+    const wave = Math.max(0, Math.sin(range(t, 0.5, 2.6) * Math.PI));
+    ikArm(c, 'r', L(-0.31, 0.6, 0.12).lerp(L(-0.36 + Math.sin(t * 9) * 0.05, 1.05, 0.25), wave), L(-0.8, 0.4, -0.6), h, ARM_A, ARM_B);
+    ikArm(c, 'l', L(0.31, 0.6, 0.12), L(0.8, 0.4, -0.6), h, ARM_A, ARM_B);
+    let mo = 0; for (const w of words) if (t > w.s - 0.03 && t < w.e + 0.02) mo = Math.max(mo, Math.sin(Math.PI * clamp((t - w.s) / (w.e - w.s))) ** 0.6 * 0.8);
+    c.setMouth(mo); c.setFace({ blink: clamp(1 - Math.abs(((t + 1.3) % 3.1) - 1.55) / 0.08) });
+    renderer.setClearColor(0x000000, 0); renderer.render(corner.scene, corner.cam);
+  } else if (ALT) {
+    ALT.update(t, i, k, local, breaking);
+    renderPass.scene = ALT.scene; renderPass.camera = ALT.camera;
+    composer.render();
+  } else {
+    composer.render();
+  }
 
   // overlays
   const hookO = 1 - smooth(range(t, 1.5, 2.0));
@@ -355,8 +400,8 @@ window.renderAt = (t) => {
   const cap = s.caption || comp?.name || '';
   const sub2 = isOverview(i) ? `${comps.length} parts · ${edges.length} links` : (roleLine(comp) || comp?.kind || '');
   $('cap').innerHTML = cap && t > 1.6 ? `<span class="c">${esc(cap)}</span><br><span class="sub2">${esc(comp?.name && comp.name !== cap ? comp.name + ' · ' + sub2 : sub2)}</span>` : '';
-  $('cap').style.opacity = smooth(range(t, s.t_start, s.t_start + 0.3));
-  const ref = hasCode(i) ? refs[s.code_ref_id] : null;
+  $('cap').style.opacity = SCENE?.type === 'studio' ? 0 : smooth(range(t, s.t_start, s.t_start + 0.3));
+  const ref = hasCode(i) && !ALT ? refs[s.code_ref_id] : null; // material scenes carry the picture; code stays one tap away in the app
   setCode(ref, breaking);
   const ci = ref ? easeOut(range(t, s.t_start + 0.2, s.t_start + 0.6)) * (1 - smooth(range(t, s.t_end - 0.25, s.t_end))) : 0;
   $('code').style.opacity = ci;

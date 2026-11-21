@@ -28,6 +28,9 @@ phone (SwiftUI app)  ──PR link + GitHub token──▶  pipeline/server.py  
 | `pipeline/inserts.py` | Picks 0–2 styled inserts per role from the claude-animation-skills catalogue |
 | `pipeline/security.py` | Reads a Vigil `report.json` and maps it onto `security/threats.json` (see below) |
 | `renderer/` | three.js "architecture tour" scene, cat narrator, code cards, skill-style reels; `build.py` renders a run |
+| `renderer/src/scenes.js` | Material scenes in the skills' look: `studio` (services as devices + links) and `desk` (cat at a live observability dashboard) |
+
+Reel styles (`run.py --styles`): `studio`, `desk` (ours) and `breakdown`, `minimalistic-graphics`, `map-route`, `graph` (claude-animation-skills clips, played full screen with a small corner cat). Reel 1 is always the data-flow map tour.
 | `app/` | SwiftUI iOS app (xcodegen `project.yml`): feed, code sheet, system map, quiz, verdict, debug texts |
 | `examples/org_context.example.md` | Format of the optional org context (teams, monthly spend). Numbers are invented |
 | `SECURITY_REVIEW_REQUEST.md` | **What we need from the Vigil team** |

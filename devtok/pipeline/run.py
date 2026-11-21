@@ -58,6 +58,13 @@ STYLE_DEFS = {
                   '{"destination":"<=20 chars","minutes":int 1-60,"distance":number,"unit":"km","places":["<=16","<=16","<=16","<=16","<=16"]}'),
     "breakdown": ("a 3D exploded view: a device comes apart into 6 labelled layers; use it for the anatomy of the feature (its layers/modules, top first)",
                   '{"title":"<=16","subtitle":"<=24","labels":[["name <=16","note <=22"] x6],"date":"<=24 chars"}'),
+    "studio": ("a dark studio where the PR's services float as matte devices with numbered labels, joined by thin lines with "
+               "light pulses; the camera leans to the focused one and a small cat points at it. Use it for how services connect",
+               '{"title":"<=20"}'),
+    "desk": ("the cat sits at a desk in front of a live observability dashboard: a trace waterfall of spans, 3 metric tiles, "
+             "scrolling logs. Use it for runtime behaviour: what gets traced/measured/logged. Use real span/metric names from the code",
+             '{"dashboard_title":"<=30","spans":[{"name":"<=24 real span name","component_id":"c_x","ms":int}] (4-7, parent first),'
+             '"metrics":[{"name":"<=20","value":number,"unit":"<=4"}] (3),"logs":["<=60 realistic log line"] (3-6)}'),
     "graph": ("a line graph that draws itself with a big number counting up; use REAL numbers from the PR facts (e.g. cumulative lines added "
               "per module, number of spans/metrics/exporters added); values must increase",
               '{"label":"<=32","values":[4-9 increasing numbers],"labels":["<=6"],"final":number,"prefix":"","suffix":"","decimals":0}'),
@@ -83,6 +90,15 @@ def clean_style(name, spec):
             labels += [["", ""]] * (6 - len(labels))
             return {"title": clip(spec.get("title", "Anatomy"), 16), "subtitle": clip(spec.get("subtitle", "Exploded view"), 24),
                     "labels": labels, "time": "9:41", "date": clip(spec.get("date", "Pull request"), 24), "accent": "#ff7a1a"}
+        if name == "studio":
+            return {"title": clip(spec.get("title", ""), 20)}
+        if name == "desk":
+            spans = [{"name": clip(s.get("name", "span"), 24), "component_id": s.get("component_id"), "ms": max(5, min(900, int(s.get("ms", 50))))}
+                     for s in (spec.get("spans") or []) if isinstance(s, dict)][:7]
+            mets = [{"name": clip(m.get("name", "metric"), 20), "value": float(m.get("value", 0)), "unit": clip(m.get("unit", ""), 4)}
+                    for m in (spec.get("metrics") or []) if isinstance(m, dict)][:3]
+            return {"dashboard_title": clip(spec.get("dashboard_title", ""), 30), "spans": spans, "metrics": mets,
+                    "logs": [clip(x, 60) for x in (spec.get("logs") or [])][:6]}
         if name == "graph":
             vals = [float(x) for x in spec.get("values", [])]
             if len(vals) < 3 or any(b < a for a, b in zip(vals, vals[1:])):

@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 KIT = Path(os.environ.get("DEVTOK_KIT", HERE.parent / "kit"))  # claude-animation-skills/kit (voice models, node_modules)
 PY = KIT / ".venv" / "bin" / "python"
 ROLES = ["technical_engineer", "team_lead", "paying_manager"]
-SKILLS = KIT.parent / "skills"
+SKILLS = KIT.resolve().parent / "skills"
 
 
 def speakable(s):
@@ -114,7 +114,10 @@ def main():
                             "-b:v", "0", "-crf", "34", "-deadline", "realtime", "-cpu-used", "8", str(d / "insert.webm")], check=True)
             spec["insert"] = {"file": str(d / "insert.webm"), "t0": round(t0i, 2), "t1": round(t1i, 2), "style": ins["style"]}
         sty = (v.get("style") or {})
-        if sty.get("spec"):  # whole reel in a skill style: render the clip, convert to VP9, play it full screen
+        spec["pr_title"] = manifests[role]["pr"].get("title")
+        if sty.get("name") in ("studio", "desk"):  # our own material scenes: no skill clip, the renderer builds them
+            spec["scene"] = {"type": sty["name"], "data": sty.get("spec") or {}}
+        elif sty.get("spec"):  # whole reel in a skill style: render the clip, convert to VP9, play it full screen
             sp = dict(sty["spec"], hold=0.3, out=str(d / "style.mp4"))
             (d / f"style.{sty['name']}.json").write_text(json.dumps(sp))
             if not (d / "style.webm").exists() or json.loads((d / "style.spec.json").read_text() if (d / "style.spec.json").exists() else "null") != sp:
@@ -137,7 +140,7 @@ def main():
                         "-c:v", "copy", "-af", "apad,loudnorm=I=-14:TP=-1.5", "-c:a", "aac", "-b:a", "160k", "-shortest",
                         "-movflags", "+faststart", str(media / name)], check=True)
         (d / "spec.sha").write_text(key)
-        print(f"  {name}: {duration:.1f}s video in {time.time() - t0:.0f}s" + (f" + {ins['style']} insert" if ins else "") + (f" [{sty['name']} style]" if sty.get("spec") else ""), flush=True)
+        print(f"  {name}: {duration:.1f}s video in {time.time() - t0:.0f}s" + (f" + {ins['style']} insert" if ins else "") + (f" [{sty['name']} style]" if sty.get("name") else ""), flush=True)
         return role, v["id"], name, duration, shots
 
     with ThreadPoolExecutor(a.workers) as ex:
