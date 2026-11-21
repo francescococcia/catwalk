@@ -7,6 +7,8 @@
 // record nothing. Not a git repo → one warning per session, record nothing.
 // Active branch ≠ main → no-op.
 
+import fs from "node:fs";
+import path from "node:path";
 import { resolveSpace } from "./binding.mjs";
 import {
   snapshotTree, diffTrees, isGitRepo, currentBranch, headCommit, projectName,
@@ -25,6 +27,17 @@ import { pull, push } from "./tonk.mjs";
 import { formatOutput } from "./adapters.mjs";
 
 const CHECKPOINT_INTERVAL_DEFAULT = 10; // SPEC §11.9 default
+
+/** Version of the logic actually running: the installed plugin's manifest
+ *  (never a hard-coded number — that makes every space look "newer"). */
+function installedLogicVersion(env) {
+  if (env.TONK_RECORDER_VERSION) return env.TONK_RECORDER_VERSION;
+  try {
+    const v = JSON.parse(fs.readFileSync(path.join(env.PLUGIN_ROOT || process.cwd(), "plugin.json"), "utf8")).version;
+    if (v) return String(v);
+  } catch { /* not running from a plugin dir */ }
+  return "0.0.0";
+}
 
 /**
  * One checkpoint (SPEC §6.5): put everything queued into tonk, then
@@ -123,7 +136,7 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
         sess.lastCheckpointAt = now();
         saveSessionState(root, sessionId, sess);
 
-        const systemMessage = updateNotice({ space, localVersion: env.TONK_RECORDER_VERSION || "0.1.0", env });
+        const systemMessage = updateNotice({ space, localVersion: installedLogicVersion(env), env });
         // The agent is told, in order: which space it is in and what role it
         // plays, that role's instructions, who else is here and what waits
         // for it, how to coordinate — then decisions and recent changes.

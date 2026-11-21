@@ -42,7 +42,7 @@ test("new: full sequence on a clean temp dir + paste line", async (t) => {
   const pdir = pluginDirOf(ws.project);
   const manifest = JSON.parse(fs.readFileSync(path.join(pdir, "plugin.json"), "utf8"));
   assert.equal(manifest.name, "tonk-recorder");
-  assert.equal(manifest.version, "0.1.0");
+  assert.equal(manifest.version, "0.1.2");
   assert.ok(fs.existsSync(path.join(pdir, "tool.mjs")), "tool.mjs installed");
   const hooks = fs.readFileSync(path.join(pdir, "ai.mistral.vibe", "hooks.toml"), "utf8");
   for (const h of ["session_start", "pre_agent", "post_agent", "session_end"]) {
@@ -72,7 +72,7 @@ test("join: installs the plugin layout from the space (verify + sha256)", async 
   // plugin layout installed for the joining agent
   const pdir = pluginDirOf(ws.project);
   assert.ok(fs.existsSync(path.join(pdir, "plugin.json")), "plugin.json installed");
-  const staged = path.join(home2, ".tonk", "tools", "tonk-recorder", "0.1.0", "tool.mjs");
+  const staged = path.join(home2, ".tonk", "tools", "tonk-recorder", "0.1.2", "tool.mjs");
   assert.ok(fs.existsSync(staged), "staged at §3.3 bootstrap path");
   // staged bytes == the published blob bytes (sha256 verified on the way in)
   const records = readJsonState(ws.state, "tool-records.json");
@@ -155,7 +155,7 @@ test("status: shows binding + hook state after new", async (t) => {
   await runCli(["new", "projx"], { cwd: ws.project, env: ws.env });
   const r = await runCli(["status"], { cwd: ws.project, env: ws.env });
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, /plugin: installed at .*tonk-recorder \(v0\.1\.0\)/);
+  assert.match(r.stdout, /plugin: installed at .*tonk-recorder \(v0\.1\.2\)/);
   assert.match(r.stdout, /hooks:.*present/);
 });
 

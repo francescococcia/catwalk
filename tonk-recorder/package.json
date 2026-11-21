@@ -1,6 +1,6 @@
 {
   "name": "tonk-recorder",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Thin npm wrapper around a pinned tonk CLI: creates/joins a Tonk space, publishes the recorder logic into the space, and installs it into the harness. Placeholder name per SPEC §11.6.",
   "type": "module",
   "license": "UNLICENSED",
