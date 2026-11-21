@@ -1,6 +1,8 @@
 # Le Chonk in London — Mistral Vibe Hackathon
 
-> **Our project: DevTok × Vigil.** DevTok explains a PR as a 60-second video feed per role; Vigil proves the PR is safe (attacks a local copy, fixes, re-proves) and feeds its findings into DevTok's approval screen. Pitch and demo script: [PITCH.md](PITCH.md) · DevTok: [devtok/README.md](devtok/README.md) · Vigil: below.
+> **Our project: DevTok × Vigil.** DevTok explains a PR as a 60-second video feed per role; Vigil proves the PR is safe (attacks a local copy, fixes, re-proves) and feeds its findings into DevTok's approval screen. Pitch and demo script: [PITCH.md](PITCH.md) · DevTok: [devtok/README.md](devtok/README.md) (web app: `python devtok/pipeline/server.py --port 8770`, open http://127.0.0.1:8770/) · Tonk recorder: [tonk-recorder/README.md](tonk-recorder/README.md) (records what agents do into a Tonk space; `vigil install` gives its security role Vigil) · Real-world review: [reviews/mistral-vibe-pr140.md](reviews/mistral-vibe-pr140.md) · Video handoff: [handoff/max-video.md](handoff/max-video.md) · Vigil: below.
+>
+> **Windows notes:** run DevTok's server with `$env:PYTHONUTF8 = "1"` (otherwise it crashes writing `→`); DevTok's 3D video rendering needs the Mac (planning, scripts and quiz work on Windows).
 
 ## Vigil: try it (teammates start here)
 Vigil is a security skill for Vibe that **proves before it speaks**. Rules spot a suspect, Ministral (local) explains it, the Detective agent attacks your own app to prove it, applies a fix, and attacks again to prove the fix works. A live cartoon page shows it all.
