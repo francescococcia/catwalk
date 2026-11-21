@@ -2,6 +2,7 @@
 //   tonk join → read latest `tool` record → verify publisher ∈ trusted-publisher
 //   → fetch blob → verify sha256 → install hooks into the harness.
 // A tampered blob or an untrusted publisher is refused (SPEC §8).
+import { ensureDevTonk } from "../dev-tonk.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { tonkOk } from "../tonk.mjs";
@@ -25,6 +26,7 @@ export async function cmdJoin(argv, { env = process.env, cwd = process.cwd() } =
   const opts = { env, cwd };
 
   if (ensureGitRepo(cwd)) console.log(`(made ${cwd} a git repository: the recorder snapshots changes with git)`);
+  await ensureDevTonk(env); // the tonk with revision history, fetched once if missing
   // 1. join the space (link is a bearer credential — passed as argv to the
   //    child only, never written to files/records, SPEC §8)
   await tonkOk(["join", link, "--agent-name", agentName], opts);

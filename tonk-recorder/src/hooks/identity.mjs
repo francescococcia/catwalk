@@ -99,15 +99,24 @@ export function rememberWrapper(pkgRoot, pkgName, env = process.env) {
 
 // --- which tonk binary -------------------------------------------------------
 // Revision history (`tonk log` / `tonk restore`, tonk PR #1146) exists ONLY in
-// tonk's dev channel — a GitHub release (`TONK_CHANNEL=dev` install script),
+// tonk's dev channel — the rolling GitHub release `tonk-dev`,
 // not an npm tag: npm `latest` (0.8.0) and `next` (0.9.0-rc.1) do not have it.
 // One space must be read and written by ONE tonk build, so the wrapper and
 // the hooks resolve the same binary, in this order:
-//   TONK_BIN  →  the dev build at ~/.local/bin/tonk-dev  →  (caller's fallback)
+//   TONK_BIN  →  the dev build the recorder fetched from tonk's GitHub release
+//   (~/.tonk/recorder/bin/tonk)  →  ~/.local/bin/tonk-dev  →  (caller's fallback)
+
+/** Where the recorder keeps the dev build it fetched itself (cli/dev-tonk.mjs). */
+export function managedTonkPath(env = process.env) {
+  const home = env.HOME || env.USERPROFILE || os.homedir();
+  return path.join(home, ".tonk", "recorder", "bin", "tonk");
+}
 
 export function devTonkBin(env = process.env) {
   const home = env.HOME || env.USERPROFILE || os.homedir();
-  const candidates = [env.TONK_DEV_BIN, path.join(home, ".local", "bin", "tonk-dev")].filter(Boolean);
+  // the recorder's own copy first (it is the one `connect --update-tonk` refreshes),
+  // then a dev build the person installed by hand
+  const candidates = [env.TONK_DEV_BIN, managedTonkPath(env), path.join(home, ".local", "bin", "tonk-dev")].filter(Boolean);
   for (const c of candidates) {
     try {
       fs.accessSync(c, fs.constants.X_OK);
