@@ -1,0 +1,30 @@
+[
+  {
+    "id": "supabase-table-no-rls",
+    "title": "Supabase table created without Row Level Security",
+    "severity": "critical",
+    "files": ["*.sql"],
+    "trigger": "create\\s+table\\s+(if\\s+not\\s+exists\\s+)?[\\w.\"]+",
+    "absent": "enable\\s+row\\s+level\\s+security",
+    "ask": "Can anyone with the public anon key read or write every row of this table?",
+    "fix": "ALTER TABLE <name> ENABLE ROW LEVEL SECURITY; then add policies like USING (auth.uid() = user_id)."
+  },
+  {
+    "id": "supabase-service-role-in-client",
+    "title": "Supabase service_role key used in browser code",
+    "severity": "critical",
+    "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+    "trigger": "[\"']use client[\"'][\\s\\S]*SERVICE_ROLE",
+    "ask": "Does browser code get the service_role key, which bypasses all RLS?",
+    "fix": "Only use the anon key in the browser. Use service_role in server code only, and rotate the key if it shipped."
+  },
+  {
+    "id": "supabase-rls-policy-true",
+    "title": "RLS policy that allows everything",
+    "severity": "high",
+    "files": ["*.sql"],
+    "trigger": "create\\s+policy[\\s\\S]{0,300}?using\\s*\\(\\s*true\\s*\\)",
+    "ask": "Does this policy let any user read or change every row?",
+    "fix": "Scope the policy to the owner, e.g. USING (auth.uid() = user_id)."
+  }
+]
