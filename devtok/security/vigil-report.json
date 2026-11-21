@@ -1,0 +1,152 @@
+{
+  "stack": [
+    "general"
+  ],
+  "result": "SUSPECT",
+  "findings": [
+    {
+      "rule": "raw-html",
+      "title": "Raw HTML injection (possible XSS)",
+      "severity": "medium",
+      "level": "suspect",
+      "attack": null,
+      "pack": "general",
+      "file": "renderer/src/main.js",
+      "line": 246,
+      "match": ".innerHTML =",
+      "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+      "ask": "Can user-controlled content reach this raw HTML without sanitization?",
+      "standards": {
+        "owasp_top10_2021": "A03:2021 Injection",
+        "owasp_api_2023": "n/a",
+        "cwe": "CWE-79 Cross-site Scripting",
+        "nist_800_53": [
+          "SI-10 Information Input Validation"
+        ],
+        "iso27001_2022": [
+          "A.8.28 Secure coding"
+        ]
+      }
+    },
+    {
+      "rule": "raw-html",
+      "title": "Raw HTML injection (possible XSS)",
+      "severity": "medium",
+      "level": "suspect",
+      "attack": null,
+      "pack": "general",
+      "file": "renderer/src/main.js",
+      "line": 279,
+      "match": ".innerHTML =",
+      "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+      "ask": "Can user-controlled content reach this raw HTML without sanitization?",
+      "standards": {
+        "owasp_top10_2021": "A03:2021 Injection",
+        "owasp_api_2023": "n/a",
+        "cwe": "CWE-79 Cross-site Scripting",
+        "nist_800_53": [
+          "SI-10 Information Input Validation"
+        ],
+        "iso27001_2022": [
+          "A.8.28 Secure coding"
+        ]
+      }
+    },
+    {
+      "rule": "raw-html",
+      "title": "Raw HTML injection (possible XSS)",
+      "severity": "medium",
+      "level": "suspect",
+      "attack": null,
+      "pack": "general",
+      "file": "renderer/src/main.js",
+      "line": 402,
+      "match": ".innerHTML =",
+      "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+      "ask": "Can user-controlled content reach this raw HTML without sanitization?",
+      "standards": {
+        "owasp_top10_2021": "A03:2021 Injection",
+        "owasp_api_2023": "n/a",
+        "cwe": "CWE-79 Cross-site Scripting",
+        "nist_800_53": [
+          "SI-10 Information Input Validation"
+        ],
+        "iso27001_2022": [
+          "A.8.28 Secure coding"
+        ]
+      }
+    },
+    {
+      "rule": "raw-html",
+      "title": "Raw HTML injection (possible XSS)",
+      "severity": "medium",
+      "level": "suspect",
+      "attack": null,
+      "pack": "general",
+      "file": "renderer/src/main.js",
+      "line": 412,
+      "match": ".innerHTML =",
+      "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+      "ask": "Can user-controlled content reach this raw HTML without sanitization?",
+      "standards": {
+        "owasp_top10_2021": "A03:2021 Injection",
+        "owasp_api_2023": "n/a",
+        "cwe": "CWE-79 Cross-site Scripting",
+        "nist_800_53": [
+          "SI-10 Information Input Validation"
+        ],
+        "iso27001_2022": [
+          "A.8.28 Secure coding"
+        ]
+      }
+    },
+    {
+      "rule": "raw-html",
+      "title": "Raw HTML injection (possible XSS)",
+      "severity": "medium",
+      "level": "suspect",
+      "attack": null,
+      "pack": "general",
+      "file": "renderer/src/scenes.js",
+      "line": 147,
+      "match": ".innerHTML =",
+      "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+      "ask": "Can user-controlled content reach this raw HTML without sanitization?",
+      "standards": {
+        "owasp_top10_2021": "A03:2021 Injection",
+        "owasp_api_2023": "n/a",
+        "cwe": "CWE-79 Cross-site Scripting",
+        "nist_800_53": [
+          "SI-10 Information Input Validation"
+        ],
+        "iso27001_2022": [
+          "A.8.28 Secure coding"
+        ]
+      }
+    },
+    {
+      "rule": "raw-html",
+      "title": "Raw HTML injection (possible XSS)",
+      "severity": "medium",
+      "level": "suspect",
+      "attack": null,
+      "pack": "general",
+      "file": "renderer/src/scenes.js",
+      "line": 269,
+      "match": ".innerHTML =",
+      "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+      "ask": "Can user-controlled content reach this raw HTML without sanitization?",
+      "standards": {
+        "owasp_top10_2021": "A03:2021 Injection",
+        "owasp_api_2023": "n/a",
+        "cwe": "CWE-79 Cross-site Scripting",
+        "nist_800_53": [
+          "SI-10 Information Input Validation"
+        ],
+        "iso27001_2022": [
+          "A.8.28 Secure coding"
+        ]
+      }
+    }
+  ]
+}

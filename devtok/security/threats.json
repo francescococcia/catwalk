@@ -117,6 +117,200 @@
       "status": "open",
       "source": "devtok-self-review",
       "findings": []
+    },
+    {
+      "id": "T100",
+      "title": "Raw HTML injection (possible XSS)",
+      "where": "renderer/src/main.js",
+      "severity": "medium",
+      "status": "open",
+      "source": "vigil",
+      "findings": [
+        {
+          "key": "raw-html@renderer/src/main.js:246",
+          "rule": "raw-html",
+          "severity": "medium",
+          "level": "suspect",
+          "file": "renderer/src/main.js",
+          "line": 246,
+          "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+          "standards": {
+            "owasp_top10_2021": "A03:2021 Injection",
+            "owasp_api_2023": "n/a",
+            "cwe": "CWE-79 Cross-site Scripting",
+            "nist_800_53": [
+              "SI-10 Information Input Validation"
+            ],
+            "iso27001_2022": [
+              "A.8.28 Secure coding"
+            ]
+          },
+          "explanation": ""
+        }
+      ]
+    },
+    {
+      "id": "T101",
+      "title": "Raw HTML injection (possible XSS)",
+      "where": "renderer/src/main.js",
+      "severity": "medium",
+      "status": "open",
+      "source": "vigil",
+      "findings": [
+        {
+          "key": "raw-html@renderer/src/main.js:279",
+          "rule": "raw-html",
+          "severity": "medium",
+          "level": "suspect",
+          "file": "renderer/src/main.js",
+          "line": 279,
+          "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+          "standards": {
+            "owasp_top10_2021": "A03:2021 Injection",
+            "owasp_api_2023": "n/a",
+            "cwe": "CWE-79 Cross-site Scripting",
+            "nist_800_53": [
+              "SI-10 Information Input Validation"
+            ],
+            "iso27001_2022": [
+              "A.8.28 Secure coding"
+            ]
+          },
+          "explanation": ""
+        }
+      ]
+    },
+    {
+      "id": "T102",
+      "title": "Raw HTML injection (possible XSS)",
+      "where": "renderer/src/main.js",
+      "severity": "medium",
+      "status": "open",
+      "source": "vigil",
+      "findings": [
+        {
+          "key": "raw-html@renderer/src/main.js:402",
+          "rule": "raw-html",
+          "severity": "medium",
+          "level": "suspect",
+          "file": "renderer/src/main.js",
+          "line": 402,
+          "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+          "standards": {
+            "owasp_top10_2021": "A03:2021 Injection",
+            "owasp_api_2023": "n/a",
+            "cwe": "CWE-79 Cross-site Scripting",
+            "nist_800_53": [
+              "SI-10 Information Input Validation"
+            ],
+            "iso27001_2022": [
+              "A.8.28 Secure coding"
+            ]
+          },
+          "explanation": ""
+        }
+      ]
+    },
+    {
+      "id": "T103",
+      "title": "Raw HTML injection (possible XSS)",
+      "where": "renderer/src/main.js",
+      "severity": "medium",
+      "status": "open",
+      "source": "vigil",
+      "findings": [
+        {
+          "key": "raw-html@renderer/src/main.js:412",
+          "rule": "raw-html",
+          "severity": "medium",
+          "level": "suspect",
+          "file": "renderer/src/main.js",
+          "line": 412,
+          "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+          "standards": {
+            "owasp_top10_2021": "A03:2021 Injection",
+            "owasp_api_2023": "n/a",
+            "cwe": "CWE-79 Cross-site Scripting",
+            "nist_800_53": [
+              "SI-10 Information Input Validation"
+            ],
+            "iso27001_2022": [
+              "A.8.28 Secure coding"
+            ]
+          },
+          "explanation": ""
+        }
+      ]
+    },
+    {
+      "id": "T104",
+      "title": "Raw HTML injection (possible XSS)",
+      "where": "renderer/src/scenes.js",
+      "severity": "medium",
+      "status": "open",
+      "source": "vigil",
+      "findings": [
+        {
+          "key": "raw-html@renderer/src/scenes.js:147",
+          "rule": "raw-html",
+          "severity": "medium",
+          "level": "suspect",
+          "file": "renderer/src/scenes.js",
+          "line": 147,
+          "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+          "standards": {
+            "owasp_top10_2021": "A03:2021 Injection",
+            "owasp_api_2023": "n/a",
+            "cwe": "CWE-79 Cross-site Scripting",
+            "nist_800_53": [
+              "SI-10 Information Input Validation"
+            ],
+            "iso27001_2022": [
+              "A.8.28 Secure coding"
+            ]
+          },
+          "explanation": ""
+        }
+      ]
+    },
+    {
+      "id": "T105",
+      "title": "Raw HTML injection (possible XSS)",
+      "where": "renderer/src/scenes.js",
+      "severity": "medium",
+      "status": "open",
+      "source": "vigil",
+      "findings": [
+        {
+          "key": "raw-html@renderer/src/scenes.js:269",
+          "rule": "raw-html",
+          "severity": "medium",
+          "level": "suspect",
+          "file": "renderer/src/scenes.js",
+          "line": 269,
+          "fix": "Render as text, or sanitize with a vetted HTML sanitizer first.",
+          "standards": {
+            "owasp_top10_2021": "A03:2021 Injection",
+            "owasp_api_2023": "n/a",
+            "cwe": "CWE-79 Cross-site Scripting",
+            "nist_800_53": [
+              "SI-10 Information Input Validation"
+            ],
+            "iso27001_2022": [
+              "A.8.28 Secure coding"
+            ]
+          },
+          "explanation": ""
+        }
+      ]
     }
-  ]
+  ],
+  "last_report": {
+    "result": "SUSPECT",
+    "stack": [
+      "general"
+    ],
+    "merged_at": "2026-11-21T15:50:31",
+    "findings": 6
+  }
 }
