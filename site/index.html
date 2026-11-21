@@ -70,6 +70,7 @@ p{margin:0 0 1em}
 .cta a{border-radius:28px; padding:18px 30px; font:400 13px Anton,sans-serif; text-transform:uppercase; letter-spacing:.06em; text-decoration:none}
 .cta a.go{background:var(--neon); color:var(--bg)}
 .rise{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+.authors{margin:10px 0 0; font-size:15px; text-shadow:0 2px 10px rgba(1,8,40,.9)} .authors a{color:inherit; text-underline-offset:3px}
 .rise.d1{animation-delay:.15s} .rise.d2{animation-delay:.3s} .rise.d3{animation-delay:.45s}
 @keyframes rise{from{opacity:0; transform:translateY(30px)}}
 .only-m{display:none}
@@ -200,7 +201,7 @@ details[open] summary::after{transform:rotate(45deg)}
 details p{color:var(--dim); max-width:70ch; padding-bottom:22px; margin:0}
 
 /* 4 cta */
-.final{position:relative; isolation:isolate; background:#000}
+.final{position:relative; isolation:isolate}
 .final video{display:block; width:100%; height:auto; min-height:320px; object-fit:cover}
 .final .over{position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-end; padding:0 20% 0 15%}
 .final .txt{position:relative; text-align:right}
@@ -213,6 +214,7 @@ details p{color:var(--dim); max-width:70ch; padding-bottom:22px; margin:0}
 .dock a:last-child{border-bottom:0}
 footer{padding:36px 0 48px; font-size:12px; text-transform:uppercase; color:var(--dim)}
 footer .container{display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px}
+footer .container > span{text-transform:none; font-size:13px; line-height:1.7}
 .shots{list-style:none; margin:24px 0 0; padding:0; display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
 .shots img{display:block; width:100%; height:auto; border-radius:24px}
 .shots span{display:block; margin-top:8px; font-size:14px}
@@ -283,6 +285,7 @@ footer a{text-decoration:none; transition:color .3s} footer a:hover{color:var(--
         <div class="h1wrap">
           <h1 class="rise">Agents write the code.<br>We prove it's safe.</h1>
           <span class="script rise d1">Built at Le Chonk in London</span>
+          <p class="authors rise d1">by <a href="https://github.com/francescococcia">@francescococcia</a>, <a href="https://github.com/SoloninMichael">@SoloninMichael</a> and <a href="https://github.com/goblinoats">@goblinoats</a></p>
         </div>
         <p class="readable rise d2" style="margin-top:26px; max-width:580px">CatWalk records what every agent did, proves the change is safe by attacking a local copy of your app, and explains it to the whole team in 60 seconds of video.</p>
         <div class="cta rise d3">
