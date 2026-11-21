@@ -45,6 +45,7 @@ Rules for `run_proof`:
 
 ## The approval gate (`engine/run.py`)
 `gate.request(kind="apply_fix", file, new_content, diff, reason) -> bool` stores the patch **server-side** under a new `approval_id`, emits `fix_proposed`, and blocks until `POST /approve` answers. The browser only sends `{approval_id, decision}`, never patch content. The offline planner and the Mistral adapter (`on_approval`) both go through this same gate. Unanswered after 10 min = deny.
+**Default is auto-apply** (team decision): the gate emits `fix_proposed` with `auto: true`, waits `VIGIL_AUTO_PAUSE` (4 s) so the diff is visible, then answers allow itself (`approval.by = "the agent (auto-apply)"`). Safety then rests on the re-proof and automatic rollback. `run.py --ask` restores the human click.
 
 ## HTTP (run.py, 127.0.0.1)
 | Route | |

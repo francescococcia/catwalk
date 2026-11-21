@@ -40,7 +40,7 @@ From the repository root:
      ```bash
      uv run --project engine engine/run.py <path>
      ```
-     Then tell the user to open the page it prints and approve or deny the fix.
+     The agent proves the problem, applies its own fix, attacks again, and rolls the fix back if the attack still works. Tell the user to open the page it prints to watch it. (Add `--ask` to the command if a human must click Approve first.)
    - `BLOCK` (exit code `1`): problems that are certain on their own (exposed secrets, tables without RLS, text manipulating AI reviewers). Fix these yourself, below.
 
 Use the quick check while iterating, and the full check once at the end so `harness/report.json` can be replayed in `harness/viewer/`.
