@@ -11,7 +11,7 @@ import { toolCachePath, homeDir as home } from "../paths.mjs";
 import { queryToolRecords, queryTrustedPublishers, latestToolRecord, isTrustedPublisher } from "../../publish/records.mjs";
 import { field } from "../tonk.mjs";
 import { createHash } from "node:crypto";
-import { parseArgs, opt, rememberConnection, boundSpace, ensureGitRepo } from "./shared.mjs";
+import { parseArgs, opt, rememberConnection, boundSpace, ensureGitRepo, installRoleAgents } from "./shared.mjs";
 
 export async function cmdJoin(argv, { env = process.env, cwd = process.cwd() } = {}) {
   const args = parseArgs(argv);
@@ -71,6 +71,7 @@ export async function cmdJoin(argv, { env = process.env, cwd = process.cwd() } =
   const space = boundSpace(cwd, env);
   const role = opt(args, "role") ?? null;
   let me = null;
+  if (space) installRoleAgents({ cwd, env, space });
   if (space) me = rememberConnection({ cwd, env, space, agentName: opt(args, "agent-name"), role, harness });
   if (me) console.log(`connected to space '${space}' as agent '${me.agent}'${role ? ` with role '${role}'` : " (no role yet — take one with `tonk-recorder role <name>`)"}`);
 

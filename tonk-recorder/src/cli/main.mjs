@@ -5,6 +5,8 @@ import { cmdJoin } from "./commands/join.mjs";
 import { cmdConnect } from "./commands/connect.mjs";
 import { cmdRole } from "./commands/role.mjs";
 import { cmdLink } from "./commands/link.mjs";
+import { cmdRun, cmdReplay } from "./commands/run.mjs";
+import { cmdVigil } from "./commands/vigil.mjs";
 import { cmdInvite, cmdStatus, cmdSync, cmdHook, cmdInstructions, cmdUninstall } from "./commands/misc.mjs";
 import { cmdPublish } from "./commands/publish.mjs";
 import { runBuild } from "./build.mjs";
@@ -29,6 +31,13 @@ commands:
   invite                print an invite link + the paste line. The first invite
                         attaches the space to your Tonk account on tonk.foundation
                         (browser approval; sign in there if asked)
+  vigil install         fetch the Vigil security harness (pinned) and install its skill
+                        into this project — what the security role proves findings with
+  run add --about "…" --step "<who>: <what>" [--step …] [--tool T] [--verdict W]
+                        add your own account of a piece of work, as ordered steps
+                        (for roles whose turns are not recorded automatically)
+  replay [<run-id>] [--out F]
+                        list runs, or print one run's steps as JSON lines
   status                binding, sync state, hook state, update availability
   sync                  one checkpoint now: tonk pull + tonk push (SPEC §6.5)
   hook <event>          harness entry point: session-start|pre-agent|post-agent|session-end
@@ -53,6 +62,9 @@ export async function main(argv, ctx = {}) {
       case "connect": return await cmdConnect(rest, ctx);
       case "role": return await cmdRole(rest, ctx);
       case "link": return await cmdLink(rest, ctx);
+      case "vigil": return await cmdVigil(rest, ctx);
+      case "run": return await cmdRun(rest, ctx);
+      case "replay": return await cmdReplay(rest, ctx);
       case "new": return await cmdNew(rest, ctx);
       case "join": return await cmdJoin(rest, ctx);
       case "invite": return await cmdInvite(rest, ctx);

@@ -5,6 +5,8 @@ import { PKG_ROOT, PKG_NAME, PKG_VERSION, DIST_TOOL, homeDir } from "../paths.mj
 import { CONTRACTS } from "../contracts.mjs";
 import { tonkOk } from "../tonk.mjs";
 import { runBuild } from "../build.mjs";
+import { readRoles, writeRoleAgents } from "../../hooks/roles.mjs";
+import { resolveTonkBin } from "../tonk.mjs";
 import { resolveSpace } from "../../hooks/binding.mjs";
 import { writeIdentity, rememberGitSpace, defaultAgentName, rememberWrapper } from "../../hooks/identity.mjs";
 import { execFileSync } from "node:child_process";
@@ -104,6 +106,17 @@ export function rememberConnection({ cwd, env, space, agentName, role, harness }
 /** The space tonk has bound to this folder (after `space new` / `join`). */
 export function boundSpace(cwd, env) {
   return resolveSpace(cwd, { env: { ...env, TONK_SPACE: "" } })?.space ?? null;
+}
+
+/** Install every role on the space as a Vibe subagent in this project's plugin
+ *  (so the main agent can spawn a subagent BY ROLE). Best effort. */
+export function installRoleAgents({ cwd, env, space }) {
+  try {
+    const roles = readRoles(space, { ...env, TONK_BIN: env.TONK_BIN || resolveTonkBin(env).bin });
+    return writeRoleAgents(cwd, { space, roles, env });
+  } catch {
+    return [];
+  }
 }
 
 /** Ensure dist/tool.mjs exists (build on demand). */

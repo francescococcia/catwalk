@@ -186,16 +186,100 @@ test("session-start note: the agent is told its role, the role's instructions, t
   assert.equal(evalDocs(e.env).filter((d) => d.includes("agent!:")).length, 1, "not registered twice");
 });
 
-test("session-start note: an agent with no role is told to take one", (t) => {
+const ROLES = [
+  { name: "builder", instructions: "You write the code.", at: "x" },
+  { name: "reviewer", instructions: "You review.", at: "x" },
+  { name: "security", instructions: "You prove before you speak.", at: "x" },
+];
+function rolesEnv(t) {
   const q = fs.mkdtempSync(path.join(os.tmpdir(), "flow-q-"));
   t.after(() => fs.rmSync(q, { recursive: true, force: true }));
-  fs.writeFileSync(path.join(q, "role.json"), JSON.stringify([{ name: "builder", instructions: "You write the code.", at: "x" }]));
-  const e = makeEnv(t, { queryDir: q });
+  fs.writeFileSync(path.join(q, "role.json"), JSON.stringify(ROLES));
+  fs.writeFileSync(path.join(q, "role-recording.json"), JSON.stringify([{ role: "security", mode: "manual", at: "x" }]));
+  return makeEnv(t, { queryDir: q });
+}
+
+test("a normal session is the builder: told so, told how to spawn the other roles by name", (t) => {
+  const e = rolesEnv(t);
+  fs.mkdirSync(path.join(e.proj, ".vibe", "plugins", "tonk-recorder", "ai.mistral.vibe"), { recursive: true });
   const ctx = JSON.parse(runHook(e.env, "session-start", payload("session_start", e.proj)).stdout).hook_specific_output.additional_context;
-  assert.match(ctx, /## You have no role yet/);
-  assert.match(ctx, /tonk-recorder role <name>/);
+  assert.match(ctx, /playing the role `builder`/);
+  assert.match(ctx, /## Your role: builder/);
+  assert.match(ctx, /Spawn it BY ITS NAME.*`tonk-recorder:reviewer`, `tonk-recorder:security`/);
+  assert.match(ctx, /Not recorded automatically.*`security`/);
+  // the session's role is written into the space
+  const sr = evalDocs(e.env).find((d) => d.includes("session-role!:"));
+  assert.match(sr, /session: "s1"\n  role: "builder"/);
+  // every role is installed as a Vibe subagent in the project's plugin
+  const dir = path.join(e.proj, ".vibe", "plugins", "tonk-recorder", "ai.mistral.vibe", "agents");
+  assert.deepEqual(fs.readdirSync(dir).sort(), ["builder.toml", "reviewer.toml", "security.toml"]);
+  const sec = fs.readFileSync(path.join(dir, "security.toml"), "utf8");
+  assert.match(sec, /^schema_version = 1\nagent_type = "subagent"/);
+  assert.match(sec, /^display_name = "Security"$/m);
+  assert.doesNotMatch(sec, /^(schemaVersion|agentType|displayName)\s*=/m);
+  assert.match(sec, /You prove before you speak\./);
+  assert.match(sec, /NOT recorded automatically/);
+  assert.match(sec, /run add --tool/);
+  assert.match(fs.readFileSync(path.join(dir, "builder.toml"), "utf8"), /recorded into the space automatically/);
 });
 
+test("a subagent spawned as tonk-recorder:security is NOT recorded by the hooks; one spawned as a builder is", (t) => {
+  const e = rolesEnv(t);
+  runHook(e.env, "session-start", payload("session_start", e.proj));
+  const turn = (session, agent, n) => {
+    fs.appendFileSync(path.join(e.proj, `${session}.txt`), `line ${n}\n`);
+    return runHook(e.env, "post-agent", JSON.stringify({ hook_event_name: "post_agent", session_id: session, parent_session_id: "s1", cwd: e.proj, agent_name: agent, turn_id: `${session}-t${n}`, response_text: "done" }));
+  };
+  assert.equal(turn("sub-sec", "tonk-recorder:security", 1).status, 0);
+  assert.equal(turn("sub-sec", "tonk-recorder:security", 2).status, 0);
+  let docs = evalDocs(e.env);
+  assert.equal(docs.filter((d) => d.includes("change!:")).length, 0, "security turns: nothing recorded automatically");
+  assert.match(docs.find((d) => d.includes("session-role!:") && d.includes("sub-sec")), /role: "security"/, "but the space knows that session is security");
+
+  assert.equal(turn("sub-rev", "tonk-recorder:reviewer", 1).status, 0);
+  assert.equal(turn("sub-plain", "default", 1).status, 0);
+  docs = evalDocs(e.env);
+  const recorded = docs.filter((d) => d.includes("change!:")).map((d) => d.match(/session: "([^"]+)"/)[1]).sort();
+  assert.deepEqual(recorded, ["sub-plain", "sub-rev"], "auto-recorded roles still record");
+  assert.match(docs.find((d) => d.includes("session-role!:") && d.includes("sub-plain")), /role: "builder"/, "no role name → builder");
+  // the security subagent's files are not swept into a builder's diff either
+  const plain = docs.find((d) => d.includes("change!:") && d.includes('session: "sub-plain"'));
+  assert.ok(plain.includes("sub-plain.txt"));
+  assert.ok(!plain.includes("sub-sec.txt"), "a by-hand session's files stay out of other sessions' records");
+});
+
+test("the parent's next recorded turn leaves out what its security subagent changed", (t) => {
+  const e = rolesEnv(t);
+  runHook(e.env, "session-start", payload("session_start", e.proj));
+  runHook(e.env, "pre-agent", payload("pre_agent", e.proj, { prompt: "build and check", turn_id: "t1" }));
+  fs.writeFileSync(path.join(e.proj, "feature.ts"), "export const f = 1;\n");
+  fs.writeFileSync(path.join(e.proj, "config.ts"), "export const key = 'moved-to-env';\n");
+  runHook(e.env, "post-agent", JSON.stringify({ hook_event_name: "post_agent", session_id: "sec", parent_session_id: "s1", cwd: e.proj, agent_name: "tonk-recorder:security", turn_id: "x1", response_text: "done" }));
+  // (the snapshot is the whole folder, so the security turn "touched" both files; the parent then edits one more)
+  fs.writeFileSync(path.join(e.proj, "later.ts"), "export const l = 2;\n");
+  const r = runHook(e.env, "post-agent", payload("post_agent", e.proj, { agent_name: "default", turn_id: "t1", response_text: "done" }));
+  assert.equal(r.stderr, "");
+  const change = evalDocs(e.env).find((d) => d.includes("change!:"));
+  assert.ok(change.includes("later.ts"), "the parent's own later work is recorded");
+  assert.ok(!change.includes("config.ts") && !change.includes("moved-to-env"), "what the security session touched is not");
+});
+
+test("snapshots never include .vigil/ (a security tool's test passwords) or the recorder's own plugin", (t) => {
+  const e = makeEnv(t);
+  runHook(e.env, "session-start", payload("session_start", e.proj));
+  runHook(e.env, "pre-agent", payload("pre_agent", e.proj, { prompt: "set up the check", turn_id: "t1" }));
+  fs.mkdirSync(path.join(e.proj, ".vigil"));
+  fs.writeFileSync(path.join(e.proj, ".vigil", "target.json"), '{"users":[{"name":"alice","password":"alice123"}]}');
+  fs.mkdirSync(path.join(e.proj, ".vibe", "plugins", "tonk-recorder"), { recursive: true });
+  fs.writeFileSync(path.join(e.proj, ".vibe", "plugins", "tonk-recorder", "tool.mjs"), "// logic");
+  fs.writeFileSync(path.join(e.proj, "route.ts"), "export const ok = 1;\n");
+  const r = runHook(e.env, "post-agent", payload("post_agent", e.proj, { turn_id: "t1", response_text: "done" }));
+  assert.equal(r.stderr, "");
+  const change = evalDocs(e.env).find((d) => d.includes("change!:"));
+  assert.ok(change.includes("route.ts"), "ordinary files recorded");
+  assert.ok(!change.includes("alice123") && !change.includes(".vigil"), "nothing from .vigil/");
+  assert.ok(!change.includes("tonk-recorder/tool.mjs"), "nothing from the recorder's own plugin");
+});
 test("a brand-new project (git init, no commits yet) still records its first turn", (t) => {
   const e = makeEnv(t);
   const fresh = path.join(e.root, "fresh");

@@ -6,6 +6,7 @@
 
 import { queryJson } from "./tonk.mjs";
 import { wrapperCommand } from "./identity.mjs";
+import { roleHarnessText } from "./roles.mjs";
 
 const latestBy = (rows, key) => {
   const m = new Map();
@@ -33,7 +34,7 @@ const one = (s, n = 200) => {
 };
 
 /** The note for a project that is connected to a space. */
-export function buildTeamContext({ space, agentName, role, harness, env, wrapper = wrapperCommand(env) }) {
+export function buildTeamContext({ space, agentName, role, harness, env, recording = "auto", roles = null, wrapper = wrapperCommand(env) }) {
   const team = readTeam(space, env);
   const roleNames = [...team.roles.keys()].sort();
   const mine = role ? team.roles.get(role) : null;
@@ -63,6 +64,24 @@ export function buildTeamContext({ space, agentName, role, harness, env, wrapper
     L.push(String(mine.instructions || "").trim());
     L.push("");
     L.push(`Follow these. Re-read them any time: \`tonk query role --where name=${role}\``);
+    const harnessText = roleHarnessText({ role, wrapper, env });
+    if (harnessText) {
+      L.push("");
+      L.push(harnessText);
+    }
+    if (recording === "manual") {
+      L.push("");
+      L.push(`Your turns are NOT recorded automatically. After each piece of work add your own account, a few plain steps with no secret values: \`${wrapper} run add --tool <tool> --about "<task or file>" --verdict <WORD> --step "scout: …" --step "detective: …" --step "mechanic: …" --step "gatekeeper: …"\``);
+    }
+    const others = roleNames.filter((n) => n !== role);
+    if (others.length) {
+      L.push("");
+      L.push(`## Handing work to another role in this session`);
+      L.push("");
+      L.push(`Each role is installed as a subagent you can spawn. Spawn it BY ITS NAME so it runs with that role's instructions and rules: ${others.map((n) => `\`tonk-recorder:${n}\``).join(", ")}. A subagent spawned without one of these names counts as \`${role}\`, and its changes are recorded as yours.`);
+      const byHand = others.filter((n) => roles && roles[n] && roles[n].recording === "manual");
+      if (byHand.length) L.push(`Not recorded automatically (they add their own account): ${byHand.map((n) => `\`${n}\``).join(", ")}.`);
+    }
   } else if (roleNames.length) {
     L.push(`## You have no role yet`);
     L.push("");

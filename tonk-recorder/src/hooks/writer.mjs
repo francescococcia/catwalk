@@ -109,3 +109,12 @@ export function buildAgentDoc(rec) {
 export async function writeAgent(space, rec, env) {
   return writeDoc(space, buildAgentDoc(rec), env, "agent");
 }
+
+/** Which role a session runs (packs/roles.notation). */
+export function buildSessionRoleDoc(rec) {
+  return ["session-role!:", `  session: ${y(rec.session)}`, `  role: ${y(rec.role)}`, `  agent: ${y(rec.agent)}`, `  at: ${y(rec.at)}`, ""].join("\n");
+}
+
+export async function writeSessionRole(space, rec, env) {
+  return writeDoc(space, buildSessionRoleDoc(rec), env, "session-role");
+}

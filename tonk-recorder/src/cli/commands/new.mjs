@@ -10,7 +10,7 @@ import fs from "node:fs";
 import { tonkOk } from "../tonk.mjs";
 import { installPlugin } from "../install.mjs";
 import { publishLogic } from "../../publish/publish.mjs";
-import { parseArgs, opt, rememberThisWrapper, resolveStructurePack, resolveRolesPack, rememberConnection, ensureGitRepo, resolveInstructions, ensureDist, home, PKG_VERSION } from "./shared.mjs";
+import { parseArgs, opt, rememberThisWrapper, resolveStructurePack, resolveRolesPack, rememberConnection, ensureGitRepo, installRoleAgents, resolveInstructions, ensureDist, home, PKG_VERSION } from "./shared.mjs";
 
 export async function cmdNew(argv, { env = process.env, cwd = process.cwd() } = {}) {
   const args = parseArgs(argv);
@@ -65,7 +65,9 @@ export async function cmdNew(argv, { env = process.env, cwd = process.cwd() } = 
   // 4b. who this agent is here, and let every worktree of this repo find the space
   const me = rememberConnection({ cwd, env, space: name, agentName: agentNameArg, role, harness });
 
+  const agents = installRoleAgents({ cwd, env, space: name });
   console.log(`space '${name}' created and bound to ${cwd}`);
+  if (agents.length) console.log(`roles installed as subagents: ${agents.map((r) => `tonk-recorder:${r}`).join(", ")} (a normal session is the builder)`);
   console.log(`you are agent '${me.agent}' with role '${role}'; recording starts on the next turn`);
   console.log(`recorder logic v${pub.version} published (${pub.blobRef}, sha256 ${pub.sha256.slice(0, 12)}…) and installed into harness '${harness}'`);
   console.log("");

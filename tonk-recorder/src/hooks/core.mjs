@@ -17,12 +17,14 @@ import {
   dataRoot, paths, readTree, writeTree, loadSessionState, saveSessionState,
   stashPrompt, getPrompt, clearPrompts,
 } from "./state.mjs";
-import { writeChange, writeSessionStart, writeSessionEnd, writeAgent } from "./writer.mjs";
+import { writeChange, writeSessionStart, writeSessionEnd, writeAgent, writeSessionRole } from "./writer.mjs";
 import { shouldCheckpoint } from "../writer/tool.mjs"; // R2 (landed)
 import { buildSessionStartContext, updateNotice } from "./context.mjs";
 import { buildTeamContext, buildUnconnectedContext } from "./team.mjs";
 import { readIdentity, writeIdentity, defaultAgentName } from "./identity.mjs";
 import { drain, sleepMs } from "./queue.mjs";
+import { readRoles, resolveSessionRole, writeRoleAgents, rememberByHandFiles, withoutByHandFiles } from "./roles.mjs";
+import { workFolder } from "./identity.mjs";
 import { pull, push } from "./tonk.mjs";
 import { formatOutput } from "./adapters.mjs";
 
@@ -103,14 +105,31 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
   // (master, agent/<name> worktrees, …).
   const branch = currentBranch(payload.cwd);
 
-  // Who this agent is: the identity `new` / `join` / `role` stored for this
-  // working folder, else a derived name nobody had to choose.
+  // Who this agent is: the name `new` / `join` stored for this working
+  // folder, else a derived name nobody had to choose.
   const identity = readIdentity(payload.cwd, env);
   const mine = identity && identity.space === space ? identity : null;
   const agentName =
-    mine?.agent || env.TONK_AGENT_NAME || sess.agentName || payload.agentName || defaultAgentName(payload.cwd, harness);
+    mine?.agent || env.TONK_AGENT_NAME || sess.agentName || defaultAgentName(payload.cwd, harness);
   sess.agentName = agentName;
-  const role = mine?.role || env.TONK_AGENT_ROLE || null;
+
+  // The ROLE belongs to the session and is injected by the harness (roles.mjs):
+  // Vibe names the session's agent on the hook call — `default` → builder, a
+  // subagent spawned as `tonk-recorder:<role>` → that role. The role's
+  // settings are read from the tonk. Cached per session; re-read at session
+  // start and whenever the harness names a different agent.
+  const agentKey = payload.agentName || "";
+  if (payload.event === "session-start" || !sess.roles || (agentKey && sess.agentKey !== agentKey)) {
+    sess.roles = readRoles(space, env);
+    if (agentKey) sess.agentKey = agentKey;
+  }
+  const resolved = resolveSessionRole({ payload, sess, env, roles: sess.roles });
+  const role = resolved.role;
+  const recording = resolved.recording; // "manual" → the hooks record no turns for this session
+  if (role && sess.role !== role) {
+    sess.role = role;
+    sess.roleWritten = false;
+  }
   const interval = parseInt(env.TONK_CHECKPOINT_INTERVAL || `${CHECKPOINT_INTERVAL_DEFAULT}`, 10);
   // inside a hook: if the writer is busy for 5 s, skip — the next checkpoint does it
   const sync = () => syncNow(space, env, { lockWaitMs: 5000 });
@@ -120,17 +139,23 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
       case "session-start": {
         const tree = snapshotTree(payload.cwd, paths.index(root, sessionId));
         writeTree(root, sessionId, tree);
+        sess.lastSnapshotAt = Date.now();
         sess.turns = sess.turns || 0;
         saveSessionState(root, sessionId, sess);
         // session record (started, changes: 0) — one local eval
         await writeSessionStart(space, {
           session: sessionId, agent: agentName, harness, project: projectName(payload.cwd), started: now(),
         }, env, root);
-        // register this agent under its role, once per folder + role
-        if (role && !(mine && mine.registeredRole === role)) {
+        // who is acting as what, in the space: once per session + role
+        if (role && !sess.roleWritten) {
           await writeAgent(space, { name: agentName, role, harness, at: now() }, env);
-          writeIdentity(payload.cwd, { space, agent: agentName, role, harness, registeredRole: role }, env);
+          await writeSessionRole(space, { session: sessionId, role, agent: agentName, at: now() }, env);
+          sess.roleWritten = true;
         }
+        // keep the Vibe subagent files in step with the roles on the space, so
+        // the main agent can spawn a subagent BY ROLE (picked up on /reload)
+        try { writeRoleAgents(workFolder(payload.cwd), { space, roles: sess.roles, env }); } catch { /* best effort */ }
+        saveSessionState(root, sessionId, sess);
         // checkpoint sync (network allowed here) + update check
         sync();
         sess.lastCheckpointAt = now();
@@ -140,7 +165,7 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
         // The agent is told, in order: which space it is in and what role it
         // plays, that role's instructions, who else is here and what waits
         // for it, how to coordinate — then decisions and recent changes.
-        const teamContext = buildTeamContext({ space, agentName, role, harness, env });
+        const teamContext = buildTeamContext({ space, agentName, role, harness, env, recording, roles: sess.roles });
         const additionalContext = teamContext + "\n" + buildSessionStartContext({
           space,
           agentName,
@@ -170,8 +195,19 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
           saveSessionState(root, sessionId, sess);
           return empty;
         }
-        const d = diffTrees(payload.cwd, prev, next);
-        if (!d.empty) {
+        // a subagent's session has no session-start: say who it is on its first turn
+        if (role && !sess.roleWritten) {
+          await writeSessionRole(space, { session: sessionId, role, agent: agentName, at: now() }, env);
+          sess.roleWritten = true;
+        }
+        let d = diffTrees(payload.cwd, prev, next);
+        // a role recorded BY HAND (security): the hooks put nothing of this
+        // turn into the space — the agent adds its own account, with discretion.
+        // Its files are remembered (paths only) so they are also left out of
+        // the next recorded turn of a session sharing this folder (its parent).
+        if (recording === "manual") rememberByHandFiles(root, d.files || []);
+        else d = withoutByHandFiles(root, d, sess.lastSnapshotAt || 0);
+        if (!d.empty && recording !== "manual") {
           const rec = {
             session: sessionId,
             turn: payload.turnId || `turn-${sess.turns}`,
@@ -197,6 +233,7 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
           if (w.written) sess.changes = (sess.changes || 0) + 1;
         }
         writeTree(root, sessionId, next); // snapshot becomes prev
+        sess.lastSnapshotAt = Date.now();
         // checkpoint every N turns (default 10) — the ONLY post-agent network path
         if (shouldCheckpoint(sess.turns, interval)) {
           sync();

@@ -47,10 +47,14 @@ function git(dir, args, extraEnv = {}) {
  * snapshot it too — caller's responsibility, same as SPEC.
  * Returns the tree hash (40-hex).
  */
+export const SNAPSHOT_EXCLUDES = [".vigil", ".tonk", ".vibe/plugins/tonk-recorder"];
+
 export function snapshotTree(dir, indexPath) {
   fs.mkdirSync(path.dirname(path.resolve(indexPath)), { recursive: true });
   const env = { GIT_INDEX_FILE: path.resolve(indexPath) };
-  git(dir, ["add", "-A"], env);
+  // Never snapshot: .vigil/ (a security tool's test passwords), .tonk/ and
+  // the recorder's own plugin (its installed logic is not project work).
+  git(dir, ["add", "-A", "--", ".", ...SNAPSHOT_EXCLUDES.map((p) => `:(exclude,top)${p}`)], env);
   return git(dir, ["write-tree"], env).trim();
 }
 
