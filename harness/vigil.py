@@ -239,9 +239,10 @@ def main(argv=None) -> int:
     if a.deps:  # after explain: dependency findings come from npm, not code, so no model call
         import deps
         findings += deps.check_deps(root)
-    print(report(stack, findings))
-    if a.json:
+    if a.json:  # write first: a console that can't print a character must never lose the results
         Path(a.json).write_text(json.dumps({"stack": sorted(stack), "result": result(findings), "findings": findings}, indent=2), encoding="utf-8")
+    sys.stdout.reconfigure(errors="replace")  # Windows cp1252 consoles: show '?' instead of crashing on code text
+    print(report(stack, findings))
     return verdict(findings)
 
 

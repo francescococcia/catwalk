@@ -47,7 +47,7 @@
       "*.java",
       "*.php"
     ],
-    "trigger": "(select|insert|update|delete)\\s[^;\\n]*(\\$\\{|\"\\s*\\+|'\\s*\\+|%s|\\.format\\(|f\")",
+    "trigger": "(\\bselect\\b[^;\\n]*\\bfrom\\b|\\binsert\\s+into\\b|\\bupdate\\s+[\\w.\"`]+\\s+set\\b|\\bdelete\\s+from\\b)[^;\\n]*(\\$\\{|\"\\s*\\+|'\\s*\\+|%s|\\.format\\(|f\")",
     "ask": "Can user-controlled input reach this SQL string without parameterization?",
     "fix": "Use parameterized queries / the ORM's query builder instead of building SQL from strings."
   },
