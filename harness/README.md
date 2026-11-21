@@ -28,14 +28,18 @@ $env:VIGIL_MODEL = "mistral-large-4"
 python vigil.py scan sample --json report.json
 ```
 
-### Fully local (Ollama / llama.cpp / LM Studio, any OpenAI-compatible server)
+### Fully local with Ollama (tested)
 ```powershell
-$env:VIGIL_BASE_URL = "http://localhost:11434/v1"   # Ollama; LM Studio: http://localhost:1234/v1
-$env:VIGIL_MODEL = "<model name your server lists>"
-Remove-Item Env:MISTRAL_API_KEY -ErrorAction SilentlyContinue
+winget install --id Ollama.Ollama -e        # one time
+ollama pull ministral-3:3b                  # one time, 3.0 GB
+$env:VIGIL_BASE_URL = "http://localhost:11434/v1"
+$env:VIGIL_MODEL = "ministral-3:3b"
 python vigil.py scan sample
 ```
-On a 4 GB GPU only a compressed **Ministral 3 3B** fits. The 8B needs about 12 GB in FP8.
+Measured on a laptop with a 4 GB NVIDIA T500 and 16 GB RAM: the model ran split about half CPU and half GPU, and explaining 7 findings took about 3 minutes (~25 s each). Use `--no-llm` for an instant check. A bigger GPU, or `ministral-3:8b` on 12 GB+, is faster and smarter.
+LM Studio or llama.cpp work too: point `VIGIL_BASE_URL` at their `/v1` address.
+
+Note: the 3B sometimes gets details of the fix wrong (e.g. naming the wrong variable). Treat its text as an explanation, not as the verdict. The verdict comes from the rules.
 
 ### Use it as a gate
 Exit code `1` = high or critical findings. Wire it into a pre-commit hook or a CI job, e.g. `python harness/vigil.py scan . --no-llm`.
