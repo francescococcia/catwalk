@@ -4,3 +4,5 @@ engine/runs/
 .venv/
 vigil-detective/
 REPORT.md
+.vercel
+.env*

@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CatWalk: agent-written code, recorded, proven and explained</title>
+<meta name="description" content="CatWalk makes agent-written pull requests safe to merge: the Tonk recorder remembers what every agent did and why, Vigil proves the change is safe by attacking a local copy of your app, and DevTok explains it to each person on the team in 60 seconds of video. Built at Le Chonk in London, the Mistral Vibe hackathon, 21 November 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Condiment&display=swap" rel="stylesheet">
+<style>
+:root{ --bg:#010828; --cream:#EFF4FF; --neon:#6FFF00; --dim:rgba(239,244,255,.7); --line:rgba(255,255,255,.1); --red:#ff6b70; --amber:#ffc24a }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:24px}
+body{margin:0; background:var(--bg); color:var(--cream); font:400 15px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--neon); outline-offset:3px; border-radius:8px}
+h1,h2,h3,.anton{font-family:Anton,Impact,sans-serif; font-weight:400; text-transform:uppercase; margin:0; letter-spacing:.01em}
+h1{font-size:clamp(40px,7vw,90px); line-height:1.02}
+h2{font-size:clamp(32px,4.6vw,60px); line-height:1.05}
+h3{font-size:20px; line-height:1.2}
+p{margin:0 0 1em}
+.script{font-family:Condiment,cursive; text-transform:none; color:var(--neon); mix-blend-mode:exclusion; opacity:.9; display:inline-block; transform:rotate(-1deg); letter-spacing:0}
+.upper{text-transform:uppercase}
+.dim{color:var(--dim)}
+.container{max-width:1831px; margin:0 auto; padding:0 clamp(20px,4vw,72px)}
+
+/* liquid glass, from the brief */
+.liquid-glass{background:rgba(255,255,255,.01); background-blend-mode:luminosity; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); border:none; box-shadow:inset 0 1px 1px rgba(255,255,255,.1); position:relative; overflow:hidden}
+.liquid-glass::before{content:""; position:absolute; inset:0; border-radius:inherit; padding:1.4px;
+  background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.15) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.15) 80%,rgba(255,255,255,.45) 100%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none}
+.hov{transition:background .3s} .hov:hover{background:rgba(255,255,255,.1)}
+
+.bgvid{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2}
+.shade::after{content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg,rgba(1,8,40,.35),rgba(1,8,40,.15) 40%,rgba(1,8,40,.55))}
+
+/* 1 hero */
+.hero{position:relative; min-height:100vh; border-radius:0 0 32px 32px; overflow:hidden; isolation:isolate; padding-bottom:64px}
+.head{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; padding-top:28px; gap:20px}
+.h1wrap{position:relative}
+.logo{font:400 16px Anton,sans-serif; text-transform:uppercase; text-decoration:none; letter-spacing:.04em}
+.nav{border-radius:28px; padding:24px 52px; display:flex; gap:38px}
+.nav a{font:400 13px Anton,sans-serif; text-transform:uppercase; text-decoration:none; letter-spacing:.06em; transition:color .3s; position:relative}
+.nav a:hover{color:var(--neon)}
+.social{display:flex; flex-direction:column; gap:12px}
+.social a{width:56px; height:56px; border-radius:1rem; display:grid; place-items:center}
+.social svg,.dock svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.head .social{position:absolute; right:clamp(20px,4vw,72px); top:28px}
+.hero-body{position:relative; max-width:780px; margin:clamp(70px,16vh,170px) 0 0 8rem}
+.hero-body .script{position:absolute; right:-4%; bottom:-.5em; font-size:clamp(24px,3.6vw,48px)}
+.hero-body p{max-width:520px; margin-top:34px}
+.cta{display:flex; flex-wrap:wrap; gap:12px; margin-top:26px}
+.cta a{border-radius:28px; padding:18px 30px; font:400 13px Anton,sans-serif; text-transform:uppercase; letter-spacing:.06em; text-decoration:none}
+.cta a.go{background:var(--neon); color:var(--bg)}
+.rise{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+.rise.d1{animation-delay:.15s} .rise.d2{animation-delay:.3s} .rise.d3{animation-delay:.45s}
+@keyframes rise{from{opacity:0; transform:translateY(30px)}}
+.only-m{display:none}
+
+/* 2 about */
+.about{position:relative; min-height:100vh; isolation:isolate; padding:clamp(64px,8vw,96px) 0; display:flex}
+.about .container{display:flex; flex-direction:column; justify-content:space-between; gap:60px; width:100%}
+.about-top{display:flex; justify-content:space-between; gap:40px}
+.about-top h2{position:relative}
+.about-top .script{position:absolute; right:-.6em; bottom:-.55em; font-size:clamp(36px,5vw,68px)}
+.about-top p{max-width:300px}
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; list-style:none; padding:0; margin:0}
+.stats li{border-radius:24px; padding:22px}
+.stats b{display:block; font:400 clamp(44px,6vw,90px)/1 Anton,sans-serif}
+.stats span{font-size:12px; text-transform:uppercase; color:var(--dim)}
+
+/* 3 collection */
+section.block{padding:clamp(72px,9vw,130px) 0}
+.row{display:flex; justify-content:space-between; align-items:flex-end; gap:30px; flex-wrap:wrap; margin-bottom:56px}
+.indent{display:block; margin-left:clamp(3rem,7vw,8rem)}
+h2 .script{font-size:1.15em; line-height:.8; margin-right:.12em}
+.seeall{text-decoration:none; display:inline-block}
+.seeall div{display:flex; align-items:center; gap:10px}
+.seeall .big{font:400 clamp(32px,4.6vw,60px)/1 Anton,sans-serif; text-transform:uppercase}
+.seeall .sm{font:400 clamp(20px,2.7vw,36px)/1 Anton,sans-serif; text-transform:uppercase}
+.seeall i{display:block; height:clamp(6px,.8vw,10px); background:var(--neon); margin-top:8px; transform-origin:0 50%; transition:transform .35s}
+.seeall:hover i{transform:scaleX(.6)}
+.grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+.card{border-radius:32px; padding:18px; text-decoration:none; display:block}
+.card .sq{position:relative; padding-bottom:100%; border-radius:24px; overflow:hidden}
+.card video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .6s}
+.card:hover video{transform:scale(1.06)}
+.card .bar{position:absolute; left:12px; right:12px; bottom:12px; border-radius:20px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; gap:10px; background:rgba(1,8,40,.35)}
+.card .bar small{display:block; font-size:11px; color:var(--dim); text-transform:uppercase}
+.card .bar b{font:400 22px Anton,sans-serif; text-transform:uppercase; letter-spacing:.03em}
+.orb{flex:none; width:48px; height:48px; border-radius:50%; display:grid; place-items:center; background:linear-gradient(135deg,#b724ff,#7c3aed); box-shadow:0 10px 15px -3px rgba(168,85,247,.5); transition:transform .3s}
+.card:hover .orb{transform:scale(1.1)}
+.orb svg{width:18px; height:18px; fill:none; stroke:#fff; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round}
+.card p{margin:16px 6px 4px; color:var(--dim); font-size:13.5px}
+
+/* detail sections */
+.cols{display:grid; grid-template-columns:1fr 1fr; gap:clamp(30px,5vw,90px); align-items:start}
+.sticky{position:sticky; top:40px}
+.kick{font-size:12px; text-transform:uppercase; color:var(--neon); letter-spacing:.1em; display:block; margin-bottom:18px}
+.lede{max-width:54ch; color:var(--dim); margin-top:26px}
+.points{list-style:none; padding:0; margin:34px 0 0}
+.points li{padding:20px 0; border-top:1px solid var(--line)}
+.points p{color:var(--dim); margin:6px 0 0; font-size:14px}
+.pane{border-radius:32px; padding:18px}
+.pane-bar{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:4px 8px 14px; font-size:11px; text-transform:uppercase; color:var(--dim)}
+.pane-bar button{font:400 12px Anton,sans-serif; letter-spacing:.06em; text-transform:uppercase; color:var(--bg); background:var(--neon); border:0; border-radius:14px; padding:8px 16px; cursor:pointer}
+.chip{display:inline-block; font-size:11px; letter-spacing:.06em; padding:2px 9px; border-radius:999px; border:1px solid currentColor; white-space:nowrap}
+.chip.red{color:var(--red)} .chip.green{color:var(--neon)} .chip.amber{color:var(--amber)}
+.reveal{opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1; transform:none}
+
+.cast{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:8px}
+.actor{border-radius:18px; padding:12px 10px; text-align:center; border:1px solid var(--line); opacity:.75; transition:opacity .3s, border-color .3s, background .3s, transform .3s}
+.actor b{display:block; font:400 15px Anton,sans-serif; text-transform:uppercase; letter-spacing:.04em}
+.actor small{font-size:10.5px; color:var(--dim); text-transform:uppercase}
+.actor.on{opacity:1; transform:translateY(-3px); border-color:var(--cream)}
+.actor.on.red{border-color:var(--red); background:rgba(255,107,112,.14); animation:pulse .5s ease-in-out 4 alternate}
+.actor.on.green{border-color:var(--neon); background:rgba(111,255,0,.1)}
+@keyframes pulse{to{transform:translateY(-3px) scale(1.05)}}
+.log{list-style:none; margin:0; padding:0 8px; height:400px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end}
+.log li,.stream li{padding:12px 0; border-top:1px solid var(--line); font-size:13.5px; animation:rowin .45s cubic-bezier(.2,.7,.2,1)}
+.log .who,.stream .who{font:400 14px Anton,sans-serif; text-transform:uppercase; letter-spacing:.05em; margin-right:10px}
+.log .chip,.stream .chip{margin-right:8px}
+@keyframes rowin{from{opacity:0; transform:translateY(14px)}}
+.stream{list-style:none; margin:0; padding:0 8px; min-height:340px}
+
+.steps{list-style:none; padding:0; margin:34px 0 0; counter-reset:s}
+.steps li{counter-increment:s; display:grid; grid-template-columns:50px 1fr auto; gap:4px 12px; align-items:baseline; padding:22px 0; border-top:1px solid var(--line)}
+.steps li::before{content:"0" counter(s); font-size:12px; color:var(--neon)}
+.steps h3{font-size:26px}
+.steps p{grid-column:2/-1; color:var(--dim); margin:0; font-size:14px}
+pre{margin:0; padding:10px 8px 6px; overflow-x:auto; font:400 12.5px/1.8 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--cream)}
+pre .c{color:rgba(239,244,255,.65)} pre .r{color:var(--red)} pre .g{color:var(--neon)}
+.chain{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin:22px 0 12px; font-size:12px; text-transform:uppercase; color:var(--dim)}
+.tags{display:flex; flex-wrap:wrap; gap:6px; font-size:11px; color:var(--dim)}
+.tags span{border:1px solid var(--line); border-radius:8px; padding:3px 8px}
+.three{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:70px}
+.three .pane{padding:26px}
+.three p{color:var(--dim); margin:10px 0 0; font-size:14px}
+
+.seg{display:inline-flex; padding:5px; border-radius:22px; margin:28px 0 10px}
+.seg button{border:0; background:transparent; color:var(--cream); font:400 13px Anton,sans-serif; text-transform:uppercase; letter-spacing:.06em; padding:11px 20px; border-radius:18px; cursor:pointer; transition:background .25s, color .25s; position:relative}
+.seg button[aria-pressed="true"]{background:var(--neon); color:var(--bg)}
+.phone{width:min(310px,100%); margin:0 auto; aspect-ratio:9/17.5; border-radius:42px; padding:22px 18px; display:flex; flex-direction:column; transform:rotate(2deg); background:rgba(1,8,40,.5)}
+.bars{display:flex; gap:4px}
+.bars i{flex:1; height:3px; border-radius:2px; background:rgba(255,255,255,.2); overflow:hidden}
+.bars i b{display:block; height:100%; width:0; background:var(--neon)}
+.bars i.done b{width:100%}
+.bars i.go b{animation:fill 2.8s linear forwards}
+@keyframes fill{to{width:100%}}
+#slide{flex:1; display:flex}
+.slide{flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:12px; padding-bottom:8px; animation:swipe .5s cubic-bezier(.2,.7,.2,1)}
+@keyframes swipe{from{opacity:0; transform:translateY(46px)}}
+.slide .tag{font-size:10.5px; letter-spacing:.1em; color:var(--neon)}
+.slide h4{font:400 27px/1.08 Anton,sans-serif; text-transform:uppercase; margin:0}
+.slide .sub{font-size:11.5px; color:var(--dim); text-transform:uppercase}
+.slide ul{list-style:none; padding:0; margin:0; font-size:13px}
+.slide li{padding:8px 12px; margin-top:6px; border:1px solid var(--line); border-radius:12px}
+.slide li.ok{border-color:var(--neon); color:var(--neon)}
+.eq{display:flex; gap:3px; align-items:flex-end; height:28px}
+.eq i{width:4px; background:var(--neon); border-radius:2px; animation:eq .7s ease-in-out infinite alternate}
+.eq i:nth-child(2){animation-delay:.15s} .eq i:nth-child(3){animation-delay:.3s} .eq i:nth-child(4){animation-delay:.45s} .eq i:nth-child(5){animation-delay:.1s}
+@keyframes eq{from{height:5px} to{height:28px}}
+
+.rows div{display:grid; grid-template-columns:minmax(200px,340px) 1fr; gap:24px; padding:26px 0; border-top:1px solid var(--line); transition:padding .3s, background .3s}
+.rows div:last-child{border-bottom:1px solid var(--line)}
+.rows div:hover{padding-left:16px; background:rgba(255,255,255,.04)}
+.rows h3{font-size:28px}
+.rows p{margin:0; color:var(--dim); max-width:70ch}
+.tabs{display:flex; gap:6px; padding:0 4px 10px}
+.tabs button{border:1px solid var(--line); background:transparent; color:var(--dim); font:400 12px Anton,sans-serif; letter-spacing:.06em; text-transform:uppercase; padding:8px 16px; border-radius:14px; cursor:pointer; position:relative}
+.tabs button[aria-selected="true"]{color:var(--cream); border-color:var(--cream)}
+.tabs .copy{margin-left:auto; background:var(--neon); color:var(--bg); border-color:var(--neon)}
+.flags{list-style:none; padding:0; margin:26px 0 0; font-size:13.5px; color:var(--dim)}
+.flags li{padding:10px 0; border-top:1px solid var(--line)}
+.flags code{color:var(--neon)}
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{cursor:pointer; list-style:none; padding:22px 0; font:400 22px Anton,sans-serif; text-transform:uppercase; display:flex; justify-content:space-between; gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; color:var(--neon); transition:transform .25s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--dim); max-width:70ch; padding-bottom:22px; margin:0}
+
+/* 4 cta */
+.final{position:relative; isolation:isolate; background:#000}
+.final video{display:block; width:100%; height:auto; min-height:320px; object-fit:cover}
+.final .over{position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-end; padding:0 20% 0 15%}
+.final .txt{position:relative; text-align:right}
+.final h2{font-size:clamp(16px,4.4vw,60px); line-height:1.1}
+.final h2 span{display:block}
+.final h2 span:first-child{margin-bottom:clamp(1rem,2.4vw,3rem)}
+.final .script{position:absolute; left:-.4em; top:-.9em; font-size:clamp(17px,5vw,68px)}
+.dock{position:absolute; left:8%; bottom:14%; border-radius:clamp(.5rem,1.4vw,1.25rem); display:flex; flex-direction:column}
+.dock a{width:clamp(44px,14vw,168px); height:clamp(34px,6vw,76px); display:grid; place-items:center; border-bottom:1px solid var(--line)}
+.dock a:last-child{border-bottom:0}
+footer{padding:36px 0 48px; font-size:12px; text-transform:uppercase; color:var(--dim)}
+footer .container{display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px}
+footer ul{list-style:none; display:flex; flex-wrap:wrap; gap:8px 22px; padding:0; margin:0}
+footer a{text-decoration:none; transition:color .3s} footer a:hover{color:var(--neon)}
+
+@media (max-width:1023px){
+  .nav,.head .social{display:none}
+  .only-m{display:flex; flex-direction:row; justify-content:center; margin-top:40px}
+  .hero-body{margin-left:0}
+  .hero-body .script{right:0}
+  .grid{grid-template-columns:1fr 1fr}
+  .cols,.three{grid-template-columns:1fr}
+  .sticky{position:static}
+  .stats{grid-template-columns:1fr 1fr}
+  .about-top{flex-direction:column}
+  .rows div{grid-template-columns:1fr; gap:6px}
+  .final .over{padding:0 6% 0 30%}
+}
+@media (max-width:640px){
+  .grid{grid-template-columns:1fr}
+  .hero-body .script{position:static; display:block; margin-top:6px}
+  .cast{grid-template-columns:1fr 1fr}
+  .actor small{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none !important; transition:none !important}
+  .reveal{opacity:1; transform:none}
+  .bars i.go b{width:100%}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+</svg>
+
+<main>
+  <!-- 1 HERO -->
+  <section class="hero shade" id="top">
+    <video class="bgvid" autoplay loop muted playsinline src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_045634_e1c98c76-1265-4f5c-882a-4276f2080894.mp4"></video>
+    <div class="container">
+      <header class="head">
+        <a class="logo" href="#top">CatWalk</a>
+        <nav class="nav liquid-glass" aria-label="Sections">
+          <a href="#parts">Overview</a>
+          <a href="#record">Record</a>
+          <a href="#prove">Prove</a>
+          <a href="#explain">Explain</a>
+          <a href="#quickstart">Try it</a>
+        </nav>
+        <div class="social">
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md" aria-label="Vigil security report"><svg><use href="#i-file"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
+        </div>
+      </header>
+
+      <div class="hero-body">
+        <div class="h1wrap">
+          <h1 class="rise">Agents write<br>the code. ( we ) prove it's safe</h1>
+          <span class="script rise d1">Le Chonk in London</span>
+        </div>
+        <p class="upper rise d2" style="margin-top:54px">CatWalk records what every agent did, proves the change is safe by attacking a local copy of your app, and explains it to the whole team in 60 seconds of video.</p>
+        <div class="cta rise d3">
+          <a class="go" href="#prove">Watch a real run</a>
+          <a class="liquid-glass hov" href="#quickstart">Try it</a>
+        </div>
+        <div class="social only-m">
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md" aria-label="Vigil security report"><svg><use href="#i-file"/></svg></a>
+          <a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 ABOUT -->
+  <section class="about shade">
+    <video class="bgvid" loop muted playsinline preload="none" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_151551_992053d1-3d3e-4b8c-abac-45f22158f411.mp4"></video>
+    <div class="container">
+      <div class="about-top">
+        <h2>Hello!<br>I'm CatWalk <span class="script">CatWalk</span></h2>
+        <p class="upper">Nobody reads a 3,000-line pull request. Security tools flag fifty maybe-issues, so people learn to ignore them. I only speak when an attack actually works.</p>
+      </div>
+      <ul class="stats reveal" aria-label="Numbers from one real Vigil run">
+        <li class="liquid-glass"><b data-n="14">14</b><span>files scanned in one real run</span></li>
+        <li class="liquid-glass"><b data-n="1">1</b><span>suspect, proven by attack</span></li>
+        <li class="liquid-glass"><b data-n="141">141</b><span>seconds from start to fixed</span></li>
+        <li class="liquid-glass"><b data-n="0">0</b><span>findings on the re-scan</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 COLLECTION -->
+  <section class="block" id="parts">
+    <div class="container">
+      <div class="row">
+        <h2>Three parts of<span class="indent"><span class="script">One</span> loop</span></h2>
+        <a class="seeall" href="https://github.com/francescococcia/ministral">
+          <div><span class="big">See</span><span class="sm">the<br>repo</span></div><i></i>
+        </a>
+      </div>
+      <div class="grid">
+        <a class="card liquid-glass hov reveal" href="#record">
+          <div class="sq"><video loop muted playsinline preload="none" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_053923_22c0a6a5-313c-474c-85ff-3b50d25e944a.mp4"></video>
+            <div class="bar liquid-glass"><div><small>01 · Tonk recorder</small><b>Record</b></div><span class="orb"><svg><use href="#i-arrow"/></svg></span></div></div>
+          <p>Remembers what every agent did, and why.</p>
+        </a>
+        <a class="card liquid-glass hov reveal" href="#prove">
+          <div class="sq"><video loop muted playsinline preload="none" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_054411_511c1b7a-fb2f-42ef-bf6c-32c0b1a06e79.mp4"></video>
+            <div class="bar liquid-glass"><div><small>02 · Vigil</small><b>Prove</b></div><span class="orb"><svg><use href="#i-arrow"/></svg></span></div></div>
+          <p>Attacks a local copy, fixes it, attacks again.</p>
+        </a>
+        <a class="card liquid-glass hov reveal" href="#explain">
+          <div class="sq"><video loop muted playsinline preload="none" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055427_ac7035b5-9f3b-4289-86fc-941b2432317d.mp4"></video>
+            <div class="bar liquid-glass"><div><small>03 · DevTok</small><b>Explain</b></div><span class="orb"><svg><use href="#i-arrow"/></svg></span></div></div>
+          <p>The pull request as a 60-second feed per role.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECORD -->
+  <section class="block" id="record">
+    <div class="container cols">
+      <div>
+        <span class="kick">01 · Record · Tonk recorder</span>
+        <h2>Remember what<span class="indent"><span class="script">Every</span> agent did</span></h2>
+        <p class="lede">Agents work in a shared Tonk space. Hooks in the harness write down every turn: the prompt, the answer, the files and the full diff. The agent does not have to cooperate.</p>
+        <ul class="points">
+          <li class="reveal"><h3>Hooks, not good manners</h3><p>At the end of every turn a hook writes one change record into the local copy of the space. No network on that path; the space syncs only at checkpoints.</p></li>
+          <li class="reveal"><h3>One space, many agents</h3><p>Roles such as builder and security are installed on the space and coordinate through it. No agent messages another directly. <code>vigil install</code> gives the security role Vigil.</p></li>
+          <li class="reveal"><h3>Decisions are never edited</h3><p>A change of mind is a new decision that replaces the old one. That is what lets you ask what was decided at any point in time.</p></li>
+        </ul>
+      </div>
+      <div class="pane liquid-glass sticky reveal">
+        <div class="pane-bar"><span>Tonk space · records (illustration)</span></div>
+        <ol class="stream" id="feed" aria-live="off"></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROVE -->
+  <section class="block" id="prove">
+    <div class="container">
+      <div class="cols">
+        <div>
+          <span class="kick">02 · Prove · Vigil</span>
+          <h2>It proves it<span class="indent"><span class="script">Before</span> it speaks</span></h2>
+          <p class="lede">Vigil is a security skill for Mistral Vibe. A rule match is only a suspect. Something counts only when an attack works against a local copy of your app.</p>
+          <ol class="steps">
+            <li class="reveal"><h3>Scan</h3><span class="chip amber">SUSPECT</span><p>Deterministic rules, no model. A match is only a suspect.</p></li>
+            <li class="reveal"><h3>Explain</h3><span class="chip amber">SUSPECT</span><p>Ministral 3B runs on your laptop through Ollama and explains the suspect in plain words.</p></li>
+            <li class="reveal"><h3>Attack</h3><span class="chip red">PROVEN</span><p>The Detective, a Mistral Agent on Large 4, picks an attack from an allowlist and runs it against your local app.</p></li>
+            <li class="reveal"><h3>Approve</h3><span class="chip amber">WAITING</span><p>Every fix goes through a gate. Default: auto-apply with re-proof and automatic rollback. Add <code>--ask</code> to require a human click.</p></li>
+            <li class="reveal"><h3>Verify</h3><span class="chip green">BLOCKED</span><p>The same attack runs again. Code decides the verdict from what the app returned, not the model.</p></li>
+          </ol>
+        </div>
+        <div class="sticky">
+          <div class="pane liquid-glass reveal" id="stage">
+            <div class="pane-bar"><span>Real run · 21 Nov 2026, 16:55 · demo-app on loopback</span><button id="replay-btn" type="button">Replay</button></div>
+            <div class="cast" id="cast">
+              <div class="actor"><b>Scout</b><small>rules</small></div>
+              <div class="actor"><b>Detective</b><small>agent + proof</small></div>
+              <div class="actor"><b>Mechanic</b><small>fix</small></div>
+              <div class="actor"><b>Gatekeeper</b><small>human gate</small></div>
+            </div>
+            <ol class="log" id="log" aria-live="off"></ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="cols" style="margin-top:70px">
+        <div class="pane liquid-glass reveal">
+          <div class="pane-bar"><span>REPORT.md · redacted evidence</span></div>
+<pre tabindex="0"><span class="c"># attack: idor_read</span>
+GET /api/orders/ord_b1 (logged in as alice) -> <span class="r">HTTP 200</span>
+{"id": "ord_b1", "user_id": 2, "item": "Le Chonk plush",
+ "total": 29.99, "secret_note": "BOB'***"}
+
+<span class="c"># ...fix applied, same request...</span>
+GET /api/orders/ord_b1 (logged in as alice) -> <span class="g">HTTP 404</span>
+{"error": "order not found"}</pre>
+        </div>
+        <div class="reveal">
+          <h3 style="font-size:32px">Proof, not vibes</h3>
+          <div class="chain" aria-label="Verdict">
+            Scan <span class="chip amber">SUSPECT</span> → Attack <span class="chip red">PROVEN</span> → Re-proof <span class="chip green">BLOCKED</span> → Run <span class="chip green">FIXED</span>
+          </div>
+          <div class="tags"><span>OWASP API1:2023</span><span>OWASP A01:2021</span><span>CWE-639</span><span>NIST 800-53 AC-3</span><span>ISO 27001:2022 A.5.15</span></div>
+          <p class="dim" style="font-size:12px; margin:12px 0 24px">Mappings are guidance, not a certification.</p>
+          <div class="cta" style="margin:0"><a class="liquid-glass hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md">Read the full report</a></div>
+        </div>
+      </div>
+
+      <div class="three">
+        <div class="pane liquid-glass reveal"><span class="kick">Safe by construction / 1</span><h3>Loopback only</h3><p>Attacks go only to the loopback address in the repo's <code>.vigil/target.json</code>. Anything else is refused.</p></div>
+        <div class="pane liquid-glass reveal"><span class="kick">Safe by construction / 2</span><h3>The model never holds the keys</h3><p>Users, records and passwords come only from that file. The agent cannot read <code>.vigil/</code> or <code>.env</code>, and never sees or sends them.</p></div>
+        <div class="pane liquid-glass reveal"><span class="kick">Safe by construction / 3</span><h3>No fix without proof</h3><p>A fix is rolled back automatically if the re-proof still succeeds. A control check confirms the owner can still read their own record, so a broken route cannot look fixed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLAIN -->
+  <section class="block" id="explain">
+    <div class="container cols">
+      <div>
+        <span class="kick">03 · Explain · DevTok</span>
+        <h2>One pull request<span class="indent"><span class="script">Sixty</span> seconds</span></h2>
+        <p class="lede">DevTok turns a large pull request into short vertical videos with voice, subtitles, a cartoon cat narrator and real code references. A short quiz follows every two videos, then a screen to approve or request changes.</p>
+        <div class="seg liquid-glass" id="roles" role="group" aria-label="Pick a role">
+          <button type="button" data-role="engineer" aria-pressed="true">Engineer</button>
+          <button type="button" data-role="lead" aria-pressed="false">Team lead</button>
+          <button type="button" data-role="manager" aria-pressed="false">Manager</button>
+        </div>
+        <p class="dim" style="font-size:12px">Same pull request, told differently. The phone is an illustration of the feed.</p>
+        <ul class="points">
+          <li class="reveal"><h3>Planned by Large 4</h3><p>System map, storyboard, scripts, quiz and approval summary. The first video is always the data-flow map tour.</p></li>
+          <li class="reveal"><h3>Grounded in the diff</h3><p>The model only refers to ids we give it. Code re-checks every file and line number against the real diff.</p></li>
+          <li class="reveal"><h3>Approve what was proven</h3><p>Vigil's findings land in DevTok's threat register and on the approval screen: you approve a pull request you understood, and that was proven safe.</p></li>
+        </ul>
+      </div>
+      <div class="sticky reveal">
+        <div class="phone liquid-glass" aria-live="off">
+          <div class="bars" id="bars"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+          <div id="slide"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MISTRAL -->
+  <section class="block" id="mistral">
+    <div class="container">
+      <div class="row"><h2>Where<span class="indent"><span class="script">Mistral</span> runs</span></h2></div>
+      <div class="rows">
+        <div class="reveal"><h3>Mistral Agents</h3><p>Vigil's Detective is an agent on Large 4 with 4 tools, deny-by-default permissions and an approval rule for fixes. Served with <code>agents serve</code>, traced in Studio, and you can chat with it in Vibe Code Web.</p></div>
+        <div class="reveal"><h3>Large 4 (Le Chonk)</h3><p>Picks the attack and writes the fix in Vigil. Plans DevTok's system map, storyboard and approval summary.</p></div>
+        <div class="reveal"><h3>Ministral 3B</h3><p>Vigil's Scout and narrator, local through Ollama. Private code never leaves the laptop.</p></div>
+        <div class="reveal"><h3>Voxtral</h3><p>Gives each Vigil character its own voice, and narrates DevTok's videos.</p></div>
+        <div class="reveal"><h3>Vibe</h3><p>Vigil runs as the <code>/vigil</code> skill. The Tonk recorder hooks into Vibe sessions.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICKSTART -->
+  <section class="block" id="quickstart">
+    <div class="container cols">
+      <div>
+        <h2>Run it<span class="indent"><span class="script">Yourself</span></span></h2>
+        <p class="lede">Vigil needs Node 22.5+, Python 3.12+ and uv. Ollama is optional, for Ministral. DevTok's web app runs from the same repo.</p>
+        <ul class="flags">
+          <li><code>--ask</code> require a human Approve click</li>
+          <li><code>--mode mistral</code> hosted Large 4 agent (needs <code>MISTRAL_API_KEY</code>)</li>
+          <li><code>--no-narrate</code> skip Ministral, run offline</li>
+        </ul>
+      </div>
+      <div class="pane liquid-glass reveal">
+        <div class="tabs" role="tablist">
+          <button type="button" role="tab" aria-selected="true" data-tab="vigil">Vigil</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="devtok">DevTok</button>
+          <button type="button" class="copy" id="copy">Copy</button>
+        </div>
+<pre id="tab-vigil" tabindex="0"><span class="c"># 1. the target app (terminal 1)</span>
+cd demo-app; npm install; npm run dev:3001
+<span class="c"># 2. Ministral, local (one time; skip to run without it)</span>
+ollama pull ministral-3:3b
+ollama create vigil -f harness/Modelfile
+<span class="c"># 3. Vigil (terminal 2, repo root), then open http://127.0.0.1:8765/</span>
+uv run --project engine engine/run.py demo-app</pre>
+<pre id="tab-devtok" tabindex="0" hidden><span class="c"># DevTok web app, then open http://127.0.0.1:8770/</span>
+python devtok/pipeline/server.py --port 8770</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIMITS -->
+  <section class="block" id="limits" style="padding-top:0">
+    <div class="container">
+      <div class="row"><h2>Honest<span class="indent"><span class="script">Limits</span></span></h2></div>
+      <details open><summary>What can Vigil prove today?</summary><p>Two attack types: reading another user's record, and reading without login. New attacks are entries in an allowlist. A clean result means no rule fired, not "secure".</p></details>
+      <details><summary>Does DevTok post the approval to GitHub?</summary><p>No. Approval in DevTok is simulated; nothing is posted to GitHub. The quiz is advisory and never blocks approval.</p></details>
+      <details><summary>Can the Tonk recorder turn the history into video?</summary><p>Not yet. Recording and replay are specified; the replay-to-video step is outlined, not built.</p></details>
+      <details><summary>Are the OWASP, NIST and ISO mappings a certification?</summary><p>No. They are guidance to help a security team read the report.</p></details>
+    </div>
+  </section>
+
+  <!-- 4 CTA -->
+  <section class="final">
+    <video loop muted playsinline preload="none" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260331_055729_72d66327-b59e-4ae9-bb70-de6ccb5ecdb0.mp4"></video>
+    <div class="over">
+      <div class="txt">
+        <span class="script">Proof, not vibes</span>
+        <h2><span>Record it.</span><span>Prove what's safe.</span><span>Explain what changed.</span><span>Then merge.</span></h2>
+      </div>
+    </div>
+    <div class="dock liquid-glass">
+      <a class="hov" href="https://github.com/francescococcia/ministral" aria-label="Repo on GitHub"><svg><use href="#i-github"/></svg></a>
+      <a class="hov" href="https://github.com/francescococcia/ministral/blob/main/REPORT.md" aria-label="Vigil security report"><svg><use href="#i-file"/></svg></a>
+      <a class="hov" href="https://github.com/francescococcia/ministral/blob/main/DEMO.md" aria-label="Demo script"><svg><use href="#i-play"/></svg></a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <span>Le Chonk in London · Mistral Vibe hackathon · 21 November 2026<br>Mistral Vibe + Large 4 + Ministral 3B (Ollama) + Voxtral voices</span>
+    <ul>
+      <li><a href="https://github.com/francescococcia/ministral">Repo</a></li>
+      <li><a href="https://github.com/francescococcia/ministral/blob/main/PITCH.md">Pitch</a></li>
+      <li><a href="https://github.com/francescococcia/ministral/blob/main/DEMO.md">Demo script</a></li>
+      <li><a href="https://github.com/francescococcia/ministral/blob/main/REPORT.md">Vigil report</a></li>
+      <li><a href="https://github.com/francescococcia/ministral/tree/main/engine/runs">Run logs</a></li>
+      <li><a href="https://github.com/francescococcia/ministral/blob/main/devtok/README.md">DevTok</a></li>
+      <li><a href="https://github.com/francescococcia/ministral/blob/main/tonk-recorder/README.md">Tonk recorder</a></li>
+      <li><a href="https://github.com/francescococcia/ministral/blob/main/reviews/mistral-vibe-pr140.md">Review of a real Mistral Vibe PR</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+// Paste the demo video link here (mp4 file URL). Empty = the scripted replay is shown in the Prove section.
+const VIDEO_URL = "";
+
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+// run fn once, the first time node scrolls into view
+const onSeen = (node, fn, threshold = .3) => { const o = new IntersectionObserver(es => { if (es[0].isIntersecting) { o.disconnect(); fn(); } }, { threshold }); o.observe(node); };
+
+// background videos play only while on screen (and not at all with reduced motion)
+if (!still) {
+  const vo = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()), { threshold: .1 });
+  document.querySelectorAll("video[loop]").forEach(v => vo.observe(v));
+} else document.querySelectorAll("video[loop]").forEach(v => { v.removeAttribute("autoplay"); v.pause(); });
+
+// reveal on scroll, staggered among siblings, with count-up for numbers
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const t = e.target;
+  t.style.transitionDelay = ([...t.parentNode.children].indexOf(t) * 80) + "ms";
+  t.classList.add("in"); io.unobserve(t);
+  t.querySelectorAll("[data-n]").forEach(countUp);
+}), { threshold: .12 });
+document.querySelectorAll(".reveal").forEach(n => io.observe(n));
+function countUp(node) {
+  const to = +node.dataset.n;
+  if (still || !to) return;
+  const t0 = performance.now();
+  const tick = t => { const p = Math.min(1, (t - t0) / 1100); node.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+
+// prove: replay of the real events from engine/runs/20261121-165513.jsonl (or the video, if set)
+const cast = ["Scout", "Detective", "Mechanic", "Gatekeeper"];
+const events = [
+  ["Scout", "SUSPECT", "amber", "scan: 1 finding in 14 files"],
+  ["Scout", "", "", "API route reads a record by ID without checking who owns it (app/api/orders/[id]/route.ts:7)"],
+  ["Detective", "", "", "Mistral Large 4 is taking the case."],
+  ["Detective", "PROVEN", "red", "alice read someone else's record ord_b1 just by changing the id in the URL. GET /api/orders/ord_b1 → HTTP 200"],
+  ["Mechanic", "", "", "Proposed fix: load the order scoped to the session user, return 404 when it is not theirs."],
+  ["Gatekeeper", "", "", "Fix approved."],
+  ["Mechanic", "", "", "Fix applied to app/api/orders/[id]/route.ts and lib/db.ts."],
+  ["Detective", "BLOCKED", "green", "alice could not read record ord_b1. Same request → HTTP 404"],
+  ["Gatekeeper", "FIXED", "green", "Verdict: the attack was proven, the fix was approved, and the same attack is now blocked."],
+];
+function eventRow([who, status, color, text]) {
+  const li = el("li");
+  li.append(el("span", "who", who));
+  if (status) li.append(el("span", "chip " + color, status));
+  li.append(text);
+  return li;
+}
+const spotlight = ([who, , color]) => [...$("cast").children].forEach((a, n) => a.className = "actor" + (cast[n] === who ? " on " + color : ""));
+let runTimer;
+function play() {
+  clearTimeout(runTimer);
+  const log = $("log");
+  log.replaceChildren();
+  if (still) { log.append(...events.slice(-5).map(eventRow)); return spotlight(events.at(-1)); }
+  let i = 0;
+  const step = () => {
+    spotlight(events[i]); log.append(eventRow(events[i++]));
+    while (log.scrollHeight > log.clientHeight && log.children.length > 1) log.firstChild.remove();
+    runTimer = setTimeout(i < events.length ? step : play, i < events.length ? 1500 : 6000); // loops after a pause
+  };
+  step();
+}
+if (VIDEO_URL) {
+  const v = el("video"); v.controls = true; v.preload = "metadata"; v.src = VIDEO_URL; v.style.cssText = "display:block;width:100%;border-radius:24px";
+  v.setAttribute("aria-label", "Screen recording of a Vigil run");
+  $("stage").replaceChildren(v);
+} else { $("replay-btn").onclick = play; onSeen($("stage"), play, .2); }
+
+// record: a looping stream of records
+const records = [
+  ["Builder", "change", "app/api/orders/[id]/route.ts · prompt, answer, files, full diff"],
+  ["Security", "change", "runs /vigil on the change"],
+  ["Security", "decision", "orders load scoped to the session user; 404 when not theirs"],
+  ["Builder", "change", "lib/db.ts · prompt, answer, files, full diff"],
+  ["Space", "sync", "checkpoint: pull + push"],
+];
+const recordRow = ([who, kind, text]) => { const li = el("li"); li.append(el("span", "who", who), el("span", "chip " + (kind === "decision" ? "green" : "amber"), kind), text); return li; };
+if (still) $("feed").append(...records.map(recordRow));
+else onSeen($("feed"), () => {
+  let i = 0;
+  const push = () => { const f = $("feed"); f.append(recordRow(records[i++ % records.length])); if (f.children.length > 5) f.firstChild.remove(); };
+  push(); setInterval(push, 1500);
+});
+
+// explain: a phone feed per role (video, video, quiz, video, approval)
+const feeds = {
+  engineer: ["The mechanism, with real file and line references", "Delete this line: what breaks?"],
+  lead:     ["Who owns what, and the blast radius", "What to check in review"],
+  manager:  ["What we pay and what users get", "The risk, in plain words"],
+};
+let role = "engineer", slideTimer;
+function slideFor(i) {
+  const s = el("div", "slide");
+  const list = items => { const ul = el("ul"); items.forEach(([t, ok]) => ul.append(el("li", ok ? "ok" : "", t))); return ul; };
+  const video = (n, title) => { const eq = el("div", "eq"); for (let k = 0; k < 5; k++) eq.append(el("i")); s.append(eq, el("span", "tag", "VIDEO " + n + " · " + role.toUpperCase()), el("h4", "", title), el("span", "sub", "voice · subtitles · code references")); };
+  if (i === 0) video(1, "The data-flow map: where the request goes");
+  if (i === 1) video(2, feeds[role][0]);
+  if (i === 2) s.append(el("span", "tag", "QUIZ · SKIPPABLE"), el("h4", "", "After the fix, what does alice get for bob's order?"), list([["HTTP 200"], ["✓ HTTP 404", 1], ["HTTP 500"]]));
+  if (i === 3) video(3, feeds[role][1]);
+  if (i === 4) s.append(el("span", "tag", "APPROVAL"), el("h4", "", "Vigil proved it."), list([["✓ idor_read: PROVEN, then BLOCKED", 1], ["✓ Verdict FIXED", 1], ["OWASP API1:2023 · CWE-639"]]), el("span", "sub", "Approve or request changes (simulated)"));
+  return s;
+}
+function showSlide(i) {
+  [...$("bars").children].forEach((b, n) => b.className = n < i ? "done" : n === i ? "go" : "");
+  $("slide").replaceChildren(slideFor(i));
+}
+function startFeed() {
+  clearInterval(slideTimer);
+  let i = still ? 4 : 0; showSlide(i);
+  if (!still) slideTimer = setInterval(() => showSlide(i = (i + 1) % 5), 2800);
+}
+$("roles").onclick = e => {
+  const b = e.target.closest("[data-role]"); if (!b) return;
+  role = b.dataset.role;
+  [...$("roles").children].forEach(x => x.setAttribute("aria-pressed", x === b));
+  startFeed();
+};
+showSlide(still ? 4 : 0);
+onSeen($("bars").parentNode, startFeed);
+
+// quickstart tabs + copy
+let tab = "vigil";
+document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
+  tab = b.dataset.tab;
+  document.querySelectorAll("[data-tab]").forEach(x => { x.setAttribute("aria-selected", x === b); $("tab-" + x.dataset.tab).hidden = x !== b; });
+});
+$("copy").onclick = async () => {
+  try { await navigator.clipboard.writeText($("tab-" + tab).textContent); $("copy").textContent = "Copied"; }
+  catch { $("copy").textContent = "Select and copy"; }
+  setTimeout(() => $("copy").textContent = "Copy", 1500);
+};
+</script>
+</body>
+</html>
