@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vigil Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Colours chosen for WCAG AA: every text/background pair below is >= 4.5:1 (large text >= 3:1). */
+:root{
+  --bg:#fff7ec; --panel:#ffffff; --ink:#2b2140; --muted:#5a5070; --line:#eadfce;
+  --red:#c42b30; --red-soft:#ffe1e1; --amber:#ffb020; --green:#17804c; --green-soft:#ddf6e8; --blue:#2f5bd8; --violet:#6d3fd9;
+  --on-amber:#2b2140; --red-ink:#c42b30; --green-ink:#17804c; --diff-add:#d9f5e4; --diff-del:#ffe0e0; --diff-hunk:#ece6ff;
+  --sky1:#ffe3c2; --sky2:#ffd1e0; --shadow:0 6px 0 rgba(43,33,64,.12);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1b1630; --panel:#251f3f; --ink:#f4efff; --muted:#c3b9dc; --line:#3a3160;
+  --red-soft:#4a1f2c; --green-soft:#173a2b; --diff-add:#16392a; --diff-del:#46202a; --diff-hunk:#322a5a; --red-ink:#ff9a9d; --green-ink:#6fe0a6;
+  --sky1:#2b2350; --sky2:#3a2347; --shadow:0 6px 0 rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --bg:#1b1630; --panel:#251f3f; --ink:#f4efff; --muted:#c3b9dc; --line:#3a3160;
+  --red-soft:#4a1f2c; --green-soft:#173a2b; --diff-add:#16392a; --diff-del:#46202a; --diff-hunk:#322a5a; --red-ink:#ff9a9d; --green-ink:#6fe0a6;
+  --sky1:#2b2350; --sky2:#3a2347; --shadow:0 6px 0 rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Baloo 2",system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 16px;max-width:1200px;margin:0 auto}
+h1{margin:0;font-size:28px;font-weight:800;letter-spacing:.3px}
+h1 small{font-size:15px;color:var(--muted);font-weight:500;margin-left:8px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.file{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--panel);color:var(--ink);border-radius:14px;padding:8px 16px;cursor:pointer;box-shadow:var(--shadow)}
+button:active{transform:translateY(3px);box-shadow:none}
+button:disabled{cursor:default;opacity:.6;transform:none}
+button:focus-visible,.file:focus-within,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.file input{position:absolute;opacity:0;width:1px;height:1px}
+label.toggle{display:flex;gap:6px;align-items:center;font-weight:600;color:var(--muted)}
+.status{font-weight:700;font-size:14px;border-radius:999px;padding:8px 14px;border:2px solid var(--muted);color:var(--muted)}
+.status.live{border-color:var(--green-ink);color:var(--green-ink)}
+main{max-width:1200px;margin:0 auto;padding:0 16px 24px}
+.banner{max-width:1200px;margin:0 auto 12px;padding:12px 16px;border-radius:14px;background:var(--red-soft);color:var(--ink);border:2px solid var(--red);font-weight:600}
+.banner code{font-family:"JetBrains Mono",monospace;font-size:14px;word-break:break-word}
+.banner[hidden]{display:none}
+
+.stage{position:relative;height:300px;border-radius:24px;border:2px solid var(--line);overflow:hidden;
+  background:linear-gradient(180deg,var(--sky1),var(--sky2));box-shadow:var(--shadow)}
+.ground{position:absolute;left:0;right:0;bottom:0;height:70px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 40px,transparent 40px 80px),var(--line)}
+.path{position:absolute;left:4%;right:4%;bottom:56px;height:8px;border-radius:8px;background:rgba(43,33,64,.15)}
+.char{position:absolute;bottom:62px;width:110px;text-align:center;transition:left .9s cubic-bezier(.5,1.6,.4,1)}
+.char .body{font-size:62px;line-height:1;display:inline-block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.15))}
+.char .name{display:block;font-weight:800;font-size:15px;margin-top:2px}
+.char .role{display:block;font-size:12px;color:var(--muted);margin-top:-3px}
+.char.active .body{animation:bounce .5s ease-in-out infinite alternate}
+.char.idle .body{opacity:.55}
+@keyframes bounce{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-12px) rotate(3deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(196,43,48,.6)}50%{box-shadow:0 0 0 8px rgba(196,43,48,0)}}
+.bubble{position:absolute;bottom:170px;max-width:min(440px,80%);background:var(--panel);color:var(--ink);border:2px solid var(--ink);
+  border-radius:18px;padding:12px 16px;font-size:17px;line-height:1.3;box-shadow:var(--shadow);transform-origin:bottom left;
+  animation:pop .25s ease-out;z-index:3}
+.bubble:after{content:"";position:absolute;left:26px;bottom:-12px;border:10px solid transparent;border-top-color:var(--ink);border-bottom:0}
+.bubble.r{transform-origin:bottom right}.bubble.r:after{left:auto;right:26px}
+.bubble b{display:block;font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font-size:12px;font-weight:800;border-radius:999px;padding:8px 10px;line-height:1;margin-left:6px;background:var(--violet);color:#fff;vertical-align:middle}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.gate{position:absolute;right:3%;bottom:62px;width:64px;height:120px}
+.gate .post{position:absolute;left:0;bottom:0;width:14px;height:120px;background:var(--ink);border-radius:6px}
+.gate .arm{position:absolute;left:7px;bottom:96px;width:110px;height:16px;border-radius:8px;transform-origin:0 50%;
+  background:repeating-linear-gradient(90deg,var(--red) 0 18px,#fff 18px 36px);transition:transform .8s cubic-bezier(.5,1.6,.4,1), background .4s}
+.gate.open .arm{transform:rotate(-80deg);background:repeating-linear-gradient(90deg,var(--green) 0 18px,#fff 18px 36px)}
+.gate.idle .arm{background:repeating-linear-gradient(90deg,var(--muted) 0 18px,#fff 18px 36px)}
+.gate.shut{animation:shake .4s 3}
+.verdict{position:absolute;left:3%;bottom:4px;font-weight:800;font-size:22px;line-height:1.2;padding:8px 14px;border-radius:12px;border:2px solid var(--ink);background:var(--panel);z-index:4}
+.verdict.block{background:var(--red);color:#fff;border-color:var(--red);animation:shake .4s 3}
+.verdict.pass{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* approval card: the moment a judge clicks */
+.approval{margin-top:16px;border:4px solid var(--violet);border-radius:24px;background:var(--panel);padding:20px;box-shadow:0 0 0 6px rgba(109,63,217,.25),var(--shadow)}
+.approval[hidden]{display:none}
+.approval.waiting{animation:glow 1.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 14px rgba(109,63,217,.12),var(--shadow)}}
+.approval h2{margin:0 0 4px;font-size:26px}
+.approval .reason{margin:4px 0 10px;font-size:18px}
+.approval .file-name{font-family:"JetBrains Mono",monospace;font-size:14px;color:var(--muted);word-break:break-all}
+.diff{font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.45;border:2px solid var(--line);border-radius:12px;margin:8px 0 14px;max-height:340px;overflow:auto;padding:12px 0;white-space:pre}
+.diff span{display:block;padding:2px 14px;min-width:max-content}
+.diff .add{background:var(--diff-add)} .diff .del{background:var(--diff-del)} .diff .hunk{background:var(--diff-hunk);color:var(--muted)}
+.decide{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.decide button{font-size:24px;padding:12px 34px;border-radius:18px}
+#approve{background:var(--green);border-color:var(--green);color:#fff}
+#deny{background:var(--red);border-color:var(--red);color:#fff}
+.decision{font-weight:800;font-size:20px}
+.kbd{color:var(--muted);font-size:14px}
+
+/* evidence */
+.evidence{margin-top:16px}
+.evidence[hidden]{display:none}
+.evidence .head{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.stamp{font-weight:800;font-size:26px;line-height:1.2;padding:8px 16px;border-radius:12px;color:#fff;background:var(--muted)}
+.stamp.PROVEN{background:var(--red)} .stamp.BLOCKED{background:var(--green)} .stamp.ERROR{background:var(--amber);color:var(--on-amber)}
+.req{font-family:"JetBrains Mono",monospace;font-size:14px;word-break:break-all}
+.leak{font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word;font-size:22px;font-weight:600;border-radius:14px;padding:14px 16px;margin:10px 0 4px;border:3px solid var(--line);max-height:300px;overflow:auto}
+.leak.PROVEN{border-color:var(--red);background:var(--red-soft);color:var(--ink)}
+.leak.BLOCKED{border-color:var(--green);background:var(--green-soft);color:var(--ink)}
+.ctrl{font-size:15px}
+
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:16px}
+.grid > *{min-width:0}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.panel h2{margin:0 0 8px;font-size:19px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:10px}
+.card{border:2px solid var(--line);border-radius:14px;padding:12px 14px;transition:border-color .3s, transform .3s}
+.card .fname{font-family:"JetBrains Mono",monospace;font-size:12.5px;word-break:break-all}
+.card .flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.flag{font-size:12.5px;font-weight:700;border-radius:999px;padding:8px 12px;line-height:1;border:2px dashed var(--muted);color:var(--muted);background:transparent;transition:background .3s,color .3s}
+.flag.on{border-style:solid;color:#fff}
+.flag.on.critical{background:#9e1b2c;border-color:#9e1b2c}.flag.on.high{background:var(--red);border-color:var(--red)}
+.flag.on.medium{background:var(--amber);border-color:var(--amber);color:var(--on-amber)}.flag.on.low{background:var(--blue);border-color:var(--blue)}
+.flag.on.proven{background:var(--red);border-color:var(--ink);color:#fff;animation:pulse 1s infinite}
+.flag.on.fixed{background:var(--green);border-color:var(--green);color:#fff;animation:none}
+.card.hot{border-color:var(--violet);transform:translateY(-3px)}
+.log{list-style:none;margin:0;padding:0;max-height:330px;overflow:auto;font-size:15px}
+.log li{padding:6px 2px;border-bottom:1px dashed var(--line)}
+.log li .who{font-weight:800}
+.log li.err{color:var(--red-ink);font-weight:700}
+.empty{color:var(--muted)}
+.note{color:var(--muted);font-size:14px;margin-top:10px}
+
+@media (max-width:820px){.gate{right:1%;transform:scale(.7);transform-origin:bottom right}.grid{grid-template-columns:1fr}.stage{height:340px}
+  .char{width:80px}.char .body{font-size:46px}.char .role{display:none}
+  .bubble{left:8px!important;right:8px!important;max-width:none;bottom:150px}
+  .decide button{flex:1 1 140px}}
+@media (max-width:420px){.char{width:64px}.char .body{font-size:38px}.char .name{font-size:11px}.verdict{font-size:18px}.leak{font-size:18px}}
+/* projector */
+@media (min-width:1600px){
+  header,main,.banner{max-width:1720px}
+  h1{font-size:40px} .stage{height:440px} .char{width:150px} .char .body{font-size:92px} .char .name{font-size:20px} .char .role{font-size:15px}
+  .bubble{font-size:24px;bottom:230px;max-width:min(640px,70%)} .bubble b{font-size:16px}
+  .gate{transform:scale(1.4);transform-origin:bottom right} .verdict{font-size:24px}
+  .approval h2{font-size:36px} .approval .reason{font-size:24px} .diff{font-size:17px;max-height:460px} .decide button{font-size:32px}
+  .leak{font-size:30px} .log{font-size:18px;max-height:460px} .panel h2{font-size:24px} .card .fname{font-size:15px} .flag{font-size:15px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Vigil <small>live run</small></h1>
+  <div class="controls">
+    <span class="status" id="status" role="status">connecting...</span>
+    <label class="file">Load run (.jsonl)<input id="file" type="file" accept=".jsonl,.json,.txt,application/json"></label>
+    <label class="toggle"><input id="voice" type="checkbox"> Voice</label>
+  </div>
+</header>
+<div class="banner" id="banner" role="alert" hidden>Not connected to vigil run. Start: <code>uv run --project engine engine/run.py demo-app</code>, or load a saved run.</div>
+<main>
+  <section class="stage" id="stage" aria-label="Animated workflow stage">
+    <div class="ground"></div><div class="path"></div>
+    <div class="verdict" id="verdict" aria-live="polite">waiting...</div>
+    <div class="gate idle" id="gate" aria-hidden="true"><div class="post"></div><div class="arm"></div></div>
+    <div class="char idle" id="c-scout"><span class="body" aria-hidden="true">🦊</span><span class="name">Scout</span><span class="role">rules</span></div>
+    <div class="char idle" id="c-detective"><span class="body" aria-hidden="true">🕵️</span><span class="name">Detective</span><span class="role">agent + proof</span></div>
+    <div class="char idle" id="c-mechanic"><span class="body" aria-hidden="true">🛠️</span><span class="name">Mechanic</span><span class="role">fix</span></div>
+    <div class="char idle" id="c-gatekeeper"><span class="body" aria-hidden="true">🦉</span><span class="name">Gatekeeper</span><span class="role">human gate</span></div>
+    <div id="bubbles" aria-live="polite"></div>
+  </section>
+
+  <section class="approval" id="approval" role="region" tabindex="-1" aria-labelledby="ap-title" hidden>
+    <h2 id="ap-title">🦉 Gatekeeper: approve this fix?</h2>
+    <div class="file-name" id="ap-file"></div>
+    <p class="reason" id="ap-reason"></p>
+    <pre class="diff" id="ap-diff" tabindex="0" aria-label="Proposed change (unified diff)"></pre>
+    <div class="decide">
+      <button id="approve">✔ Approve</button>
+      <button id="deny">✖ Deny</button>
+      <span class="decision" id="ap-decision" aria-live="assertive"></span>
+    </div>
+    <p class="kbd">Keyboard: press Tab to reach Approve, then Enter or Space.</p>
+  </section>
+
+  <section class="panel evidence" id="evidence" hidden aria-live="polite">
+    <div class="head"><h2 style="margin:0">Proof</h2><span class="stamp" id="ev-stamp"></span><span class="req" id="ev-req"></span></div>
+    <div class="leak" id="ev-body"></div>
+    <div class="ctrl" id="ev-ctrl"></div>
+  </section>
+
+  <div class="grid">
+    <section class="panel"><h2>Repo map</h2><div class="files" id="files"><p class="empty">Waiting for the Scout's scan...</p></div>
+      <p class="note">Flags light up as the Scout finds them, pulse red when the Detective proves an attack, and turn green when the fix is verified.</p></section>
+    <section class="panel"><h2>What happened</h2><ol class="log" id="log"></ol></section>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const CHARS = {scout:"c-scout", detective:"c-detective", mechanic:"c-mechanic", gatekeeper:"c-gatekeeper"};
+const NAMES = {scout:"Scout", detective:"Detective", mechanic:"Mechanic", gatekeeper:"Gatekeeper"};
+const HOME = {scout:3, detective:25, mechanic:47, gatekeeper:68};
+const OK_VERDICTS = ["PASS","FIXED"];
+
+let queue = [], busy = false, seen = new Set(), narr = {}, findings = [], currentSeq = null, mode = "live", es = null, finished = false, gotEvent = false;
+
+function place(who, pct){ $(CHARS[who]).style.left = pct + "%"; }
+function homeAll(){ for (const k in HOME) place(k, HOME[k]); }
+function activate(who){
+  for (const k in CHARS){ const el=$(CHARS[k]); el.classList.toggle("active",k===who); el.classList.toggle("idle",k!==who); place(k, HOME[k] + (k===who ? 6 : 0)); }
+}
+const charOf = ev => CHARS[ev.character] ? ev.character : "gatekeeper";
+const str = v => v == null ? "" : typeof v === "string" ? v : JSON.stringify(v, null, 2);
+
+function setText(el, text, ministral){
+  el.textContent = text;
+  if (ministral){ const t = document.createElement("span"); t.className = "tag"; t.textContent = "Ministral"; el.appendChild(t); }
+}
+function say(ev, text){
+  const who = charOf(ev), b = document.createElement("div");
+  b.className = "bubble"; b.dataset.seq = ev.seq;
+  // right-hand characters anchor the bubble by its right edge, otherwise it is squeezed against the stage edge
+  if (HOME[who] > 40){ b.classList.add("r"); b.style.right = (100 - HOME[who] - 14) + "%"; } else b.style.left = `calc(${HOME[who] + 6}% + 10px)`;
+  b.appendChild(document.createElement("b")); b.appendChild(document.createElement("span"));
+  const n = narr[ev.seq];
+  setText(b.querySelector("b"), NAMES[who] + " · " + ev.type.replace("_"," "), !!n);
+  b.querySelector(":scope > span").textContent = n || text;
+  $("bubbles").replaceChildren(b);
+  currentSeq = ev.seq;
+  speak(n || text, who);
+}
+function log(ev, text){
+  const li = document.createElement("li"), who = document.createElement("span"), t = document.createElement("span");
+  li.dataset.seq = ev.seq; if (ev.type === "error") li.className = "err";
+  who.className = "who"; who.textContent = NAMES[charOf(ev)] + ": ";
+  li.append(who, t); setText(t, narr[ev.seq] || text, !!narr[ev.seq]);
+  $("log").appendChild(li); $("log").scrollTop = $("log").scrollHeight;
+}
+function applyNarration(seq, line){
+  narr[seq] = line;
+  const t = document.querySelector(`#log li[data-seq="${CSS.escape(String(seq))}"] span:last-child`);
+  if (t) setText(t, line, true);
+  if (String(currentSeq) === String(seq)){
+    const b = $("bubbles").firstChild;
+    if (b){ setText(b.querySelector("b"), b.querySelector("b").firstChild.textContent, true); b.querySelector(":scope > span").textContent = line; }
+  }
+}
+
+/* ---- voice: Voxtral via /tts, fall back to browser speech; one line at a time ---- */
+const voiceQ = []; let speaking = false, ttsOffline = location.protocol === "file:";
+function speak(text, who){
+  if (!$("voice").checked || !text) return;
+  voiceQ.push([text, who]); if (voiceQ.length > 3) voiceQ.shift(); // don't lag far behind the stage
+  if (!speaking) nextVoice();
+}
+function nextVoice(){
+  const item = voiceQ.shift(); if (!item){ speaking = false; return; }
+  speaking = true;
+  let done = false; const fin = () => { if (!done){ done = true; clearTimeout(guard); nextVoice(); } };
+  const guard = setTimeout(fin, 20000);
+  const browser = () => {
+    if (!("speechSynthesis" in window)) return fin();
+    const u = new SpeechSynthesisUtterance(item[0]); u.onend = u.onerror = fin; speechSynthesis.speak(u);
+  };
+  if (ttsOffline) return browser();
+  const a = new Audio("/tts?text=" + encodeURIComponent(item[0]) + "&character=" + encodeURIComponent(item[1]));
+  a.onended = fin;
+  a.onerror = () => { ttsOffline = true; browser(); };
+  a.play().catch(() => { if (!done && !a.error) browser(); });
+}
+$("voice").onchange = () => { if (!$("voice").checked){ voiceQ.length = 0; if ("speechSynthesis" in window) speechSynthesis.cancel(); } };
+
+/* ---- repo map ---- */
+function buildMap(list){
+  findings = list || [];
+  const byFile = {};
+  findings.forEach((f,i) => (byFile[f.file] ||= []).push(i));
+  const box = $("files"); box.replaceChildren();
+  if (!findings.length){ const p = document.createElement("p"); p.className = "empty"; p.textContent = "No findings. The Scout found nothing risky."; box.appendChild(p); return; }
+  for (const [file, ids] of Object.entries(byFile)){
+    const c = document.createElement("div"); c.className = "card"; c.dataset.file = file;
+    const fn = document.createElement("div"); fn.className = "fname"; fn.textContent = file;
+    const fl = document.createElement("div"); fl.className = "flags";
+    ids.forEach(i => { const f = findings[i], s = document.createElement("span");
+      s.className = "flag " + (f.severity || "low"); s.id = "flag-" + i; s.textContent = f.rule + (f.line ? " :" + f.line : "");
+      s.title = f.title || ""; fl.appendChild(s); });
+    c.append(fn, fl); box.appendChild(c);
+  }
+  // light flags one by one
+  findings.forEach((_, i) => setTimeout(() => { const s = $("flag-" + i); s && s.classList.add("on"); }, 250 * i));
+}
+function hot(file){ document.querySelectorAll(".card").forEach(c => c.classList.toggle("hot", !!file && c.dataset.file === file)); }
+function flagsFor(pred){ return findings.map((f,i) => pred(f) ? $("flag-" + i) : null).filter(Boolean); }
+
+/* ---- panels ---- */
+function showProof(ev){
+  const st = ev.status || "ERROR", e = ev.evidence || {}, local = (ev.evidence_local || {}).body, c = ev.control || {};
+  $("evidence").hidden = false;
+  const stamp = $("ev-stamp"); stamp.className = "stamp " + st; stamp.textContent = st;
+  $("ev-req").textContent = [str(e.request), e.status_code != null ? "→ HTTP " + e.status_code : ""].filter(Boolean).join("  ");
+  const body = $("ev-body"); body.className = "leak " + st;
+  body.textContent = st === "BLOCKED" ? "BLOCKED: the attacker no longer gets the data." + (local ? "\n" + str(local) : "")
+                   : str(local != null ? local : e.body_redacted) || "(no body)";
+  $("ev-ctrl").textContent = (c.ok ? "✔ Control OK: " : "✖ Control failed: ") + (c.detail || (c.ok ? "the attacker can still read their own data." : "the route may be broken."));
+  if (st === "PROVEN") flagsFor(f => f.attack === ev.attack).forEach(s => s.classList.add("on","proven"));
+}
+function showApproval(ev){
+  const box = $("approval"); box.hidden = false; box.dataset.id = ev.approval_id;
+  $("ap-file").textContent = ev.file || "";
+  $("ap-reason").textContent = ev.reason || "";
+  const pre = $("ap-diff"); pre.replaceChildren();
+  str(ev.diff).split("\n").forEach(l => { const s = document.createElement("span");
+    s.className = l.startsWith("@@") ? "hunk" : l.startsWith("+") && !l.startsWith("+++") ? "add" : l.startsWith("-") && !l.startsWith("---") ? "del" : "";
+    s.textContent = l || " "; pre.appendChild(s); });
+  const replay = mode === "replay";
+  $("approve").disabled = $("deny").disabled = replay;
+  $("ap-decision").textContent = replay ? "Recorded run: decision shown next." : "Waiting for a human...";
+  box.classList.toggle("waiting", !replay);
+  box.scrollIntoView({block:"end"}); // instant: smooth scrolls got cancelled; "end" keeps the buttons on screen
+  if (!replay) box.focus({preventScroll:true}); // not on Approve itself: a stray Enter must not approve
+}
+function showDecision(decision){
+  const box = $("approval"); box.classList.remove("waiting");
+  $("approve").disabled = $("deny").disabled = true;
+  $("ap-decision").textContent = decision === "allow" ? "✔ Approved by a human" : "✖ Denied by a human";
+}
+async function decide(decision){
+  const id = $("approval").dataset.id; if (!id) return;
+  $("approve").disabled = $("deny").disabled = true;
+  $("ap-decision").textContent = "Sending...";
+  try {
+    const r = await fetch("/approve", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({approval_id:id, decision})});
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    showDecision(decision);
+  } catch (e){
+    $("ap-decision").textContent = "Could not send (" + e.message + "). Try again.";
+    $("approve").disabled = $("deny").disabled = false;
+  }
+}
+$("approve").onclick = () => decide("allow");
+$("deny").onclick = () => decide("deny");
+
+function setVerdict(result){
+  const v = $("verdict"), g = $("gate"), ok = OK_VERDICTS.includes(result);
+  v.textContent = result; v.className = "verdict " + (ok ? "pass" : "block");
+  g.className = "gate " + (ok ? "open" : "shut");
+  if (result === "FIXED") flagsFor(() => true).forEach(s => s.classList.contains("proven") && s.classList.replace("proven","fixed"));
+}
+
+/* ---- render one event ---- */
+function render(ev){
+  const who = charOf(ev); let text = ev.text || "";
+  switch (ev.type){
+    case "run_started": reset(true); text ||= `Checking ${ev.app || "the app"} against ${ev.target || "the target"}.`; break;
+    case "scan_done": buildMap(ev.findings); break;
+    case "tool_call": case "tool_result": text ||= `${ev.tool}: ${str(ev.summary || ev.args)}`; break;
+    case "proof": showProof(ev); hot(null); break;
+    case "fix_proposed": hot(ev.file); showApproval(ev); break;
+    case "approval": showDecision(ev.decision); setTimeout(() => { $("approval").hidden = true; $("stage").scrollIntoView({block:"start"}); }, 2500); break;
+    case "fix_applied": hot(ev.file); break;
+    case "rollback": hot(ev.file); flagsFor(f => f.file === ev.file).forEach(s => s.classList.replace("fixed","proven")); break;
+    case "verdict": setVerdict(ev.result); break;
+    case "error": text ||= ev.message || "Something went wrong."; break;
+    case "run_finished": finished = true; hot(null); text ||= "Run finished."; break;
+  }
+  activate(who);
+  say(ev, text); log(ev, text);
+}
+
+/* ---- pacing queue (same for live and replay) ---- */
+function enqueue(ev){
+  if (!ev || typeof ev !== "object") return;
+  const key = ev.seq + "|" + ev.ts + "|" + ev.type;
+  if (seen.has(key)) return; seen.add(key);  // reconnects replay past events
+  queue.push(ev); if (!busy) pump();
+}
+function pump(){
+  let ev = queue.shift();
+  while (ev && ev.type === "narration"){ applyNarration(ev.for_seq, ev.line || ev.text || ""); ev = queue.shift(); } // no stage time
+  if (!ev){ busy = false; return; }
+  busy = true;
+  try { render(ev); } catch (e){ console.error("render failed", e, ev); }
+  const quick = ev.type === "tool_call" || ev.type === "tool_result";
+  const wait = mode === "live" && queue.length > 6 ? 250 : quick ? 800 : 1700; // live: catch up fast after a (re)connect
+  setTimeout(pump, wait);
+}
+function reset(keepSeen){
+  if (!keepSeen) seen = new Set();
+  narr = {}; findings = []; currentSeq = null; finished = false;
+  $("log").replaceChildren(); $("bubbles").replaceChildren();
+  $("verdict").textContent = "waiting..."; $("verdict").className = "verdict"; $("gate").className = "gate idle";
+  $("approval").hidden = true; $("evidence").hidden = true;
+  const p = document.createElement("p"); p.className = "empty"; p.textContent = "Waiting for the Scout's scan..."; $("files").replaceChildren(p);
+  activate(null); homeAll();
+}
+
+/* ---- live connection ---- */
+function status(text, live){ $("status").textContent = text; $("status").className = "status" + (live ? " live" : ""); }
+function connect(){
+  if (location.protocol === "file:" || !("EventSource" in window)){ status("offline"); $("banner").hidden = false; return; }
+  try { es = new EventSource("/events"); } catch (e){ status("offline"); $("banner").hidden = false; return; }
+  es.onopen = () => { status("● live", true); $("banner").hidden = true; };
+  es.onmessage = m => { gotEvent = true; try { enqueue(JSON.parse(m.data)); } catch (e){ console.warn("bad event", m.data); } };
+  es.onerror = () => {
+    if (finished){ status("run finished"); es.close(); return; }
+    status("reconnecting...");
+    if (!gotEvent || es.readyState === EventSource.CLOSED) $("banner").hidden = false;
+  };
+}
+
+/* ---- backup replay from a saved .jsonl ---- */
+function replayText(t){
+  const evs = [];
+  t.split(/\r?\n/).forEach((l, i) => { if (l.trim()) try { evs.push(JSON.parse(l)); } catch (e){ console.warn("skipping line", i + 1); } });
+  if (!evs.length){ alert("No events found in that file."); return; }
+  if (es) es.close();
+  mode = "replay"; status("replay"); $("banner").hidden = true;
+  queue = []; reset(false);
+  evs.sort((a, b) => (a.seq || 0) - (b.seq || 0));
+  queue = evs; // narration keeps its recorded position, so it swaps in late just like live
+  if (!busy) pump();
+}
+$("file").onchange = e => { const f = e.target.files[0]; if (f) f.text().then(replayText); e.target.value = ""; };
+
+homeAll();
+connect();
+</script>
+</body>
+</html>
