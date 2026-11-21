@@ -1,0 +1,31 @@
+[
+  {
+    "id": "nextjs-api-no-auth",
+    "title": "Next.js API route with no auth / ownership check",
+    "severity": "high",
+    "files": ["*app/api/*route.ts", "*app/api/*route.js", "*pages/api/*.ts", "*pages/api/*.js"],
+    "trigger": "export\\s+(async\\s+)?function\\s+(GET|POST|PUT|PATCH|DELETE)|export\\s+default\\s+(async\\s+)?function",
+    "absent": "(getServerSession|auth\\(\\)|currentUser|getUser\\(|requireUser|session\\.user|verifyToken|clerk|withAuth)",
+    "ask": "Can a user call this route without logging in, or read/modify another user's data by changing an ID in the URL or body?",
+    "fix": "Check the session at the top of the handler and verify the requested record belongs to session.user (e.g. WHERE id = ? AND user_id = ?)."
+  },
+  {
+    "id": "nextjs-public-secret",
+    "title": "Secret exposed to the browser via NEXT_PUBLIC_ variable",
+    "severity": "critical",
+    "files": ["*"],
+    "trigger": "NEXT_PUBLIC_\\w*(SECRET|SERVICE_ROLE|PRIVATE|PASSWORD)\\w*",
+    "ask": "Is a server-only secret being shipped to the browser bundle?",
+    "fix": "Rename without NEXT_PUBLIC_ and only read it in server code (route handlers, server actions); rotate the exposed secret."
+  },
+  {
+    "id": "nextjs-server-action-trusts-client",
+    "title": "Server action without an auth check",
+    "severity": "high",
+    "files": ["*.ts", "*.tsx", "*.js"],
+    "trigger": "[\"']use server[\"']",
+    "absent": "(getServerSession|auth\\(\\)|currentUser|getUser\\(|requireUser|session\\.user)",
+    "ask": "Can anyone call this server action directly and act on data that is not theirs?",
+    "fix": "Server actions are public endpoints: re-check the session and ownership inside every action."
+  }
+]

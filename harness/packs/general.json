@@ -1,0 +1,57 @@
+[
+  {
+    "id": "hardcoded-secret",
+    "title": "Hardcoded secret in source code",
+    "severity": "high",
+    "files": ["*.js", "*.ts", "*.tsx", "*.jsx", "*.py", "*.go", "*.rb", "*.java", "*.json", "*.yml", "*.yaml"],
+    "trigger": "(api[_-]?key|secret|token|password|passwd|private[_-]?key)\\w*\\s*[:=]\\s*[\"'][^\"'\\s]{12,}[\"']",
+    "ask": "Is this a real credential committed to the repo (not a placeholder, test fixture or env var name)?",
+    "fix": "Move the value to an environment variable / secret manager, rotate the leaked credential, and add the file pattern to .gitignore."
+  },
+  {
+    "id": "prompt-injection-bait",
+    "title": "Text that tries to instruct AI reviewers or agents",
+    "severity": "high",
+    "files": ["*"],
+    "trigger": "(ignore (all |any )?(previous|prior|above) instructions|ai (reviewer|assistant|agent)s?[,:]? (please )?(approve|ignore|skip|mark)|mark (this|the) (file|code|pr) as safe|do not (report|flag) (this|any))",
+    "ask": "Is this text trying to manipulate an AI code reviewer or coding agent?",
+    "fix": "Remove the instruction. Treat it as a possible supply-chain / prompt-injection attempt and check who added it."
+  },
+  {
+    "id": "sql-string-building",
+    "title": "SQL query built from strings (possible SQL injection)",
+    "severity": "high",
+    "files": ["*.js", "*.ts", "*.py", "*.go", "*.rb", "*.java", "*.php"],
+    "trigger": "(select|insert|update|delete)\\s[^;\\n]*(\\$\\{|\"\\s*\\+|'\\s*\\+|%s|\\.format\\(|f\")",
+    "ask": "Can user-controlled input reach this SQL string without parameterization?",
+    "fix": "Use parameterized queries / the ORM's query builder instead of building SQL from strings."
+  },
+  {
+    "id": "eval-use",
+    "title": "Dynamic code execution (eval / exec / new Function)",
+    "severity": "high",
+    "files": ["*.js", "*.ts", "*.tsx", "*.jsx", "*.py"],
+    "trigger": "\\b(eval|exec|new Function)\\s*\\(",
+    "ask": "Can user-controlled data reach this dynamic code execution?",
+    "fix": "Remove eval/exec; parse data with JSON.parse / a safe parser, or use an explicit allowlist of operations.",
+    "case_sensitive": true
+  },
+  {
+    "id": "cors-wildcard",
+    "title": "CORS allows any origin",
+    "severity": "medium",
+    "files": ["*.js", "*.ts", "*.py", "*.json"],
+    "trigger": "(Access-Control-Allow-Origin[\"']?\\s*[:,]\\s*[\"']\\*|origin\\s*:\\s*[\"']\\*[\"']|allow_origins\\s*=\\s*\\[\\s*[\"']\\*)",
+    "ask": "Does this endpoint return private data or accept credentials while allowing any origin?",
+    "fix": "Restrict allowed origins to your own domains."
+  },
+  {
+    "id": "raw-html",
+    "title": "Raw HTML injection (possible XSS)",
+    "severity": "medium",
+    "files": ["*.tsx", "*.jsx", "*.js", "*.ts", "*.vue"],
+    "trigger": "(dangerouslySetInnerHTML|\\.innerHTML\\s*=|v-html)",
+    "ask": "Can user-controlled content reach this raw HTML without sanitization?",
+    "fix": "Render as text, or sanitize with a vetted HTML sanitizer first."
+  }
+]
