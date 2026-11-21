@@ -6,7 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { installPlugin } from "../install.mjs";
-import { devTonkBin } from "../../hooks/identity.mjs";
+import { ensureDevTonk } from "../dev-tonk.mjs";
 import { parseArgs, opt, ensureDist, home, rememberThisWrapper, PKG_NAME, PKG_VERSION } from "./shared.mjs";
 
 /** Harness → the directory whose presence means "this harness is used here". */
@@ -27,7 +27,7 @@ export async function cmdConnect(argv, { env = process.env } = {}) {
   const homePath = home(env);
   const asked = opt(args, "harness");
   if (asked && asked !== "all" && !HARNESS_HOME[asked]) {
-    const err = new Error(`usage: ${PKG_NAME} connect [--harness vibe|claude|all]`);
+    const err = new Error(`usage: ${PKG_NAME} connect [--harness vibe|claude|all] [--update-tonk]`);
     err.exitCode = 1;
     throw err;
   }
@@ -53,10 +53,10 @@ export async function cmdConnect(argv, { env = process.env } = {}) {
     }
   }
   const call = rememberThisWrapper(env);
-  const dev = env.TONK_BIN || devTonkBin(env);
-  console.log(dev
-    ? `tonk: ${dev}`
-    : "tonk: the pinned npm build — it has NO revision history (`tonk log` / `restore`). Install tonk's dev channel as ~/.local/bin/tonk-dev, or set TONK_BIN, to get it.");
+  // the tonk with revision history: fetch tonk's dev build from its GitHub
+  // release if this machine has none (--update-tonk refetches the latest)
+  const tonk = await ensureDevTonk(env, { force: Boolean(args["update-tonk"]) });
+  console.log(tonk.bin ? `tonk: ${tonk.bin}` : "tonk: the pinned npm build (no revision history)");
   if (failed < harnesses.length) {
     console.log("");
     console.log("Nothing is recorded until a project is connected to a space. In the project folder, tell your agent to run one of:");

@@ -5,6 +5,7 @@
 //      publisher for the creator + AGENTS.md bootstrap block)
 //   4. install the hooks into this harness (H1 via contract / §4.1 layout)
 //   5. print the invite paste line
+import { ensureDevTonk } from "../dev-tonk.mjs";
 import fs from "node:fs";
 import { tonkOk } from "../tonk.mjs";
 import { installPlugin } from "../install.mjs";
@@ -26,6 +27,7 @@ export async function cmdNew(argv, { env = process.env, cwd = process.cwd() } = 
   const opts = { env, cwd };
 
   if (ensureGitRepo(cwd)) console.log(`(made ${cwd} a git repository: the recorder snapshots changes with git)`);
+  await ensureDevTonk(env); // the tonk with revision history, fetched once if missing
   // 1. create + bind the space
   await tonkOk(["space", "new", name], opts);
 

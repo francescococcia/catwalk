@@ -14,9 +14,10 @@ const USAGE = `${PKG_NAME} v${PKG_VERSION} — records every agent's code change
 usage: ${PKG_NAME} <command> [args]
 
 commands:
-  connect [--harness vibe|claude|all]
+  connect [--harness vibe|claude|all] [--update-tonk]
                         hook the recorder into the harnesses on this machine (once,
-                        before any space); then reload or restart the harness
+                        before any space); fetches tonk's dev build (the one with
+                        revision history) if missing; then reload the harness
   new <name> [--role <r>] [--agent-name <n>] [--harness vibe|claude]
                         create + bind a LOCAL space (no remote, no sign-in), publish
                         the recorder logic into it, install hooks into this harness
