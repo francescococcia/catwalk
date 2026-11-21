@@ -1,30 +1,64 @@
 [
   {
     "id": "nextjs-api-no-auth",
-    "title": "Next.js API route with no auth / ownership check",
+    "title": "Next.js API route with no auth check",
     "severity": "high",
-    "files": ["*app/api/*route.ts", "*app/api/*route.js", "*pages/api/*.ts", "*pages/api/*.js"],
+    "files": [
+      "*app/api/*route.ts",
+      "*app/api/*route.js",
+      "*pages/api/*.ts",
+      "*pages/api/*.js"
+    ],
     "trigger": "export\\s+(async\\s+)?function\\s+(GET|POST|PUT|PATCH|DELETE)|export\\s+default\\s+(async\\s+)?function",
-    "absent": "(getServerSession|auth\\(\\)|currentUser|getUser\\(|requireUser|session\\.user|verifyToken|clerk|withAuth)",
-    "ask": "Can a user call this route without logging in, or read/modify another user's data by changing an ID in the URL or body?",
-    "fix": "Check the session at the top of the handler and verify the requested record belongs to session.user (e.g. WHERE id = ? AND user_id = ?)."
+    "absent": "(getServerSession|getSession\\w*\\(|auth\\(\\)|currentUser|getUser\\(|requireUser|session\\.user|verifyToken|clerk|withAuth)",
+    "ask": "Can a user call this route without logging in?",
+    "fix": "Check the session at the top of the handler and return 401 when there is no logged-in user.",
+    "exclude": [
+      "*login*",
+      "*logout*",
+      "*signup*",
+      "*sign-up*",
+      "*register*",
+      "*auth/*",
+      "*webhook*",
+      "*health*"
+    ]
+  },
+  {
+    "id": "nextjs-api-no-ownership",
+    "title": "API route reads a record by ID without checking who owns it",
+    "severity": "high",
+    "level": "suspect",
+    "attack": "idor_read",
+    "path": "(^|/)(app|pages)/api/.*\\[[^/\\]]+\\][^/]*(/route)?\\.(ts|js)$",
+    "trigger": "export\\s+(async\\s+)?function\\s+(GET|PUT|PATCH|DELETE)",
+    "absent": "\\w+\\([^)\\n]*\\b(userId|user_id|ownerId|owner_id|session\\.user\\.id)\\b[^)\\n]*\\)|\\.(user_id|userId|ownerId|owner_id)\\s*[!=]==?|[!=]==?\\s*\\w+\\.(user_id|userId|ownerId|owner_id)\\b",
+    "ask": "Can a logged-in user read or change another user's record just by changing the ID in the URL?",
+    "fix": "Load the record scoped to the session user (e.g. WHERE id = ? AND user_id = ?) and return 404 when it is not theirs."
   },
   {
     "id": "nextjs-public-secret",
     "title": "Secret exposed to the browser via NEXT_PUBLIC_ variable",
     "severity": "critical",
-    "files": ["*"],
+    "files": [
+      "*"
+    ],
     "trigger": "NEXT_PUBLIC_\\w*(SECRET|SERVICE_ROLE|PRIVATE|PASSWORD)\\w*",
     "ask": "Is a server-only secret being shipped to the browser bundle?",
-    "fix": "Rename without NEXT_PUBLIC_ and only read it in server code (route handlers, server actions); rotate the exposed secret."
+    "fix": "Rename without NEXT_PUBLIC_ and only read it in server code (route handlers, server actions); rotate the exposed secret.",
+    "level": "block"
   },
   {
     "id": "nextjs-server-action-trusts-client",
     "title": "Server action without an auth check",
     "severity": "high",
-    "files": ["*.ts", "*.tsx", "*.js"],
+    "files": [
+      "*.ts",
+      "*.tsx",
+      "*.js"
+    ],
     "trigger": "[\"']use server[\"']",
-    "absent": "(getServerSession|auth\\(\\)|currentUser|getUser\\(|requireUser|session\\.user)",
+    "absent": "(getServerSession|getSession\\w*\\(|auth\\(\\)|currentUser|getUser\\(|requireUser|session\\.user|verifyToken|clerk|withAuth)",
     "ask": "Can anyone call this server action directly and act on data that is not theirs?",
     "fix": "Server actions are public endpoints: re-check the session and ownership inside every action."
   }

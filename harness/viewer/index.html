@@ -171,7 +171,7 @@ function hot(file){ document.querySelectorAll(".card").forEach(c => c.classList.
 
 function buildSteps(r){
   const f = r.findings || [], s = [];
-  const blocking = f.some(x => ["high","critical"].includes(x.severity));
+  const blocking = r.result ? r.result === "BLOCK" : f.some(x => x.level === "block" && ["high","critical"].includes(x.severity));
   s.push(() => { activate("scout"); place("scout", 10); say("scout","Scout", `Sniffing the repo... stack looks like ${r.stack.join(", ")}. Loading those knowledge packs.`); });
   f.forEach((x, i) => {
     s.push(() => { activate("scout"); place("scout", 14 + (i % 3) * 4); hot(x.file); $(`flag-${i}`).classList.add("on");
