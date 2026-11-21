@@ -28,7 +28,8 @@ from tools import Tools  # noqa: E402
 LIVE_HTML = HERE.parent / "harness" / "viewer" / "live.html"
 NARRATE_TYPES = {"scan_done", "proof", "fix_proposed", "verdict"}
 APPROVAL_TIMEOUT = 600
-SCOUT_WAIT = float(os.environ.get("VIGIL_SCOUT_WAIT", "90"))  # seconds the Detective waits for Ministral before attacking
+AUTO_PAUSE = float(os.environ.get("VIGIL_AUTO_PAUSE", "4"))  # seconds the proposed diff stays on screen before auto-apply
+SCOUT_WAIT =float(os.environ.get("VIGIL_SCOUT_WAIT", "90"))  # seconds the Detective waits for Ministral before attacking
 
 
 class EventLog:
@@ -90,9 +91,10 @@ class EventLog:
 class Gate:
     """Human approval. Patches stay server-side, keyed by approval_id; the browser only answers allow/deny."""
 
-    def __init__(self, emit, timeout=APPROVAL_TIMEOUT):
+    def __init__(self, emit, timeout=APPROVAL_TIMEOUT, auto=False):
         self.emit = emit
         self.timeout = timeout
+        self.auto = auto  # True: the agent applies its fix itself; safety then rests on re-proof + automatic rollback
         self.pending: dict[str, dict] = {}
         self.ok: set[tuple[str, str]] = set()  # (file, sha256(content)) approved
         self.lock = threading.Lock()
@@ -107,12 +109,15 @@ class Gate:
         with self.lock:
             self.pending[aid] = item
         self.emit("fix_proposed", "mechanic", f"Proposed fix for {file}: {reason}",
-                  approval_id=aid, file=file, diff=diff, reason=reason)
-        if not item["done"].wait(self.timeout):
+                  approval_id=aid, file=file, diff=diff, reason=reason, auto=self.auto)
+        if self.auto:
+            time.sleep(AUTO_PAUSE)  # let the page show the diff before it is applied
+            self.answer(aid, "allow", by="the agent (auto-apply)")
+        elif not item["done"].wait(self.timeout):
             self.answer(aid, "deny")
         return item["decision"] == "allow"
 
-    def answer(self, aid, decision) -> bool:
+    def answer(self, aid, decision, by="a human") -> bool:
         if decision not in ("allow", "deny"):
             return False
         with self.lock:
@@ -122,8 +127,8 @@ class Gate:
         item["decision"] = decision
         if decision == "allow":
             self.ok.add(self._key(item["file"], item["new_content"]))
-        self.emit("approval", "gatekeeper", f"Fix {'approved' if decision == 'allow' else 'denied'} by a human.",
-                  approval_id=aid, decision=decision)
+        self.emit("approval", "gatekeeper", f"Fix {'approved' if decision == 'allow' else 'denied'} by {by}.",
+                  approval_id=aid, decision=decision, by=by)
         item["done"].set()
         return True
 
@@ -276,6 +281,8 @@ def main(argv=None) -> int:
     ap.add_argument("--mode", choices=["offline", "mistral"], default="offline")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-narrate", action="store_true")
+    ap.add_argument("--ask", action="store_true",
+                    help="wait for a human Approve/Deny click instead of auto-applying the fix")
     a = ap.parse_args(argv)
     app = Path(a.app_path).resolve()
     if not app.is_dir():
@@ -292,8 +299,8 @@ def main(argv=None) -> int:
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     log = EventLog(HERE / "runs" / f"{stamp}.jsonl", narrate=narr, scout=scout)
 
-    gate = Gate(log.emit)
-    srv = ThreadingHTTPServer(("127.0.0.1", a.port), make_handler(log, gate))
+    gate = Gate(log.emit, auto=not a.ask)
+    srv =ThreadingHTTPServer(("127.0.0.1", a.port), make_handler(log, gate))
     srv.daemon_threads = True
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     print(f"Open http://127.0.0.1:{a.port}/", flush=True)

@@ -309,17 +309,19 @@ function showApproval(ev){
   str(ev.diff).split("\n").forEach(l => { const s = document.createElement("span");
     s.className = l.startsWith("@@") ? "hunk" : l.startsWith("+") && !l.startsWith("+++") ? "add" : l.startsWith("-") && !l.startsWith("---") ? "del" : "";
     s.textContent = l || " "; pre.appendChild(s); });
-  const replay = mode === "replay";
-  $("approve").disabled = $("deny").disabled = replay;
-  $("ap-decision").textContent = replay ? "Recorded run: decision shown next." : "Waiting for a human...";
-  box.classList.toggle("waiting", !replay);
+  const replay = mode === "replay", auto = !!ev.auto;
+  $("approve").hidden = $("deny").hidden = auto;
+  $("approve").disabled = $("deny").disabled = replay || auto;
+  $("ap-decision").textContent = auto ? "The agent applies this fix itself, then attacks again to prove it."
+    : replay ? "Recorded run: decision shown next." : "Waiting for a human...";
+  box.classList.toggle("waiting", !replay && !auto);
   box.scrollIntoView({block:"end"}); // instant: smooth scrolls got cancelled; "end" keeps the buttons on screen
-  if (!replay) box.focus({preventScroll:true}); // not on Approve itself: a stray Enter must not approve
+  if (!replay && !auto) box.focus({preventScroll:true}); // not on Approve itself: a stray Enter must not approve
 }
-function showDecision(decision){
+function showDecision(decision, by){
   const box = $("approval"); box.classList.remove("waiting");
   $("approve").disabled = $("deny").disabled = true;
-  $("ap-decision").textContent = decision === "allow" ? "✔ Approved by a human" : "✖ Denied by a human";
+  $("ap-decision").textContent = (decision === "allow" ? "✔ Applied: approved by " : "✖ Denied by ") + (by || "a human");
 }
 async function decide(decision){
   const id = $("approval").dataset.id; if (!id) return;
@@ -353,7 +355,7 @@ function render(ev){
     case "tool_call": case "tool_result": text ||= `${ev.tool}: ${str(ev.summary || ev.args)}`; break;
     case "proof": showProof(ev); hot(null); break;
     case "fix_proposed": hot(ev.file); showApproval(ev); break;
-    case "approval": showDecision(ev.decision); setTimeout(() => { $("approval").hidden = true; $("stage").scrollIntoView({block:"start"}); }, 2500); break;
+    case "approval": showDecision(ev.decision, ev.by); setTimeout(() => { $("approval").hidden = true; $("stage").scrollIntoView({block:"start"}); }, 2500); break;
     case "fix_applied": hot(ev.file); break;
     case "rollback": hot(ev.file); flagsFor(f => f.file === ev.file).forEach(s => s.classList.replace("fixed","proven")); break;
     case "verdict": setVerdict(ev.result); break;
