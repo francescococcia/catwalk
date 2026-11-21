@@ -17,9 +17,13 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { devTonkBin } from "./identity.mjs";
 
 export function tonkBin(env = process.env) {
-  return (env.TONK_BIN || "tonk").trim().split(/\s+/);
+  if (env.TONK_BIN) return env.TONK_BIN.trim().split(/\s+/);
+  // same binary the wrapper uses: the dev build (revision history) when present
+  const dev = devTonkBin(env);
+  return dev ? [dev] : ["tonk"];
 }
 
 export function runTonk(args, { env = process.env, input, timeoutMs = 30000 } = {}) {

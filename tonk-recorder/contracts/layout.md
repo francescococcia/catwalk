@@ -9,10 +9,15 @@ User-level plugin — **nothing is written into the project repo** and
 nothing into the user's own `~/.vibe/hooks.toml`:
 
 ```
-~/.vibe/plugins/tonk-recorder/plugin.json        # Agent Plugins 1.0 manifest + ai.mistral.vibe extension
-~/.vibe/plugins/tonk-recorder/tool.mjs           # copy of the verified logic from the space
-~/.vibe/plugins/tonk-recorder/ai.mistral.vibe/hooks.toml  # the four hooks
+<project>/.vibe/plugins/tonk-recorder/plugin.json        # Agent Plugins 1.0 manifest + ai.mistral.vibe extension
+<project>/.vibe/plugins/tonk-recorder/tool.mjs           # copy of the verified logic from the space
+<project>/.vibe/plugins/tonk-recorder/ai.mistral.vibe/hooks.toml  # the four hooks
 ```
+
+Project-local by design (user override of SPEC §4.1's user-level default): the
+plugin is installed into the folder where `connect`/`new`/`join` runs, so it
+loads only in folders that opted in. `~/.vibe/plugins/tonk-recorder` (global)
+is still honoured for reading if present, but never written by default.
 
 `plugin.json` (exact):
 

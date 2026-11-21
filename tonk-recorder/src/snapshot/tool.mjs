@@ -68,7 +68,12 @@ export function currentBranch(dir) {
   try {
     return git(dir, ["rev-parse", "--abbrev-ref", "HEAD"]).trim() || null;
   } catch {
-    return null;
+    // a repository with no commits yet (fresh `git init`) has no HEAD to parse
+    try {
+      return git(dir, ["symbolic-ref", "--short", "HEAD"]).trim() || null;
+    } catch {
+      return null;
+    }
   }
 }
 

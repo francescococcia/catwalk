@@ -157,7 +157,7 @@ export function buildUnconnectedContext({ env = process.env, wrapper = wrapperCo
     `${wrapper} join '<link>' [--role <role>]        # join the space a link points to`,
     "```",
     ``,
-    `\`new\` opens a Tonk page in the user's browser to attach the space to their account (they sign in there if asked) — tell them to approve it, and wait; the command finishes once they do. \`join\` needs no sign-in.`,
+    `\`new\` makes a space that is local to this machine: no account, no sign-in. \`join\` needs no sign-in either. Only the first \`${wrapper} invite\` opens a Tonk page in the user's browser, to attach the space to their account (they sign in there if asked) — when you run it, tell them to approve it, and wait; never repeat the link it prints anywhere but to the user.`,
     ``,
     `After it finishes, run \`${wrapper} role\` to see your role and the roles installed, and \`tonk query role\` to read their instructions; from your next session this note will carry your role's instructions and the other agents' tasks. The folder does not need to be a git repository yet; \`new\` and \`join\` make it one.`,
     ``,

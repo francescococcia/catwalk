@@ -41,7 +41,7 @@ test('hooks.md maps both harnesses to the four internal events, fail-open', () =
 
 test('layout.md pins plugin paths, data root, lock, settings marker', () => {
   const l = C('layout.md');
-  for (const p of ['~/.vibe/plugins/tonk-recorder/plugin.json', '~/.vibe/plugins/tonk-recorder/tool.mjs',
+  for (const p of ['<project>/.vibe/plugins/tonk-recorder/plugin.json', '<project>/.vibe/plugins/tonk-recorder/tool.mjs',
     'ai.mistral.vibe/hooks.toml', '~/.tonk/tools/<wrapper>/<version>/tool.mjs', '~/.tonk/recorder/',
     'PLUGIN_DATA', 'PLUGIN_ROOT', '@tonk-recorder', 'locks/<space-name>.lock', 'spaces.json']) {
     assert.ok(l.includes(p), `layout.md missing ${p}`);

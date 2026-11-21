@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { installPlugin } from "../install.mjs";
+import { devTonkBin } from "../../hooks/identity.mjs";
 import { parseArgs, opt, ensureDist, home, rememberThisWrapper, PKG_NAME, PKG_VERSION } from "./shared.mjs";
 
 /** Harness → the directory whose presence means "this harness is used here". */
@@ -17,8 +18,8 @@ const PICK_UP = {
   claude: "start a new Claude Code session; /hooks lists it",
 };
 
-export function detectHarnesses(homePath) {
-  return Object.keys(HARNESS_HOME).filter((h) => fs.existsSync(path.join(homePath, HARNESS_HOME[h])));
+export function detectHarnesses(homePath, projectPath = process.cwd()) {
+  return Object.keys(HARNESS_HOME).filter((h) => fs.existsSync(path.join(homePath, HARNESS_HOME[h])) || fs.existsSync(path.join(projectPath, HARNESS_HOME[h])));
 }
 
 export async function cmdConnect(argv, { env = process.env } = {}) {
@@ -44,14 +45,18 @@ export async function cmdConnect(argv, { env = process.env } = {}) {
   let failed = 0;
   for (const harness of harnesses) {
     try {
-      await installPlugin({ home: homePath, version: PKG_VERSION, toolSource, harness, env });
-      console.log(`${harness}: connected (recorder v${PKG_VERSION}) — ${PICK_UP[harness]}`);
+      await installPlugin({ home: process.cwd(), version: PKG_VERSION, toolSource, harness, env });
+      console.log(`${harness}: connected in this folder (recorder v${PKG_VERSION}) — plugin at .vibe/plugins/tonk-recorder; ${PICK_UP[harness]}`);
     } catch (e) {
       failed++;
       console.log(`${harness}: NOT connected — ${e && e.message ? e.message : e}`);
     }
   }
   const call = rememberThisWrapper(env);
+  const dev = env.TONK_BIN || devTonkBin(env);
+  console.log(dev
+    ? `tonk: ${dev}`
+    : "tonk: the pinned npm build — it has NO revision history (`tonk log` / `restore`). Install tonk's dev channel as ~/.local/bin/tonk-dev, or set TONK_BIN, to get it.");
   if (failed < harnesses.length) {
     console.log("");
     console.log("Nothing is recorded until a project is connected to a space. In the project folder, tell your agent to run one of:");

@@ -168,7 +168,7 @@ export function inferVersionFromPath(sourcePath) {
 }
 
 export function installVibe(opts = {}) {
-  const home = opts.home || process.env.HOME;
+  const home = opts.home || process.cwd(); // install root = project folder (project-local plugin)
   if (!home) return { ok: false, code: EXIT.ERROR, error: 'no HOME; pass --home DIR' };
   const sourcePath = opts.source || defaultSourcePath();
   const version =
@@ -211,7 +211,7 @@ export function installVibe(opts = {}) {
 }
 
 export function uninstallVibe(opts = {}) {
-  const home = opts.home || process.env.HOME;
+  const home = opts.home || process.cwd(); // install root = project folder (project-local plugin)
   if (!home) return { ok: false, code: EXIT.ERROR, error: 'no HOME; pass --home DIR' };
   const dir = pluginDir(home);
   const files = pluginFiles(home);
@@ -233,7 +233,7 @@ export function uninstallVibe(opts = {}) {
 }
 
 export function statusVibe(opts = {}) {
-  const home = opts.home || process.env.HOME;
+  const home = opts.home || process.cwd(); // install root = project folder (project-local plugin)
   if (!home) return { ok: false, code: EXIT.ERROR, error: 'no HOME; pass --home DIR' };
   const files = pluginFiles(home);
   const present = {};
@@ -352,7 +352,7 @@ export async function main(argv, env = process.env) {
     process.stderr.write(`error: this adapter only supports --harness ${HARNESS} (got ${String(harness)})\n`);
     return EXIT.ERROR;
   }
-  const home = args.home || env.HOME;
+  const home = args.home || process.cwd();
   if (command === 'install') {
     const res = installVibe({
       home,

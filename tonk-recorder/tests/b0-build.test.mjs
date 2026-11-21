@@ -47,7 +47,7 @@ test("dist tool install: refuses a wrong --expect-sha256, accepts the right one"
   assert.equal(fs.readFileSync(path.join(pdir, "tool.mjs")).toString(), fs.readFileSync(DIST_TOOL).toString());
 });
 
-test("dist tool hook session-start: unbound (no tonk) → exit 0, tells the agent how to connect", async (t) => {
+test("dist tool hook session-start: not connected (no tonk) → exit 0, tells the agent how to connect", async (t) => {
   const ws = makeWorkspace(t);
   await runCli(["build"], { cwd: ws.project, env: ws.env });
   const r = await runTool(["hook", "session-start"], {
@@ -56,5 +56,5 @@ test("dist tool hook session-start: unbound (no tonk) → exit 0, tells the agen
     input: JSON.stringify({ hook_event_name: "session_start", session_id: "s1", cwd: ws.project }),
   });
   assert.equal(r.code, 0);
-  assert.match(JSON.parse(r.stdout).hook_specific_output.additional_context, /not connected to a Tonk space/, "unbound: nothing recorded, agent told how to connect");
+  assert.match(JSON.parse(r.stdout).hook_specific_output.additional_context, /not connected to a Tonk space/, "the agent is always prompted at launch");
 });

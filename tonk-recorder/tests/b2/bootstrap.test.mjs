@@ -59,7 +59,7 @@ test('pasted bootstrap block from `tonk space agents get` installs the plugin', 
   // staged verified logic + working plugin layout
   const staged = path.join(fx.home, '.tonk', 'tools', 'tonk-recorder', '1.0.0', 'tool.mjs');
   assert.equal(sha256Hex(fs.readFileSync(staged)), fx.sha);
-  const pd = path.join(fx.home, '.vibe', 'plugins', 'tonk-recorder');
+  const pd = path.join(proj, '.vibe', 'plugins', 'tonk-recorder');
   assert.deepEqual(tree(pd), ['ai.mistral.vibe/', 'ai.mistral.vibe/hooks.toml', 'plugin.json', 'tool.mjs']);
   assert.equal(sha256Hex(fs.readFileSync(path.join(pd, 'tool.mjs'))), fx.sha);
 
@@ -70,7 +70,7 @@ test('pasted bootstrap block from `tonk space agents get` installs the plugin', 
   assert.ok(instr.stdout.includes('decision!:'));
 
   // uninstall leaves nothing
-  const un = runNode(path.join(pd, 'tool.mjs'), ['uninstall', '--harness', 'vibe', '--home', fx.home], { env: { ...fx.env, HOME: fx.home } });
+  const un = runNode(path.join(pd, 'tool.mjs'), ['uninstall', '--harness', 'vibe', '--home', proj], { env: { ...fx.env, HOME: fx.home } });
   assert.equal(un.status, 0);
   assert.equal(fs.existsSync(pd), false);
 });
@@ -82,5 +82,6 @@ test('pasted bootstrap block with a wrong sha256 is refused, nothing installed',
   const r = runPastedBlock(fx, bad, proj);
   assert.notEqual(r.status, 0, 'install must refuse');
   assert.match(r.stderr, /sha256 mismatch/);
+  assert.equal(fs.existsSync(path.join(proj, '.vibe', 'plugins', 'tonk-recorder')), false);
   assert.equal(fs.existsSync(path.join(fx.home, '.vibe', 'plugins', 'tonk-recorder')), false);
 });

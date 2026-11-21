@@ -17,17 +17,17 @@ commands:
   connect [--harness vibe|claude|all]
                         hook the recorder into the harnesses on this machine (once,
                         before any space); then reload or restart the harness
-  new <name> [--role <r>] [--local] [--agent-name <n>] [--harness vibe|claude]
-                        create + bind a space, attach it to your Tonk account on
-                        tonk.foundation (browser approval; sign in if asked;
-                        --local skips), publish the recorder logic into it,
-                        install hooks into this harness, print the invite paste line
+  new <name> [--role <r>] [--agent-name <n>] [--harness vibe|claude]
+                        create + bind a LOCAL space (no remote, no sign-in), publish
+                        the recorder logic into it, install hooks into this harness
   join '<link>' [--role <r>] [--agent-name <n>] [--harness vibe|claude]
                         join a space, fetch + verify (sha256, trusted publisher) the
                         logic, install hooks
   role [<name>]         show or take this agent's role in the space (builder, reviewer, …)
   link [--via <page>]   attach this folder's local-only space to your Tonk account
-  invite                print a fresh invite link + the paste line
+  invite                print an invite link + the paste line. The first invite
+                        attaches the space to your Tonk account on tonk.foundation
+                        (browser approval; sign in there if asked)
   status                binding, sync state, hook state, update availability
   sync                  one checkpoint now: tonk pull + tonk push (SPEC §6.5)
   hook <event>          harness entry point: session-start|pre-agent|post-agent|session-end
