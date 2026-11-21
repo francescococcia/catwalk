@@ -1,0 +1,8 @@
+{
+  "space": "recorder-demo",
+  "site": "/Users/goblin/Workspace/tonk-demo/site",
+  "project": "/Users/goblin/Workspace/tonk-demo/project",
+  "tonk": "/Users/goblin/.local/bin/tonk-dev",
+  "revisions": 15,
+  "exportedFrom": "tonk query --json + log"
+}

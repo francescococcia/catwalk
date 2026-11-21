@@ -1,0 +1,7 @@
+[
+  { "this": "did:key:zSt1", "id": "did:key:zSt1", "decision": "did:key:zDec1", "status": "proposed", "by": "hermes", "at": "2026-11-21T12:21:00Z" },
+  { "this": "did:key:zSt2", "id": "did:key:zSt2", "decision": "did:key:zDec1", "status": "rejected", "by": "lead", "at": "2026-11-21T12:25:00Z" },
+  { "this": "did:key:zSt3", "id": "did:key:zSt3", "decision": "did:key:zDec2", "status": "accepted", "by": "lead", "at": "2026-11-21T12:35:00Z" },
+  { "this": "did:key:zSt4", "id": "did:key:zSt4", "decision": "did:key:zDec3", "status": "proposed", "by": "lead", "at": "2026-11-21T13:41:00Z" },
+  { "this": "did:key:zSt5", "id": "did:key:zSt5", "decision": "did:key:zDec3", "status": "accepted", "by": "lead", "at": "2026-11-21T13:45:00Z" }
+]

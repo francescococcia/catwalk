@@ -1,0 +1,12 @@
+[
+  {
+    "this": "did:key:zSess1",
+    "id": "sess-1",
+    "agent": "hermes",
+    "harness": "vibe",
+    "project": "demo",
+    "started": "2026-11-21T11:55:00Z",
+    "ended": "2026-11-21T14:10:00Z",
+    "changes": 2
+  }
+]

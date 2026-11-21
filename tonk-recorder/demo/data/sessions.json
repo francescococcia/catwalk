@@ -1,0 +1,12 @@
+[
+  {
+    "this": "did:key:z6Mk4wPzA4Xjy6ME6Tb7qs5jUdPqAwCuFg3SK9ZCMnsTDxxv",
+    "agent": "hermes",
+    "changes": 2,
+    "ended": "2026-11-21T14:10:00Z",
+    "harness": "vibe",
+    "id": "vibe-session-aaa",
+    "project": "mistral_hackathon",
+    "started": "2026-11-21T11:55:00Z"
+  }
+]

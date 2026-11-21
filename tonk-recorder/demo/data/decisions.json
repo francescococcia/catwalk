@@ -1,0 +1,76 @@
+[
+  {
+    "this": "did:key:z6Mk5Wy6kJstaekp34iXypEgZe9u5L3GfD5912WxFoA8g75m",
+    "at": "2026-11-21T12:20:00Z",
+    "by": "hermes",
+    "chosen": "tonk pull + push after every recorded change",
+    "rejected": "Checkpoint syncing only",
+    "title": "Sync the space at every turn",
+    "why": "Keeps every agent's view fresh immediately.",
+    "id": "did:key:z6Mk5Wy6kJstaekp34iXypEgZe9u5L3GfD5912WxFoA8g75m",
+    "name": "decision-sync-every-turn",
+    "supersedes": null,
+    "about": [
+      "id:src-hooks"
+    ]
+  },
+  {
+    "this": "did:key:z6Mk7Vy6wTmVQjuysZCFHSwUvurV5dpHb6CtTgzYxpbKtnxb",
+    "at": "2026-11-21T13:30:00Z",
+    "by": "lead",
+    "chosen": "Inline diffs up to and including 64 KB; blob above",
+    "rejected": "Blob everything, regardless of size",
+    "supersedes": "did:key:z6MkFvMRB7cRVRvgZ3NxJ1YpMrBqZTvvE2FbC1ixYpSGdyia",
+    "title": "Blob threshold is 64 KB, inline below",
+    "why": "Clarifies the boundary case at exactly 64 KB after review.",
+    "id": "did:key:z6Mk7Vy6wTmVQjuysZCFHSwUvurV5dpHb6CtTgzYxpbKtnxb",
+    "name": "decision-blob-threshold-64k",
+    "about": []
+  },
+  {
+    "this": "did:key:z6MkDcrSMqJt4RXSB6f28avnRoYd5iEUxkmuG2oDuv1vH4e6",
+    "at": "2026-11-21T13:40:00Z",
+    "by": "lead",
+    "chosen": "flock-style lock on $DATA_ROOT/locks/<space>.lock around every tonk eval, with retry on exit 4",
+    "rejected": "Write directly and let tonk's lock reject; retry blindly",
+    "title": "Recorder takes its own lock around tonk writes",
+    "why": "tonk's revision.lock rejects concurrent writers (exit 4, nothing committed); the recorder serialises itself first and fails open after 3 attempts.",
+    "id": "did:key:z6MkDcrSMqJt4RXSB6f28avnRoYd5iEUxkmuG2oDuv1vH4e6",
+    "name": "decision-writer-lock",
+    "supersedes": null,
+    "about": [
+      "did:key:z6MkGKnJg2Lg9dBKhywjwGXwgobxkCm7osXtNK3vo2EHx3Jh",
+      "id:locks"
+    ]
+  },
+  {
+    "this": "did:key:z6MkFvMRB7cRVRvgZ3NxJ1YpMrBqZTvvE2FbC1ixYpSGdyia",
+    "at": "2026-11-21T13:00:00Z",
+    "by": "hermes",
+    "chosen": "A diff over 64 KB goes through `tonk blob add` and the change references it as blob:<hash>",
+    "rejected": "Always inline the diff in the change record",
+    "title": "Store diffs larger than 64 KB as blobs",
+    "why": "Keeps revisions small; the blob store dedupes large payloads and `tonk blob cat` reads them back.",
+    "id": "did:key:z6MkFvMRB7cRVRvgZ3NxJ1YpMrBqZTvvE2FbC1ixYpSGdyia",
+    "name": "decision-blob-diffs",
+    "supersedes": null,
+    "about": [
+      "id:src-writer"
+    ]
+  },
+  {
+    "this": "did:key:z6MkGMsJhaYDVwjz8nsU2jAwdPFCRFru6stXokuPrYZcEBt2",
+    "at": "2026-11-21T12:30:00Z",
+    "by": "hermes",
+    "chosen": "Sync only at session start/end, every 10 turns, or on demand",
+    "rejected": "Sync at every turn",
+    "supersedes": "did:key:z6Mk5Wy6kJstaekp34iXypEgZe9u5L3GfD5912WxFoA8g75m",
+    "title": "Checkpoint sync instead of every turn",
+    "why": "Concurrent eval --no-sync writers collide on the revision lock (contracts/cli-checks.md); checkpoint sync keeps a swarm from fighting over the shared head.",
+    "id": "did:key:z6MkGMsJhaYDVwjz8nsU2jAwdPFCRFru6stXokuPrYZcEBt2",
+    "name": "decision-checkpoint-sync",
+    "about": [
+      "id:checkpoint-sync"
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "this": "did:key:zChange1",
+    "id": "sess-1:turn-1",
+    "session": "sess-1",
+    "turn": "turn-1",
+    "parentSession": null,
+    "agent": "hermes",
+    "harness": "vibe",
+    "prompt": "Add the hook runtime\n\nWire sync too.",
+    "response": "Added src/hooks/tool.mjs.",
+    "project": "demo",
+    "branch": "main",
+    "base": "aaa",
+    "head": "bbb",
+    "commit": "ccc",
+    "files": [
+      { "path": "src/hooks/tool.mjs", "status": "added", "added": 10, "removed": 0 }
+    ],
+    "linesAdded": 10,
+    "linesRemoved": 0,
+    "diff": "diff --git a/src/hooks/tool.mjs b/src/hooks/tool.mjs\n+export function main() {}\n",
+    "diffBlob": null,
+    "redacted": false,
+    "at": "2026-11-21T12:00:00Z"
+  },
+  {
+    "this": "did:key:zChange2",
+    "id": "sess-1:turn-2",
+    "session": "sess-1",
+    "turn": "turn-2",
+    "parentSession": null,
+    "agent": "hermes",
+    "harness": "vibe",
+    "prompt": "wire up the env config",
+    "response": "Added .env.",
+    "project": "demo",
+    "branch": "main",
+    "base": "bbb",
+    "head": "ddd",
+    "commit": "ccc",
+    "files": [
+      { "path": ".env", "status": "added", "added": 9, "removed": 0 }
+    ],
+    "linesAdded": 9,
+    "linesRemoved": 0,
+    "diff": null,
+    "diffBlob": "blob:zFakeDiff",
+    "redacted": true,
+    "at": "2026-11-21T12:05:00Z"
+  }
+]

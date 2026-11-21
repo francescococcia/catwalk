@@ -1,0 +1,85 @@
+[
+  {
+    "this": "did:key:z6MkGKnJg2Lg9dBKhywjwGXwgobxkCm7osXtNK3vo2EHx3Jh",
+    "agent": "hermes",
+    "at": "2026-11-21T12:00:00Z",
+    "base": "4b825dc642cb6eb9a060e54bf8d69288fbee4904",
+    "branch": "main",
+    "commit": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    "diff": "diff --git a/src/hooks/tool.mjs b/src/hooks/tool.mjs\nnew file mode 100644\nindex 0000000..1234567\n--- /dev/null\n+++ b/src/hooks/tool.mjs\n@@ -0,0 +1,5 @@\n+#!/usr/bin/env node\n+// hook runtime\n+export function main() {}\n+export function hook(event) { return 0; }\n",
+    "harness": "vibe",
+    "head": "9d3f1c2a1b4e5f60718293a4b5c6d7e8f901234",
+    "linesAdded": 150,
+    "linesRemoved": 6,
+    "project": "mistral_hackathon",
+    "prompt": "Add the recorder hook runtime\n\nAlso wire the checkpoint sync and the update check.",
+    "redacted": false,
+    "response": "Added src/hooks/tool.mjs with the four entry points and wired checkpoint sync.",
+    "session": "vibe-session-aaa",
+    "turn": "turn-1",
+    "id": "vibe-session-aaa:turn-1",
+    "diffBlob": null,
+    "parentSession": null,
+    "files": [
+      {
+        "path": "src/hooks/tool.mjs",
+        "status": "added",
+        "added": 120,
+        "removed": 0
+      },
+      {
+        "path": "src/hooks/README.md",
+        "status": "modified",
+        "added": 30,
+        "removed": 4
+      },
+      {
+        "path": "src/renamed-b.txt",
+        "status": "renamed",
+        "added": 0,
+        "removed": 0
+      },
+      {
+        "path": "src/old.txt",
+        "status": "deleted",
+        "added": 0,
+        "removed": 2
+      }
+    ]
+  },
+  {
+    "this": "did:key:z6MkGycfjubJ1C8nDaf5d45p4Q1YkzJBntC7pV1QVv8976Tk",
+    "agent": "hermes",
+    "at": "2026-11-21T12:05:00Z",
+    "base": "9d3f1c2a1b4e5f60718293a4b5c6d7e8f901234",
+    "branch": "main",
+    "commit": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    "diffBlob": "blob:zFakeSecretDiffBlobHash0000000000000000000000",
+    "harness": "vibe",
+    "head": "b2c3d4e5f60718293a4b5c6d7e8f9012345679a",
+    "linesAdded": 10,
+    "linesRemoved": 0,
+    "project": "mistral_hackathon",
+    "prompt": "wire up the env config",
+    "redacted": true,
+    "response": "Added .env and updated config.ts.",
+    "session": "vibe-session-aaa",
+    "turn": "turn-2",
+    "id": "vibe-session-aaa:turn-2",
+    "parentSession": null,
+    "files": [
+      {
+        "path": ".env",
+        "status": "added",
+        "added": 9,
+        "removed": 0
+      },
+      {
+        "path": "src/config.ts",
+        "status": "modified",
+        "added": 1,
+        "removed": 0
+      }
+    ]
+  }
+]

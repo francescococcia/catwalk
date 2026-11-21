@@ -122,6 +122,58 @@ function exportAll(query) {
   return { changes, decisions, statuses, sessions, tools, publishers };
 }
 
+// --- views into the space ----------------------------------------------------
+//
+// "Write the views into the tonk": assert `view!:` facets for the recorder
+// concepts so `tonk render <concept>` / `<entity>@<concept>` serve them from
+// the space (tonk-dev `help views`). Templates live in views/templates/;
+// facet values are YAML block scalars. NOTE: template placeholders must be
+// the concept's notation field names (dash-case, e.g. `{lines-added}`) — an
+// unknown placeholder (e.g. `{files}`, which is a lens, not a field) makes
+// the whole eval document fail.
+
+const TEMPLATES = join(REPO, 'views', 'templates');
+
+const blockScalar = (text) => text.replace(/\n$/, '').split('\n').map((l) => '      ' + l).join('\n');
+
+function viewDoc(concept, facets) {
+  const lines = ['view!:', `  this: ${concept}`, '  show:'];
+  for (const [facet, src] of Object.entries(facets)) {
+    const text = src.endsWith('.html') ? readFileSync(src, 'utf8') : src;
+    lines.push(`    ${facet}: |`);
+    lines.push(blockScalar(text));
+  }
+  return lines.join('\n') + '\n';
+}
+
+const CHANGE_UI = `<article class="change">
+  <h2><a href="{this}@change">{prompt}</a></h2>
+  <p class="hint">{agent}{harness} · {at} · +{lines-added} / −{lines-removed}</p>
+  <p class="hint">changed paths: the <code>change-file</code> route (lens rows)</p>
+</article>`;
+
+// one view!: document per concept, asserted in its own eval (isolation:
+// a bad facet fails only its own concept)
+function viewDocs() {
+  return [
+    viewDoc('decision', {
+      directory: join(TEMPLATES, 'decision.directory.html'),
+      ui: join(TEMPLATES, 'decision.ui.html'),
+      label: '{title}',
+      title: 'Decision — {title}',
+    }),
+    viewDoc('decision-status', {
+      directory: join(TEMPLATES, 'decision-status.directory.html'),
+      ui: join(TEMPLATES, 'decision-status.ui.html'),
+      label: '{status}',
+    }),
+    viewDoc('change', {
+      directory: join(TEMPLATES, 'change.directory.html'),
+      ui: CHANGE_UI,
+    }),
+  ];
+}
+
 // --- main --------------------------------------------------------------------
 
 function main() {
@@ -166,7 +218,14 @@ function main() {
     console.log(`asserted    : ${doc.replace(REPO + '/', '')} (${/claims: (\d+)/.exec(out)?.[1] ?? '0'} claims)`);
   }
 
-  // 3. export the JSON mirror for the views
+  // 3. write the views INTO the space (view!: facets; idempotent — identical
+  //    templates re-assert as no-ops)
+  for (const doc of viewDocs()) {
+    const out = t(['eval', '--no-sync', '-c', doc]);
+    console.log(`view facet  : ${/this: (\S+)/.exec(doc)?.[1]} (${/claims: (\d+)/.exec(out)?.[1] ?? '0'} claims)`);
+  }
+
+  // 4. export the JSON mirror for the static view (views/decisions.mjs)
   const query = (concept) => JSON.parse(t(['query', concept, '--json']));
   const data = exportAll(query);
   mkdirSync(args.dataDir, { recursive: true });
@@ -196,9 +255,20 @@ function main() {
     `totals      : ${data.changes.length} changes, ${data.decisions.length} decisions, ` +
       `${data.statuses.length} statuses, ${data.sessions.length} sessions, ${revisions} revisions`,
   );
+
+  // 5. render the in-space views headlessly as proof + for local browsing
+  const rendered = join(demoDir, 'rendered');
+  mkdirSync(rendered, { recursive: true });
+  for (const route of ['decision', 'decision-status', 'change', 'decision-blob-diffs@decision']) {
+    const file = join(rendered, route.replace(/[@!]/g, '_') + '.html');
+    run(['render', route, '--out', file], { cwd: project, env: ENV });
+    console.log(`rendered    : tonk render ${route} -> ${file}`);
+  }
+
   console.log(`\nbrowse the space:  cd ${project} && HOME=${home} ${TONK} query decision --json`);
   console.log(`                   HOME=${home} ${TONK} log decision --limit 20`);
-  console.log(`render the view :  node views/decisions.mjs --in ${args.dataDir} --out dist/views`);
+  console.log(`                   HOME=${home} ${TONK} render decision        # the view, from the space`);
+  console.log(`static view     :  node views/decisions.mjs --in ${args.dataDir} --out dist/views`);
   return 0;
 }
 
