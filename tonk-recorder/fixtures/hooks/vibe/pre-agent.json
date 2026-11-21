@@ -1,0 +1,8 @@
+{
+  "hook_event_name": "pre_agent",
+  "session_id": "vibe-session-aaa",
+  "transcript_path": "/tmp/fake-home/.vibe/sessions/vibe-session-aaa.jsonl",
+  "cwd": "/tmp/fake-home/proj",
+  "prompt": "Add the recorder hook runtime\n\nAlso wire the checkpoint sync and the update check.",
+  "turn_id": "turn-1"
+}

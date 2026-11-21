@@ -1,0 +1,9 @@
+{
+  "name": "tonk-recorder",
+  "version": "0.1.0",
+  "blob": "blob:zFakeToolBlobHash0123456789abcdef0123456789abcdef",
+  "sha256": "8a4aca2c2321652edb3d0e7ea0d404b9f6ec7821b91dbe90077464dcdca905a4",
+  "publisher": "did:key:z6MkrFWbViTznXqzVcfBzwn5iStn7g224Ep44AQBNGKCuviW",
+  "publishedAt": "2026-11-21T10:00:00Z",
+  "changelog": "v0.1.0 — initial recorder: hooks, writer, checkpoint sync"
+}

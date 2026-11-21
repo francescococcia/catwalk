@@ -1,0 +1,25 @@
+# decision-001 — hand-added decision (SPEC §5.2, §6.7), notation per
+# contracts/records.md. The anchor publishes id:decision-blob-diffs so later
+# records (supersedes, decision-about, decision-status) can reference it.
+# JSON mirror: decision-001.json.
+
+decision!: &decision-blob-diffs
+  this: ?d
+  title: "Store diffs larger than 64 KB as blobs"
+  chosen: "A diff over 64 KB goes through `tonk blob add` and the change references it as blob:<hash>"
+  why: "Keeps revisions small; the blob store dedupes large payloads and `tonk blob cat` reads them back."
+  rejected: "Always inline the diff in the change record"
+  by: "hermes"
+  at: "2026-11-21T13:00:00Z"
+
+# lens: what the decision is about — a named area published in this document
+# (a change target would be the change entity, e.g. did:key:…, or its anchor
+# name from the change's own write).
+
+xyz.example.area!:
+  this: id:src-writer
+  path: "src/writer"
+
+decision-about!:
+  decision: ?d
+  target: id:src-writer

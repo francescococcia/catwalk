@@ -1,0 +1,19 @@
+# session-001 — one harness session (SPEC §5.3). Written at session-start
+# (started, changes: 0) and updated at session-end by binding the same entity:
+# session:
+#   this: ?s
+#   id: "vibe-session-aaa"
+# session!:
+#   this: ?s
+#   ended: "…"
+#   changes: 2
+# JSON mirror: session-001.json.
+
+session!:
+  id: "vibe-session-aaa"
+  agent: "hermes"
+  harness: :vibe
+  project: "mistral_hackathon"
+  started: "2026-11-21T11:55:00Z"
+  ended: "2026-11-21T14:10:00Z"
+  changes: 2

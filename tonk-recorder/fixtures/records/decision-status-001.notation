@@ -1,0 +1,11 @@
+# decision-status-001 — add-only status record (SPEC §5.2 state machine:
+# hand-added decisions start at :accepted, §11.8 default). Current status =
+# latest record by `at`. JSON mirror: decision-status-001.json.
+
+# the decision entity is the one published as id:decision-blob-diffs by
+# decision-001.notation (bare symbol resolves through the name table)
+decision-status!:
+  decision: decision-blob-diffs
+  status: :accepted
+  by: "lead"
+  at: "2026-11-21T13:05:00Z"

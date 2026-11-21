@@ -1,0 +1,8 @@
+{
+  "hook_event_name": "pre_agent",
+  "session_id": "sess-1",
+  "transcript_path": "/tmp/fake/transcript.jsonl",
+  "cwd": "{{CWD}}",
+  "prompt": "add a login endpoint\nwith tests",
+  "turn_id": "turn-1"
+}

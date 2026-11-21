@@ -1,0 +1,3 @@
+[
+  { "this": "did:key:z6MkFakeFile1", "change": "did:key:z6MkFakeChangeB", "path": "tests/auth.test.js", "status": "added:", "added": 40, "removed": 0 }
+]

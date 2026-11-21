@@ -1,0 +1,288 @@
+# STUB for the S1 structure pack (agent w0-s1-r2 owns packs/recorder.notation —
+# INTEGRATION POINT contracts/records.md). Concepts + fields per SPEC §5;
+# loaded idempotently by `<wrapper> new` via `tonk eval --no-sync`.
+# When S1 lands, the build embeds packs/recorder.notation instead of this file.
+
+attribute!: &change-session
+  description: "Harness session id that produced the change (SPEC §5.1)"
+  the: xyz.tonk.change/session
+  as: text
+
+attribute!: &change-turn
+  description: "Turn id within the session"
+  the: xyz.tonk.change/turn
+  as: text
+
+attribute!: &change-agent
+  description: "Agent name + harness"
+  the: xyz.tonk.change/agent
+  as: text
+
+attribute!: &change-prompt
+  description: "The prompt of the turn"
+  the: xyz.tonk.change/prompt
+  as: text
+
+attribute!: &change-response
+  description: "The agent's response text"
+  the: xyz.tonk.change/response
+  as: text
+
+attribute!: &change-project
+  description: "Project dir / remote name"
+  the: xyz.tonk.change/project
+  as: text
+
+attribute!: &change-branch
+  description: "Git branch at the time"
+  the: xyz.tonk.change/branch
+  as: text
+
+attribute!: &change-base
+  description: "Before-snapshot git tree hash"
+  the: xyz.tonk.change/base
+  as: text
+
+attribute!: &change-head
+  description: "After-snapshot git tree hash"
+  the: xyz.tonk.change/head
+  as: text
+
+attribute!: &change-commit
+  description: "Git HEAD commit the turn sat on"
+  the: xyz.tonk.change/commit
+  as: text
+
+attribute!: &change-files
+  description: "Changed paths with status (added/modified/deleted/renamed) — lens"
+  the: xyz.tonk.change/files
+  as: text
+  pick: :all
+
+attribute!: &change-lines-added
+  description: "git diff --numstat added"
+  the: xyz.tonk.change/lines-added
+  as: natural
+
+attribute!: &change-lines-removed
+  description: "git diff --numstat removed"
+  the: xyz.tonk.change/lines-removed
+  as: natural
+
+attribute!: &change-diff
+  description: "Inline diff if ≤ 64 KB, else blob:<hash> (SPEC §11.2)"
+  the: xyz.tonk.change/diff
+  as: text
+
+attribute!: &change-redacted
+  description: "Secret scan removed anything"
+  the: xyz.tonk.change/redacted
+  as: boolean
+
+attribute!: &change-at
+  description: "Timestamp"
+  the: xyz.tonk.change/at
+  as: text
+
+concept!: &change
+  description: "One agent turn that changed files (SPEC §5.1)"
+  with:
+    session: change-session
+    turn: change-turn
+    agent: change-agent
+    prompt: change-prompt
+    response: change-response
+    project: change-project
+    branch: change-branch
+    base: change-base
+    head: change-head
+    commit: change-commit
+    files: change-files
+    lines-added: change-lines-added
+    lines-removed: change-lines-removed
+    diff: change-diff
+    redacted: change-redacted
+    at: change-at
+
+attribute!: &decision-title
+  description: "One line (SPEC §5.2)"
+  the: xyz.tonk.decision/title
+  as: text
+
+attribute!: &decision-chosen
+  description: "What was decided"
+  the: xyz.tonk.decision/chosen
+  as: text
+
+attribute!: &decision-why
+  description: "The reasoning"
+  the: xyz.tonk.decision/why
+  as: text
+
+attribute!: &decision-rejected
+  description: "Alternatives considered (optional)"
+  the: xyz.tonk.decision/rejected
+  as: text
+
+attribute!: &decision-about
+  description: "Files / areas / change records it relates to"
+  the: xyz.tonk.decision/about
+  as: text
+  pick: :all
+
+attribute!: &decision-supersedes
+  description: "An earlier decision (optional)"
+  the: xyz.tonk.decision/supersedes
+  as: text
+
+attribute!: &decision-by
+  description: "Agent or person who recorded it"
+  the: xyz.tonk.decision/by
+  as: text
+
+attribute!: &decision-at
+  description: "Timestamp"
+  the: xyz.tonk.decision/at
+  as: text
+
+concept!: &decision
+  description: "A decision, added on purpose; never edited or retracted (SPEC §5.2)"
+  with:
+    title: decision-title
+    chosen: decision-chosen
+    why: decision-why
+    rejected: decision-rejected
+    about: decision-about
+    supersedes: decision-supersedes
+    by: decision-by
+    at: decision-at
+
+attribute!: &decision-status-decision
+  description: "The decision this status is about"
+  the: xyz.tonk.decision-status/decision
+  as: text
+
+attribute!: &decision-status-status
+  description: "proposed / accepted / rejected"
+  the: xyz.tonk.decision-status/status
+  as: text
+
+attribute!: &decision-status-by
+  description: "Who set the status"
+  the: xyz.tonk.decision-status/by
+  as: text
+
+attribute!: &decision-status-at
+  description: "Timestamp"
+  the: xyz.tonk.decision-status/at
+  as: text
+
+concept!: &decision-status
+  description: "Add-only status record for a decision (SPEC §5.2)"
+  with:
+    decision: decision-status-decision
+    status: decision-status-status
+    by: decision-status-by
+    at: decision-status-at
+
+attribute!: &session-id
+  description: "Harness session id (SPEC §5.3)"
+  the: xyz.tonk.session/id
+  as: text
+
+attribute!: &session-agent
+  description: "Agent + harness"
+  the: xyz.tonk.session/agent
+  as: text
+
+attribute!: &session-project
+  description: "Project"
+  the: xyz.tonk.session/project
+  as: text
+
+attribute!: &session-started
+  description: "Start timestamp"
+  the: xyz.tonk.session/started
+  as: text
+
+attribute!: &session-ended
+  description: "End timestamp"
+  the: xyz.tonk.session/ended
+  as: text
+
+attribute!: &session-changes
+  description: "Number of changes in the session"
+  the: xyz.tonk.session/changes
+  as: natural
+
+concept!: &session
+  description: "One harness session (SPEC §5.3)"
+  with:
+    id: session-id
+    agent: session-agent
+    project: session-project
+    started: session-started
+    ended: session-ended
+    changes: session-changes
+
+attribute!: &tool-name
+  description: "Tool name (SPEC §5.4)"
+  the: xyz.tonk.tool/name
+  as: text
+
+attribute!: &tool-version
+  description: "Tool version"
+  the: xyz.tonk.tool/version
+  as: text
+
+attribute!: &tool-blob
+  description: "blob:<hash> ref of the logic file"
+  the: xyz.tonk.tool/blob
+  as: text
+
+attribute!: &tool-sha256
+  description: "sha256 of the logic file bytes"
+  the: xyz.tonk.tool/sha256
+  as: text
+
+attribute!: &tool-publisher
+  description: "DID of the publishing identity"
+  the: xyz.tonk.tool/publisher
+  as: text
+
+attribute!: &tool-published-at
+  description: "Publish timestamp"
+  the: xyz.tonk.tool/published-at
+  as: text
+
+attribute!: &tool-changelog
+  description: "One-line changelog"
+  the: xyz.tonk.tool/changelog
+  as: text
+
+concept!: &tool
+  description: "The recorder logic stored in the space (SPEC §5.4)"
+  with:
+    name: tool-name
+    version: tool-version
+    blob: tool-blob
+    sha256: tool-sha256
+    publisher: tool-publisher
+    published-at: tool-published-at
+    changelog: tool-changelog
+
+attribute!: &trusted-publisher-identity
+  description: "Identity allowed to publish tool records (SPEC §5.5)"
+  the: xyz.tonk.trusted-publisher/identity
+  as: text
+
+attribute!: &trusted-publisher-added-at
+  description: "When it was trusted"
+  the: xyz.tonk.trusted-publisher/added-at
+  as: text
+
+concept!: &trusted-publisher
+  description: "Trusted publisher of tool records; set by the space owner (SPEC §5.5)"
+  with:
+    identity: trusted-publisher-identity
+    added-at: trusted-publisher-added-at
