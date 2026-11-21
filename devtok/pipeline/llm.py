@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]  # vibedidactics/
 API = "https://api.mistral.ai/v1/chat/completions"
 MODELS = {
-    "large": os.environ.get("DEVTOK_MODEL_LARGE", "mistral-medium-latest"),
+    "large": os.environ.get("DEVTOK_MODEL_LARGE", "mistral-large-4"),  # Le Chonk: system map, storyboard, approval summary
     "medium": os.environ.get("DEVTOK_MODEL_MEDIUM", "mistral-medium-latest"),
     "small": os.environ.get("DEVTOK_MODEL_SMALL", "mistral-small-latest"),
 }

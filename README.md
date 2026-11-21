@@ -1,5 +1,7 @@
 # Le Chonk in London — Mistral Vibe Hackathon
 
+> **Our project: DevTok × Vigil.** DevTok explains a PR as a 60-second video feed per role; Vigil proves the PR is safe (attacks a local copy, fixes, re-proves) and feeds its findings into DevTok's approval screen. Pitch and demo script: [PITCH.md](PITCH.md) · DevTok: [devtok/README.md](devtok/README.md) · Vigil: below.
+
 ## Vigil: try it (teammates start here)
 Vigil is a security skill for Vibe that **proves before it speaks**. Rules spot a suspect, Ministral (local) explains it, the Detective agent attacks your own app to prove it, applies a fix, and attacks again to prove the fix works. A live cartoon page shows it all.
 
