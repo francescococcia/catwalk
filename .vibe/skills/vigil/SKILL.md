@@ -38,8 +38,9 @@ From the repository root:
    - `PASS`: nothing found.
    - `SUSPECT`: possible problems that need **proof**. Do not guess-fix these. Start the Vigil agent, which attacks the running app and proposes a proven fix for a human to approve:
      ```bash
-     uv run --project engine engine/run.py <path>
+     uv run --project engine engine/run.py <path> --mode mistral
      ```
+     `--mode mistral` makes the Detective the Mistral Large 4 agent (needs `MISTRAL_API_KEY`); without a key it falls back to the offline Detective by itself.
      The agent proves the problem, applies its own fix, attacks again, and rolls the fix back if the attack still works. Tell the user to open the page it prints to watch it. (Add `--ask` to the command if a human must click Approve first.)
 
      The engine works on any repo through a target profile: `<path>/.vigil/target.json` declares the app's local address, the login route, the test users with their passwords and records, and the record route to test (see `engine/CONTRACT.md`). Attacks only go to that loopback address and take users/ids/passwords from the file only — the agent never sees or sends them.
