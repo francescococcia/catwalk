@@ -71,6 +71,7 @@ Common fields: `seq` (int, 1..n), `ts` (ISO time), `type`, `character` (`scout`\
 | `fix_applied` | mechanic | `file` |
 | `rollback` | mechanic | `file`, `reason` |
 | `narration` | any | `for_seq`, `line`: a Ministral-written line for event `for_seq`, arriving later |
+| `explanation` | scout | `for_seq` (the scan_done), `file`, `rule`, `agrees`, `confidence`, `fix`: Ministral Scout's explanation of one suspect, via `harness/vigil.py` `ask_model` on local Ollama (`vigil` model); arrives later, never changes a verdict |
 | `verdict` | gatekeeper | `result`: `PASS`\|`FIXED`\|`PROVEN`\|`BLOCK`\|`ERROR` |
 | `error` | gatekeeper | `message` |
 | `run_finished` | gatekeeper | |

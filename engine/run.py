@@ -33,11 +33,12 @@ APPROVAL_TIMEOUT = 600
 class EventLog:
     """Ordered event list + JSONL file + wake-up for SSE readers. emit(type, character, text, **fields) -> event."""
 
-    def __init__(self, path: Path | None = None, narrate=None):
+    def __init__(self, path: Path | None = None, narrate=None, scout=None):
         self.events: list[dict] = []
         self.cond = threading.Condition()
         self.path = path
         self.narrate = narrate
+        self.scout = scout  # scout(finding) -> {"agrees","confidence","explanation","fix"}: Ministral, local
         if path:
             path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -52,7 +53,22 @@ class EventLog:
             self.cond.notify_all()
         if self.narrate and type in NARRATE_TYPES:
             threading.Thread(target=self._narrate, args=(ev,), daemon=True).start()
+        if self.scout and type == "scan_done" and fields.get("findings"):
+            threading.Thread(target=self._explain, args=(ev,), daemon=True).start()
         return ev
+
+    def _explain(self, ev):
+        """Ministral Scout explains each suspect in the background; arrives ~25 s later, never blocks or changes the verdict."""
+        for f in ev["findings"]:
+            try:
+                m = self.scout(f)
+                if not m or not m.get("explanation"):
+                    continue
+                self.emit("explanation", "scout", f"Ministral Scout: {m['explanation']}",
+                          for_seq=ev["seq"], file=f.get("file"), rule=f.get("rule"),
+                          agrees=m.get("agrees"), confidence=m.get("confidence"), fix=m.get("fix"))
+            except Exception:
+                pass  # explanation is advice; the rules and the attack decide
 
     def _narrate(self, ev):
         try:
@@ -222,6 +238,18 @@ def make_handler(log: EventLog, gate: Gate):
     return H
 
 
+def make_scout(app: Path):
+    """Ministral Scout = harness/vigil.py's explainer, pointed at local Ollama unless VIGIL_BASE_URL/VIGIL_MODEL say otherwise."""
+    import vigil  # harness/ is on sys.path via tools
+    os.environ.setdefault("VIGIL_BASE_URL", "http://localhost:11434/v1")
+    os.environ.setdefault("VIGIL_MODEL", "vigil")
+
+    def scout(f: dict) -> dict:
+        text = (app / f["file"]).read_text(encoding="utf-8")  # stays local: Ollama on this machine
+        return vigil.ask_model({**f, "ask": f.get("ask") or f.get("title", "")}, vigil.excerpt(text, int(f.get("line") or 1)))
+    return scout
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="vigil-engine")
     ap.add_argument("app_path")
@@ -239,8 +267,11 @@ def main(argv=None) -> int:
     if not a.no_narrate:
         n = _optional("narrator")
         narr = getattr(n, "narrate", None)
+    scout = None
+    if not a.no_narrate:  # --no-narrate turns off all Ministral calls
+        scout = make_scout(app)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    log = EventLog(HERE / "runs" / f"{stamp}.jsonl", narrate=narr)
+    log = EventLog(HERE / "runs" / f"{stamp}.jsonl", narrate=narr, scout=scout)
 
     gate = Gate(log.emit)
     srv = ThreadingHTTPServer(("127.0.0.1", a.port), make_handler(log, gate))
