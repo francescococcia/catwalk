@@ -1,0 +1,26 @@
+{
+  "@types/node": {
+    "current": "24.19.2",
+    "wanted": "24.19.2",
+    "latest": "26.6.6",
+    "dependent": "demo-app"
+  },
+  "next": {
+    "current": "15.5.29",
+    "wanted": "15.5.29",
+    "latest": "16.4.6",
+    "dependent": "demo-app"
+  },
+  "typescript": {
+    "current": "5.9.3",
+    "wanted": "5.9.3",
+    "latest": "7.0.2",
+    "dependent": "demo-app"
+  },
+  "react": {
+    "current": "19.1.0",
+    "wanted": "19.2.0",
+    "latest": "19.2.0",
+    "dependent": "demo-app"
+  }
+}

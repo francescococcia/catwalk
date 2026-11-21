@@ -60,5 +60,24 @@ Scout (rules) finds, Detective (Ministral / Large 4) explains, Mechanic proposes
 ### Use it as a gate
 Exit code `1` = high or critical findings. Wire it into a pre-commit hook or a CI job, e.g. `python harness/vigil.py scan . --no-llm`.
 
+## Dependencies and breaking changes (`--deps`)
+```powershell
+python vigil.py scan ..\demo-app --no-llm --deps
+```
+For every `package.json` (not in node_modules): `npm audit --json` (needs `package-lock.json`) gives one `dep-vulnerable` finding per vulnerable package (npm critical/high = block, moderate/low = suspect, with advisory title and fixed version), and `npm outdated --json` gives `dep-major-behind` when the latest major is ahead of the installed one ("upgrading may include breaking changes"). npm missing, offline or a timeout (60 s) prints a note and adds nothing. **Privacy:** npm audit sends the lockfile's package names and versions to the npm registry, not your code.
+
+## Security report
+```powershell
+python report.py ..\demo-app --deps --out REPORT.md            # newest engine/runs/*.jsonl with a verdict
+python report.py ..\demo-app --run ..\engine\runs\<file>.jsonl
+```
+Markdown with executive summary, red-team proofs (redacted evidence, fix diff, re-proof, rollback), findings table, per-finding detail with the Ministral explanation from the run log, blue-team monitoring ideas, compliance mapping, methodology (and what was not tested), appendix. Secret values are masked; the unredacted `evidence_local` body is never used. Example: `sample-report.md`.
+
+## Standards mapping
+`standards.json` maps each rule id to OWASP Top 10 2021, OWASP API Top 10 2023, OWASP LLM Top 10 2025 (where relevant), CWE, NIST SP 800-53 and ISO/IEC 27001:2022 Annex A. Every finding gets a `standards` field. **These mappings are guidance for reporting and triage, not a certification or an audit opinion.**
+
+## Rules at a glance
+Secrets: `hardcoded-secret`, `provider-secret` (AWS key id, PEM private key, GitHub, Stripe live, `sk-` tokens), `env-file-committed` (`.env*` except `.env.example`, unless the top-level .gitignore covers it), `nextjs-public-secret`, `supabase-service-role-in-client`. Access: `nextjs-api-no-ownership`, `nextjs-api-no-auth`, `nextjs-server-action-trusts-client`, `supabase-table-no-rls`, `supabase-rls-policy-true`. Auth: `jwt-unverified` (alg none / verify_signature off, block), `jwt-decode-no-verify`, `cookie-no-httponly`. Injection: `sql-string-building`, `eval-use`, `raw-html`, `prompt-injection-bait`. Config: `cors-wildcard`. Deps: `dep-vulnerable`, `dep-major-behind`. Matches of secret rules are masked in output.
+
 ## Add knowledge
 Add a rule to a pack: `files` (glob patterns), `trigger` (regex), optional `absent` (a protection which, if present anywhere in the file, means no finding), `severity`, `ask` (the question for the model), `fix`.

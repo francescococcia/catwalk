@@ -5,7 +5,7 @@ Model backend = any OpenAI-compatible /chat/completions endpoint:
   Mistral API (default) or a local server (Ollama / llama.cpp / LM Studio).
 
 Usage:
-  python vigil.py scan <path> [--no-llm] [--json report.json]
+  python vigil.py scan <path> [--no-llm] [--deps] [--json report.json]
 Env:
   VIGIL_BASE_URL  default https://api.mistral.ai/v1   (local e.g. http://localhost:11434/v1)
   VIGIL_MODEL     default ministral-8b-latest          (local: the tag your server reports)
@@ -19,7 +19,8 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 PACKS = HERE / "packs"
-SKIP_DIRS = {"node_modules", ".git", ".next", "dist", "build", "__pycache__", ".venv"}
+STANDARDS = json.loads((HERE / "standards.json").read_text(encoding="utf-8"))
+SKIP_DIRS = {"node_modules", ".git", ".next", "dist", "build", "__pycache__", ".venv", ".vigil"}  # .vigil = our own config (target.json)
 MAX_FILE_BYTES = 200_000
 BLOCKING = {"high", "critical"}
 
@@ -68,6 +69,25 @@ def strip_comments(text: str) -> str:
     return COMMENTS.sub(" ", text)
 
 
+TOKEN = re.compile(r"\b(AKIA|gh[pousr]_|sk_live_|sk-)[A-Za-z0-9_\-]{8,}")
+ASSIGNED = re.compile(r"([=:]\s*[\"']?)([^\"'\s*]{2})[^\"'\s]{4,}")
+
+
+def mask(s: str) -> str:
+    """Hide secret values in text we print or send (keep a 2-4 char hint)."""
+    return ASSIGNED.sub(r"\1\2***", TOKEN.sub(lambda m: m.group(1) + "***", s))
+
+
+def gitignored(root: Path, rel: str) -> bool:
+    # shortcut: top-level .gitignore name globs only (no negation, no nested files); use `git check-ignore` if this misses cases
+    try:
+        pats = [l.strip().rstrip("/") for l in (root / ".gitignore").read_text(encoding="utf-8").splitlines()]
+    except OSError:
+        return False
+    name = rel.rsplit("/", 1)[-1]
+    return any(p and not p.startswith(("#", "!")) and (fnmatch.fnmatch(name, p) or fnmatch.fnmatch(rel, p)) for p in pats)
+
+
 def match_rule(rule: dict, rel: str, text: str) -> list[dict]:
     """Deterministic check. Returns findings (one per trigger line)."""
     if "path" in rule:  # regex on the path: needed for Next.js dynamic segments like [id], which globs treat as character classes
@@ -86,7 +106,7 @@ def match_rule(rule: dict, rel: str, text: str) -> list[dict]:
         hits.append({"rule": rule["id"], "title": rule["title"], "severity": rule["severity"],
                      "level": rule.get("level", "suspect"), "attack": rule.get("attack"),
                      "pack": rule["pack"], "file": rel, "line": line,
-                     "match": m.group(0)[:120], "fix": rule["fix"], "ask": rule["ask"]})
+                     "match": mask(m.group(0)[:120]) if rule.get("secret") else m.group(0)[:120], "fix": rule["fix"], "ask": rule["ask"]})
         if rule.get("absent"):
             break  # missing-protection rules: one finding per file is enough
     return hits
@@ -103,8 +123,17 @@ def scan(root: Path) -> tuple[set[str], list[dict]]:
         except (UnicodeDecodeError, OSError):
             continue
         for r in rules:
+            if r.get("unless_gitignored") and gitignored(root, rel):
+                continue
             findings.extend(match_rule(r, rel, text))
-    return stack, findings
+    return stack, add_standards(findings)
+
+
+def add_standards(findings: list[dict]) -> list[dict]:
+    """Attach OWASP/CWE/NIST/ISO references (reporting guidance, not a certification)."""
+    for f in findings:
+        f["standards"] = STANDARDS.get(f["rule"], {})
+    return findings
 
 
 SYSTEM = (
@@ -201,11 +230,15 @@ def main(argv=None) -> int:
     s.add_argument("path")
     s.add_argument("--no-llm", action="store_true", help="rules only, no model calls")
     s.add_argument("--json", help="write findings to this file")
+    s.add_argument("--deps", action="store_true", help="also run npm audit / npm outdated (sends the lockfile's package list to the npm registry)")
     a = ap.parse_args(argv)
     root = Path(a.path).resolve()
     stack, findings = scan(root)
     if findings and not a.no_llm:
         explain(root, findings)
+    if a.deps:  # after explain: dependency findings come from npm, not code, so no model call
+        import deps
+        findings += deps.check_deps(root)
     print(report(stack, findings))
     if a.json:
         Path(a.json).write_text(json.dumps({"stack": sorted(stack), "result": result(findings), "findings": findings}, indent=2), encoding="utf-8")

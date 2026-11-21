@@ -19,7 +19,8 @@
     "trigger": "(api[_-]?key|secret|token|password|passwd|private[_-]?key)\\w*\\s*[:=]\\s*[\"'][^\"'\\s]{12,}[\"']",
     "ask": "Is this a real credential committed to the repo (not a placeholder, test fixture or env var name)?",
     "fix": "Move the value to an environment variable / secret manager, rotate the leaked credential, and add the file pattern to .gitignore.",
-    "level": "block"
+    "level": "block",
+    "secret": true
   },
   {
     "id": "prompt-injection-bait",
@@ -94,5 +95,89 @@
     "trigger": "(dangerouslySetInnerHTML|\\.innerHTML\\s*=|v-html)",
     "ask": "Can user-controlled content reach this raw HTML without sanitization?",
     "fix": "Render as text, or sanitize with a vetted HTML sanitizer first."
+  },
+  {
+    "id": "provider-secret",
+    "title": "Provider API key or private key in the repo (AWS, GitHub, Stripe, sk- tokens, PEM)",
+    "severity": "critical",
+    "level": "block",
+    "secret": true,
+    "case_sensitive": true,
+    "files": [
+      "*"
+    ],
+    "trigger": "\\bAKIA[0-9A-Z]{16}\\b|-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----|\\bgh[pousr]_[A-Za-z0-9]{36}\\b|\\bsk_live_[0-9a-zA-Z]{24,}|\\bsk-(proj-|ant-)?[A-Za-z0-9_-]{32,}",
+    "ask": "Is this a real provider credential or private key (not a documented example value)?",
+    "fix": "Revoke and rotate the key at the provider now, remove it from the code and git history, and load it from an environment variable or secret manager."
+  },
+  {
+    "id": "env-file-committed",
+    "title": "Environment file (.env) in the project folder and not gitignored",
+    "severity": "high",
+    "level": "block",
+    "secret": true,
+    "unless_gitignored": true,
+    "path": "(^|/)\\.env(\\.[^/]+)?$",
+    "exclude": [
+      "*.env.example",
+      "*.env.sample",
+      "*.env.template"
+    ],
+    "trigger": "\\A[^\\n]*",
+    "ask": "Does this .env file hold real secrets that would be committed?",
+    "fix": "Add .env* (except .env.example) to .gitignore, remove the file from git history, and rotate every secret it contained."
+  },
+  {
+    "id": "jwt-unverified",
+    "title": "JWT accepted without signature verification (alg none / verify_signature off)",
+    "severity": "high",
+    "level": "block",
+    "files": [
+      "*.js",
+      "*.ts",
+      "*.tsx",
+      "*.jsx",
+      "*.mjs",
+      "*.cjs",
+      "*.py"
+    ],
+    "trigger": "verify_signature[\"']?\\s*:\\s*(False|false)|algorithms[\"']?\\s*[:=]\\s*\\[\\s*[\"']none[\"']",
+    "ask": "Can an attacker forge a token (unsigned or alg none) and be accepted as any user?",
+    "fix": "Verify every token with the expected key and an explicit algorithm allowlist (e.g. jwt.verify(token, key, { algorithms: ['HS256'] }))."
+  },
+  {
+    "id": "jwt-decode-no-verify",
+    "title": "JWT decoded with jwt.decode() and never verified",
+    "severity": "high",
+    "files": [
+      "*.js",
+      "*.ts",
+      "*.tsx",
+      "*.jsx",
+      "*.mjs",
+      "*.cjs"
+    ],
+    "trigger": "\\bjwt\\.decode\\s*\\(",
+    "absent": "\\bjwt\\.verify\\s*\\(|jwtVerify\\s*\\(",
+    "ask": "Is the decoded token payload trusted (user id, role) without verifying its signature?",
+    "fix": "Use jwt.verify(token, key, { algorithms: [...] }) instead of jwt.decode(); decode() does not check the signature."
+  },
+  {
+    "id": "cookie-no-httponly",
+    "title": "Session/auth cookie set without httpOnly",
+    "severity": "medium",
+    "files": [
+      "*.js",
+      "*.ts",
+      "*.tsx",
+      "*.jsx",
+      "*.mjs",
+      "*.cjs",
+      "*.py"
+    ],
+    "trigger": "(cookies(\\(\\))?\\.set|\\.cookie|set_cookie)\\s*\\(\\s*[^,\\n]*(session|token|auth|sid|jwt)",
+    "absent": "httpOnly|httponly",
+    "ask": "Can JavaScript in the page (e.g. via XSS) read this session cookie?",
+    "fix": "Set the cookie with httpOnly: true, secure: true and sameSite: 'lax' (or 'strict')."
   }
 ]
