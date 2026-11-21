@@ -37,11 +37,12 @@ commands:
                         store a new logic version in the space (trusted publishers only)
   uninstall             remove the plugin / managed hooks and local state
   build                 (internal) rebuild the self-contained dist/tool.mjs
-  version               print the wrapper version
+  version | -v          print the wrapper version
 
 Environment:
-  TONK_BIN              tonk binary to run (dev/branch builds, tests). Default: the
-                        pinned node_modules/@tonk/cli — never whatever is on PATH.
+  TONK_BIN              tonk binary to run. Default: tonk's dev build (the one with
+                        revision history), fetched from its GitHub release into
+                        ~/.tonk/recorder/bin/tonk; else ~/.local/bin/tonk-dev.
   TONK_SPACE / --space  handled by tonk itself (precedence per tonk --help).
 `;
 
@@ -68,6 +69,8 @@ export async function main(argv, ctx = {}) {
       }
       case "version":
       case "--version":
+      case "-v":
+      case "-V":
         console.log(PKG_VERSION);
         return 0;
       case undefined:

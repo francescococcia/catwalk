@@ -123,6 +123,6 @@ export function setupBoundRepo(ws, space = "projx") {
   );
   ws.env.TONK_REGISTRY = registry;
   ws.env.DATA_ROOT = path.join(ws.state, "data");
-  ws.env.TONK_RECORDER_VERSION = "0.1.0";
+  ws.env.TONK_RECORDER_VERSION = JSON.parse(fs.readFileSync(path.join(PKG_ROOT, "package.json"), "utf8")).version; // the installed version
   return ws.env;
 }

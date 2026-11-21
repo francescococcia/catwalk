@@ -118,5 +118,5 @@ export function updateNotice({ space, localVersion, env }) {
   if (!latest.version || String(latest.version) <= String(localVersion)) return null;
   const trusted = queryJson(space, "trusted-publisher", [], env).map(normalizeRow);
   if (trusted.length && latest.publisher && !trusted.some((t) => t.identity === latest.publisher)) return null;
-  return `tonk-recorder: newer recorder version ${latest.version} available in the space (publisher ${latest.publisher ?? "?"}). Update with: tonk-recorder update`;
+  return `tonk-recorder: newer recorder version ${latest.version} available in the space (publisher ${latest.publisher ?? "?"}). Update tonk-recorder, then run \`tonk-recorder connect\` in this folder.`;
 }
