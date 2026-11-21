@@ -210,7 +210,8 @@ def make_handler(log: EventLog, gate: Gate):
                 try:
                     audio = vox.synthesize(q.get("text", [""])[0][:500], q.get("character", ["scout"])[0])
                     return self._send(200, audio, "audio/mpeg")
-                except Exception:
+                except Exception as e:
+                    print(f"tts unavailable: {type(e).__name__}: {str(e)[:200]}", file=sys.stderr, flush=True)
                     return self._send(503, b'{"error":"tts unavailable"}')
             self._send(404, b'{"error":"not found"}')
 
