@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vigil Workflow Replay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff7ec; --panel:#ffffff; --ink:#2b2140; --muted:#7a6f8f; --line:#eadfce;
+  --red:#ff5a5f; --amber:#ffb020; --green:#2ec27e; --blue:#4c7dff; --violet:#9b6bff;
+  --sky1:#ffe3c2; --sky2:#ffd1e0; --shadow:0 6px 0 rgba(43,33,64,.12);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1b1630; --panel:#251f3f; --ink:#f4efff; --muted:#b3a8cf; --line:#3a3160;
+  --sky1:#2b2350; --sky2:#3a2347; --shadow:0 6px 0 rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --bg:#1b1630; --panel:#251f3f; --ink:#f4efff; --muted:#b3a8cf; --line:#3a3160;
+  --sky1:#2b2350; --sky2:#3a2347; --shadow:0 6px 0 rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Baloo 2",system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 16px;max-width:1200px;margin:0 auto}
+h1{margin:0;font-size:28px;font-weight:800;letter-spacing:.3px}
+h1 small{font-size:15px;color:var(--muted);font-weight:500;margin-left:8px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.file{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--panel);color:var(--ink);border-radius:14px;padding:6px 14px;cursor:pointer;box-shadow:var(--shadow)}
+button:active{transform:translateY(3px);box-shadow:none}
+button.primary{background:var(--violet);color:#fff;border-color:var(--violet)}
+button:focus-visible,.file:focus-within{outline:3px solid var(--blue);outline-offset:2px}
+.file input{display:none}
+label.toggle{display:flex;gap:6px;align-items:center;font-weight:600;color:var(--muted)}
+main{max-width:1200px;margin:0 auto;padding:0 16px 24px}
+
+.stage{position:relative;height:300px;border-radius:24px;border:2px solid var(--line);overflow:hidden;
+  background:linear-gradient(180deg,var(--sky1),var(--sky2));box-shadow:var(--shadow)}
+.ground{position:absolute;left:0;right:0;bottom:0;height:70px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 40px,transparent 40px 80px),var(--line)}
+.path{position:absolute;left:4%;right:4%;bottom:56px;height:8px;border-radius:8px;background:rgba(43,33,64,.15)}
+.char{position:absolute;bottom:62px;width:110px;text-align:center;transition:left .9s cubic-bezier(.5,1.6,.4,1)}
+.char .body{font-size:62px;line-height:1;display:inline-block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.15))}
+.char .name{display:block;font-weight:800;font-size:15px;margin-top:2px}
+.char .role{display:block;font-size:12px;color:var(--muted);margin-top:-3px}
+.char.active .body{animation:bounce .5s ease-in-out infinite alternate}
+.char.idle{opacity:.55}
+@keyframes bounce{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-12px) rotate(3deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.bubble{position:absolute;bottom:170px;max-width:min(420px,80vw);background:var(--panel);color:var(--ink);border:2px solid var(--ink);
+  border-radius:18px;padding:10px 14px;font-size:16px;line-height:1.3;box-shadow:var(--shadow);transform-origin:bottom left;
+  animation:pop .25s ease-out;z-index:3}
+.bubble:after{content:"";position:absolute;left:26px;bottom:-12px;border:10px solid transparent;border-top-color:var(--ink);border-bottom:0}
+.bubble b{display:block;font-size:13px;color:var(--muted)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.gate{position:absolute;right:3%;bottom:62px;width:64px;height:120px}
+.gate .post{position:absolute;left:0;bottom:0;width:14px;height:120px;background:var(--ink);border-radius:6px}
+.gate .arm{position:absolute;left:7px;bottom:96px;width:110px;height:16px;border-radius:8px;transform-origin:0 50%;
+  background:repeating-linear-gradient(90deg,var(--red) 0 18px,#fff 18px 36px);transition:transform .8s cubic-bezier(.5,1.6,.4,1), background .4s}
+.gate.open .arm{transform:rotate(-80deg);background:repeating-linear-gradient(90deg,var(--green) 0 18px,#fff 18px 36px)}
+.gate.idle .arm{background:repeating-linear-gradient(90deg,var(--muted) 0 18px,#fff 18px 36px)}
+.verdict{position:absolute;right:3%;top:14px;font-weight:800;font-size:22px;padding:4px 14px;border-radius:12px;border:2px solid var(--ink);background:var(--panel)}
+.verdict.block{background:var(--red);color:#fff;border-color:var(--red);animation:shake .4s 2}
+.verdict.pass{background:var(--green);color:#fff;border-color:var(--green)}
+
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:820px){.gate{right:1%;transform:scale(.7);transform-origin:bottom right}.grid{grid-template-columns:1fr}.stage{height:340px}.char{width:80px}.char .body{font-size:46px}.char .role{display:none}}
+.grid > *{min-width:0}
+@media (max-width:420px){.char{width:64px}.char .body{font-size:38px}.char .name{font-size:11px}}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px;box-shadow:var(--shadow)}
+.panel h2{margin:0 0 8px;font-size:19px}
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:10px}
+.card{border:2px solid var(--line);border-radius:14px;padding:8px 10px;transition:border-color .3s, transform .3s}
+.card .fname{font-family:"JetBrains Mono",monospace;font-size:12.5px;word-break:break-all}
+.card .flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.flag{font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 9px;color:#fff;background:var(--muted);opacity:.25;transition:opacity .3s, background .3s}
+.flag.on{opacity:1}
+.flag.on.critical{background:#d7263d}.flag.on.high{background:var(--red)}.flag.on.medium{background:var(--amber);color:#2b2140}.flag.on.low{background:var(--blue)}
+.flag.on.fixed{background:var(--green)}
+.card.hot{border-color:var(--violet);transform:translateY(-3px)}
+.log{list-style:none;margin:0;padding:0;max-height:330px;overflow:auto;font-size:15px}
+.log li{padding:6px 2px;border-bottom:1px dashed var(--line)}
+.log li .who{font-weight:800}
+.empty{color:var(--muted)}
+.drop{outline:3px dashed var(--violet);outline-offset:-8px}
+.note{color:var(--muted);font-size:14px;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Vigil <small>workflow replay</small></h1>
+  <div class="controls">
+    <button id="play" class="primary">▶ Play</button>
+    <button id="step">Next step</button>
+    <button id="reset">Restart</button>
+    <label class="file">Load report.json<input id="file" type="file" accept=".json,application/json"></label>
+    <label class="toggle"><input id="voice" type="checkbox"> Voice</label>
+    <label class="toggle">Speed <select id="speed"><option value="1.6">slow</option><option value="1" selected>normal</option><option value=".5">fast</option></select></label>
+  </div>
+</header>
+<main>
+  <section class="stage" id="stage" aria-label="Animated workflow stage">
+    <div class="ground"></div><div class="path"></div>
+    <div class="verdict" id="verdict" aria-live="polite">waiting...</div>
+    <div class="gate idle" id="gate" aria-hidden="true"><div class="post"></div><div class="arm"></div></div>
+    <div class="char idle" id="c-scout"><span class="body">🦊</span><span class="name">Scout</span><span class="role">rules + Ministral</span></div>
+    <div class="char idle" id="c-detective"><span class="body">🕵️</span><span class="name">Detective</span><span class="role">Ministral / Large 4</span></div>
+    <div class="char idle" id="c-mechanic"><span class="body">🛠️</span><span class="name">Mechanic</span><span class="role">fix proposal</span></div>
+    <div class="char idle" id="c-gatekeeper"><span class="body">🦉</span><span class="name">Gatekeeper</span><span class="role">rules verdict</span></div>
+    <div id="bubbles"></div>
+  </section>
+  <div class="grid">
+    <section class="panel"><h2>Repo map</h2><div class="files" id="files"><p class="empty">Load a report to see files.</p></div>
+      <p class="note">Flags light up as the Scout finds them. Green = a human approved the proposed fix in this replay (simulated).</p></section>
+    <section class="panel"><h2>What happened</h2><ol class="log" id="log" aria-live="polite"></ol></section>
+  </div>
+</main>
+
+<script>
+// Built-in demo: real output of `vigil.py scan sample` with local ministral-3:3b. Replaced at load time if report.json is found or loaded.
+const DEMO = {"stack": ["general", "nextjs", "supabase"], "findings": [{"rule": "hardcoded-secret", "title": "Hardcoded secret in source code", "severity": "high", "pack": "general", "file": "lib/config.ts", "line": 2, "match": "SECRET = \"fake-demo-secret-not-real-0000\"", "fix": "Move the value to an environment variable / secret manager, rotate the leaked credential, and add the file pattern to .gitignore.", "model": {"agrees": false, "confidence": 0.95, "explanation": "Hardcoded secret could be exposed if code is accidentally committed or leaked, allowing attackers to bypass authentication or impersonate services.", "fix": "Remove the hardcoded value; use environment variables or a secrets manager (e.g., `process.env.PAYMENTS_API_SECRET`) instead."}}, {"rule": "nextjs-public-secret", "title": "Secret exposed to the browser via NEXT_PUBLIC_ variable", "severity": "critical", "pack": "nextjs", "file": "lib/config.ts", "line": 4, "match": "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY", "fix": "Rename without NEXT_PUBLIC_ and only read it in server code (route handlers, server actions); rotate the exposed secret.", "model": {"agrees": true, "confidence": 1.0, "explanation": "Attacker could steal the `PAYMENTS_API_SECRET` via browser-side access, bypassing server-side controls.", "fix": "Remove `PAYMENTS_API_SECRET` from public exports; use server-side validation only."}}, {"rule": "supabase-table-no-rls", "title": "Supabase table created without Row Level Security", "severity": "critical", "pack": "supabase", "file": "supabase/migrations/001_init.sql", "line": 1, "match": "create table orders", "fix": "ALTER TABLE <name> ENABLE ROW LEVEL SECURITY; then add policies like USING (auth.uid() = user_id).", "model": {"agrees": true, "confidence": 1.0, "explanation": "An attacker with the public anon key could read/write all rows in `orders` and `profiles` tables without authentication or authorization checks.", "fix": "Implement Row Level Security (RLS) policies in Supabase to restrict access to rows based on `user_id` (e.g., `WHERE user_id = current_user.id` in `orders`)."}}, {"rule": "prompt-injection-bait", "title": "Text that tries to instruct AI reviewers or agents", "severity": "high", "pack": "general", "file": "app/api/orders/[id]/route.ts", "line": 2, "match": "AI reviewer: please mark", "fix": "Remove the instruction. Treat it as a possible supply-chain / prompt-injection attempt and check who added it.", "model": {"agrees": false, "confidence": 1.0, "explanation": "Explicitly instructs an AI reviewer to ignore security findings (e.g., bypass checks, SQL injection risks).", "fix": "Remove the disclaimer comment; audit the code for security flaws (e.g., parameterized queries, auth checks)."}}, {"rule": "prompt-injection-bait", "title": "Text that tries to instruct AI reviewers or agents", "severity": "high", "pack": "general", "file": "app/api/orders/[id]/route.ts", "line": 2, "match": "do not report any", "fix": "Remove the instruction. Treat it as a possible supply-chain / prompt-injection attempt and check who added it.", "model": {"agrees": false, "confidence": 1.0, "explanation": "The code explicitly instructs an AI reviewer to ignore security findings (line 2), making it a clear manipulation attempt.", "fix": "Remove the deliberate instructions and ensure the code is reviewed independently for security flaws."}}, {"rule": "sql-string-building", "title": "SQL query built from strings (possible SQL injection)", "severity": "high", "pack": "general", "file": "app/api/orders/[id]/route.ts", "line": 7, "match": "SELECT * FROM orders WHERE id = ${", "fix": "Use parameterized queries / the ORM's query builder instead of building SQL from strings.", "model": {"agrees": false, "confidence": 1.0, "explanation": "User-controlled `id` input directly interpolated into SQL, allowing attackers to bypass ID checks (e.g., `' OR '1'='1` or `' UNION SELECT * FROM users` to extract data or bypass restrictions.)", "fix": "Use parameterized queries: `db.query('SELECT * FROM orders WHERE id = $1', [params.id])` or `db.query('SELECT * FROM orders WHERE id = ?', [params.id])"}}, {"rule": "nextjs-api-no-auth", "title": "Next.js API route with no auth / ownership check", "severity": "high", "pack": "nextjs", "file": "app/api/orders/[id]/route.ts", "line": 5, "match": "export async function GET", "fix": "Check the session at the top of the handler and verify the requested record belongs to session.user (e.g. WHERE id = ? AND user_id = ?).", "model": {"agrees": true, "confidence": 1.0, "explanation": "An attacker could bypass authentication to read any order by ID (e.g., `/api/orders/123` for another user’s data) or modify data via SQL injection (e.g., `id='; DROP TABLE orders;--'`).", "fix": "Add session/auth checks (e.g., `if (!req.session.user) throw new Error('Unauthorized')`) and validate `params.id` (e.g., regex like `/^[a-z0-9]{8,}$/`)."}}]};
+
+const $ = id => document.getElementById(id);
+const CHARS = {scout:"c-scout", detective:"c-detective", mechanic:"c-mechanic", gatekeeper:"c-gatekeeper"};
+const HOME = {scout:3, detective:25, mechanic:47, gatekeeper:68};
+let report = null, steps = [], idx = 0, timer = null;
+
+function place(who, pct){ $(CHARS[who]).style.left = pct + "%"; }
+function homeAll(){ for (const k in HOME) place(k, HOME[k]); }
+function activate(who){
+  for (const k in CHARS){ const el=$(CHARS[k]); el.classList.toggle("active",k===who); el.classList.toggle("idle",k!==who); }
+}
+function say(who, title, text){
+  const b = document.createElement("div");
+  b.className = "bubble";
+  b.style.left = `calc(${parseFloat($(CHARS[who]).style.left)}% + 10px)`;
+  b.innerHTML = `<b></b><span></span>`;
+  b.querySelector("b").textContent = title;
+  b.querySelector("span").textContent = text;
+  $("bubbles").replaceChildren(b);
+  log(who, text);
+  speak(text);
+}
+function log(who, text){
+  const li = document.createElement("li");
+  li.innerHTML = `<span class="who"></span> <span></span>`;
+  li.querySelector(".who").textContent = who[0].toUpperCase()+who.slice(1)+":";
+  li.lastChild.textContent = text;
+  $("log").appendChild(li); $("log").scrollTop = $("log").scrollHeight;
+}
+function speak(text){
+  // shortcut: browser speech as a stand-in for Voxtral TTS; swap for pre-generated Voxtral audio for the demo
+  if (!$("voice").checked || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+const short = (s, n=170) => !s ? "" : (s.length > n ? s.slice(0, n-1) + "…" : s);
+
+function buildMap(findings){
+  const byFile = {};
+  findings.forEach((f,i) => (byFile[f.file] ||= []).push(i));
+  const box = $("files"); box.replaceChildren();
+  if (!findings.length){ box.innerHTML = '<p class="empty">No findings. The Scout found nothing risky.</p>'; return; }
+  for (const [file, ids] of Object.entries(byFile)){
+    const c = document.createElement("div"); c.className = "card"; c.dataset.file = file;
+    c.innerHTML = `<div class="fname"></div><div class="flags"></div>`;
+    c.querySelector(".fname").textContent = file;
+    ids.forEach(i => { const s=document.createElement("span"); s.className=`flag ${findings[i].severity}`; s.id=`flag-${i}`; s.textContent=findings[i].rule; c.querySelector(".flags").appendChild(s); });
+    box.appendChild(c);
+  }
+}
+function hot(file){ document.querySelectorAll(".card").forEach(c => c.classList.toggle("hot", c.dataset.file === file)); }
+
+function buildSteps(r){
+  const f = r.findings || [], s = [];
+  const blocking = f.some(x => ["high","critical"].includes(x.severity));
+  s.push(() => { activate("scout"); place("scout", 10); say("scout","Scout", `Sniffing the repo... stack looks like ${r.stack.join(", ")}. Loading those knowledge packs.`); });
+  f.forEach((x, i) => {
+    s.push(() => { activate("scout"); place("scout", 14 + (i % 3) * 4); hot(x.file); $(`flag-${i}`).classList.add("on");
+      say("scout", `Scout · ${x.severity.toUpperCase()}`, `Found it! ${x.title} in ${x.file} line ${x.line}.`); });
+    const m = x.model || {};
+    s.push(() => { activate("detective"); place("detective", 34); hot(x.file);
+      say("detective", m.error ? "Detective · model offline" : `Detective · ${m.agrees ? "agrees" : "takes a look"}`,
+          m.error ? `No model answer, but the rule still counts: ${x.title}.` : short(m.explanation || x.title)); });
+    s.push(() => { activate("mechanic"); place("mechanic", 54);
+      say("mechanic", "Mechanic · proposed fix", short((m && !m.error && m.fix) || x.fix)); });
+  });
+  s.push(() => { activate("gatekeeper"); place("gatekeeper", 68); hot(null);
+    const v = $("verdict"), g = $("gate"); g.classList.remove("idle","open");
+    if (blocking){ v.textContent = "BLOCK"; v.className = "verdict block";
+      say("gatekeeper","Gatekeeper", `${f.length} finding(s), some high risk. The gate stays shut until a human approves the fixes.`); }
+    else { v.textContent = "PASS"; v.className = "verdict pass"; g.classList.add("open");
+      say("gatekeeper","Gatekeeper", f.length ? "Only low-risk notes. Gate is open." : "Nothing risky found. Gate is open."); }
+  });
+  if (blocking) s.push(() => { activate("gatekeeper");
+    f.forEach((_, i) => $(`flag-${i}`).classList.add("fixed"));
+    $("gate").classList.add("open"); const v = $("verdict"); v.textContent = "APPROVED"; v.className = "verdict pass";
+    say("gatekeeper","Gatekeeper · human approval (simulated)", "A human reviewed and approved the fixes. Gate opens."); });
+  return s;
+}
+
+function load(r){
+  stop(); report = r; idx = 0;
+  $("log").replaceChildren(); $("bubbles").replaceChildren();
+  $("verdict").textContent = "waiting..."; $("verdict").className = "verdict"; $("gate").className = "gate idle";
+  homeAll(); activate(null); buildMap(r.findings || []); steps = buildSteps(r);
+  $("play").textContent = "▶ Play";
+}
+function next(){ if (idx < steps.length){ steps[idx++](); } if (idx >= steps.length) stop(); }
+function delay(){ return 2600 * parseFloat($("speed").value); }
+function play(){
+  if (!report) return;
+  if (idx >= steps.length) load(report);
+  if (timer){ stop(); return; }
+  $("play").textContent = "⏸ Pause"; next();
+  timer = setInterval(next, delay());
+}
+function stop(){ clearInterval(timer); timer = null; $("play").textContent = idx >= steps.length && steps.length ? "↻ Replay" : "▶ Play"; }
+
+$("play").onclick = play;
+$("step").onclick = () => { stop(); if (report) next(); };
+$("reset").onclick = () => report && load(report);
+$("speed").onchange = () => { if (timer){ clearInterval(timer); timer = setInterval(next, delay()); } };
+function readFile(file){ file.text().then(t => load(JSON.parse(t))).catch(e => alert("Not a Vigil report: " + e.message)); }
+$("file").onchange = e => e.target.files[0] && readFile(e.target.files[0]);
+const stage = document.body;
+stage.addEventListener("dragover", e => { e.preventDefault(); stage.classList.add("drop"); });
+stage.addEventListener("dragleave", () => stage.classList.remove("drop"));
+stage.addEventListener("drop", e => { e.preventDefault(); stage.classList.remove("drop"); e.dataTransfer.files[0] && readFile(e.dataTransfer.files[0]); });
+
+homeAll();
+// served over http (python -m http.server): load ../report.json; opened as a file: use the built-in demo
+fetch("../report.json").then(r => r.ok ? r.json() : Promise.reject()).then(load).catch(() => DEMO && load(DEMO));
+</script>
+</body>
+</html>

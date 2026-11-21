@@ -41,6 +41,22 @@ LM Studio or llama.cpp work too: point `VIGIL_BASE_URL` at their `/v1` address.
 
 Note: the 3B sometimes gets details of the fix wrong (e.g. naming the wrong variable). Treat its text as an explanation, not as the verdict. The verdict comes from the rules.
 
+### Custom Ollama model with the reviewer settings built in
+```powershell
+ollama create vigil -f Modelfile           # temperature 0.1, 8k context, reviewer system prompt
+$env:VIGIL_MODEL = "vigil"
+python vigil.py scan sample --json report.json
+```
+It reuses the `ministral-3:3b` weights, so it takes no extra disk space.
+
+### Cartoon replay of the workflow
+```powershell
+python vigil.py scan sample --json report.json
+python -m http.server 8000                 # from the harness folder
+# open http://localhost:8000/viewer/
+```
+Scout (rules) finds, Detective (Ministral / Large 4) explains, Mechanic proposes the fix, Gatekeeper shows BLOCK or PASS. Opening `viewer/index.html` directly plays a built-in demo run instead. You can also drag any `report.json` onto the page. The voice toggle uses browser speech as a stand-in for Voxtral, and the final "human approval" step is simulated.
+
 ### Use it as a gate
 Exit code `1` = high or critical findings. Wire it into a pre-commit hook or a CI job, e.g. `python harness/vigil.py scan . --no-llm`.
 
