@@ -10,7 +10,9 @@ Env:
   VIGIL_BASE_URL  default https://api.mistral.ai/v1   (local e.g. http://localhost:11434/v1)
   VIGIL_MODEL     default ministral-8b-latest          (local: the tag your server reports)
   VIGIL_API_KEY or MISTRAL_API_KEY (not needed for local servers)
-Exit code 1 if any high/critical finding -> usable as a pre-commit hook or CI check.
+Two levels: rules marked "level": "block" (few false alarms, e.g. exposed secrets, no RLS) block on their own;
+every other finding is a "suspect" that only blocks once an engine/ attack PROVES it.
+Exit code 1 = BLOCK, 0 = PASS or SUSPECT (JSON "result" says which) -> usable as a pre-commit hook or CI check.
 """
 import argparse, fnmatch, json, os, re, sys, urllib.request
 from pathlib import Path
@@ -58,17 +60,31 @@ def iter_files(root: Path):
             yield p
 
 
+COMMENTS = re.compile(r"/\*[\s\S]*?\*/|(^|\s)//[^\n]*|(^|\s)--[^\n]*")
+
+
+def strip_comments(text: str) -> str:
+    # shortcut: JS/TS/SQL comments only, so a fix described in a comment doesn't count as the protection; add per-language stripping when packs grow
+    return COMMENTS.sub(" ", text)
+
+
 def match_rule(rule: dict, rel: str, text: str) -> list[dict]:
     """Deterministic check. Returns findings (one per trigger line)."""
-    if not any(fnmatch.fnmatch(rel, g) for g in rule["files"]):
+    if "path" in rule:  # regex on the path: needed for Next.js dynamic segments like [id], which globs treat as character classes
+        if not re.search(rule["path"], rel):
+            return []
+    elif not any(fnmatch.fnmatch(rel, g) for g in rule["files"]):
         return []
-    if rule.get("absent") and re.search(rule["absent"], text, re.I | re.M):
+    if any(fnmatch.fnmatch(rel, g) for g in rule.get("exclude", [])):
+        return []
+    if rule.get("absent") and re.search(rule["absent"], strip_comments(text), re.I | re.M):
         return []  # shortcut: protection checked per file (one RLS line clears all tables in that file); upgrade to per-statement checks if it misses real cases
     flags = re.M | (0 if rule.get("case_sensitive") else re.I)
     hits = []
     for m in re.finditer(rule["trigger"], text, flags):
         line = text.count("\n", 0, m.start()) + 1
         hits.append({"rule": rule["id"], "title": rule["title"], "severity": rule["severity"],
+                     "level": rule.get("level", "suspect"), "attack": rule.get("attack"),
                      "pack": rule["pack"], "file": rel, "line": line,
                      "match": m.group(0)[:120], "fix": rule["fix"], "ask": rule["ask"]})
         if rule.get("absent"):
@@ -143,21 +159,38 @@ def explain(root: Path, findings: list[dict]) -> None:
             f["model"] = {"error": str(e)[:200]}
 
 
+def is_blocking(f: dict) -> bool:
+    """Level 1 (suspect) never blocks on its own; only low-false-alarm 'block' rules do. Level 2 (PROVEN) comes from engine/ attacks."""
+    return f.get("level") == "block" and f["severity"] in BLOCKING
+
+
+def result(findings: list[dict]) -> str:
+    if any(is_blocking(f) for f in findings):
+        return "BLOCK"
+    return "SUSPECT" if findings else "PASS"
+
+
 def verdict(findings: list[dict]) -> int:
-    return 1 if any(f["severity"] in BLOCKING for f in findings) else 0
+    return 1 if result(findings) == "BLOCK" else 0
+
+
+RESULT_TEXT = {"BLOCK": "BLOCK - high-risk findings",
+               "SUSPECT": "SUSPECT - needs proof (run the Vigil agent: engine/run.py)",
+               "PASS": "PASS"}
 
 
 def report(stack, findings) -> str:
     out = [f"Vigil scan | stack: {', '.join(sorted(stack))} | {len(findings)} finding(s)"]
-    for f in sorted(findings, key=lambda f: f["severity"] not in BLOCKING):
-        out.append(f"\n[{f['severity'].upper()}] {f['title']}  ({f['rule']})\n  {f['file']}:{f['line']}  -> {f['match']}")
+    for f in sorted(findings, key=lambda f: not is_blocking(f)):
+        tag = f["severity"].upper() + ("" if is_blocking(f) else " suspect")
+        out.append(f"\n[{tag}] {f['title']}  ({f['rule']})\n  {f['file']}:{f['line']}  -> {f['match']}")
         m = f.get("model")
         if m and "error" not in m:
             out.append(f"  Ministral ({'agrees' if m.get('agrees') else 'unsure'}, {m.get('confidence')}): {m.get('explanation')}")
             out.append(f"  Fix: {m.get('fix') or f['fix']}")
         else:
             out.append(f"  Fix: {f['fix']}" + (f"\n  (model unavailable: {m['error']})" if m else ""))
-    out.append("\nRESULT: " + ("BLOCK - high-risk findings" if verdict(findings) else "PASS"))
+    out.append("\nRESULT: " + RESULT_TEXT[result(findings)])
     return "\n".join(out)
 
 
@@ -175,7 +208,7 @@ def main(argv=None) -> int:
         explain(root, findings)
     print(report(stack, findings))
     if a.json:
-        Path(a.json).write_text(json.dumps({"stack": sorted(stack), "findings": findings}, indent=2), encoding="utf-8")
+        Path(a.json).write_text(json.dumps({"stack": sorted(stack), "result": result(findings), "findings": findings}, indent=2), encoding="utf-8")
     return verdict(findings)
 
 

@@ -34,15 +34,22 @@ From the repository root:
    ```bash
    python harness/vigil.py scan <path> --json harness/report.json
    ```
-   Exit code `0` = PASS, `1` = BLOCK (high or critical findings).
+   The last line says the result:
+   - `PASS`: nothing found.
+   - `SUSPECT`: possible problems that need **proof**. Do not guess-fix these. Start the Vigil agent, which attacks the running app and proposes a proven fix for a human to approve:
+     ```bash
+     uv run --project engine engine/run.py <path>
+     ```
+     Then tell the user to open the page it prints and approve or deny the fix.
+   - `BLOCK` (exit code `1`): problems that are certain on their own (exposed secrets, tables without RLS, text manipulating AI reviewers). Fix these yourself, below.
 
 Use the quick check while iterating, and the full check once at the end so `harness/report.json` can be replayed in `harness/viewer/`.
 
-## How to fix
-For each finding, in order of severity:
+## How to fix BLOCK findings
+For each blocking finding, in order of severity:
 1. Open the file at the reported line.
 2. Apply the fix described (the `Fix:` line). Prefer the smallest change that removes the risk, e.g. add the session + ownership check, parameterize the query, move the secret to server-only env, enable RLS and add an owner policy.
-3. Re-run the quick check. Repeat until the result is `PASS`, at most 3 rounds.
+3. Re-run the quick check. Repeat until the result is no longer `BLOCK`, at most 3 rounds.
 
 If a finding is a deliberate demo vulnerability (the file says so) or you are not sure the fix is right, **do not change it**: list it for the user instead.
 
@@ -55,7 +62,7 @@ If a finding is a deliberate demo vulnerability (the file says so) or you are no
 
 ## Report back
 End with a short summary:
-- Result: PASS or BLOCK
+- Result: PASS, SUSPECT (agent started?) or BLOCK
 - Fixed: one line per fix (file:line, what changed)
 - Remaining: one line per open finding, and why it was left
 - Replay: "open harness/viewer/ to watch the run" if you ran the full check
