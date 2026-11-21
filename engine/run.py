@@ -28,6 +28,7 @@ from tools import Tools  # noqa: E402
 LIVE_HTML = HERE.parent / "harness" / "viewer" / "live.html"
 NARRATE_TYPES = {"scan_done", "proof", "fix_proposed", "verdict"}
 APPROVAL_TIMEOUT = 600
+SCOUT_WAIT = float(os.environ.get("VIGIL_SCOUT_WAIT", "90"))  # seconds the Detective waits for Ministral before attacking
 
 
 class EventLog:
@@ -51,14 +52,19 @@ class EventLog:
                 with self.path.open("a", encoding="utf-8") as fh:
                     fh.write(json.dumps(ev) + "\n")
             self.cond.notify_all()
-        if self.narrate and type in NARRATE_TYPES:
-            threading.Thread(target=self._narrate, args=(ev,), daemon=True).start()
         if self.scout and type == "scan_done" and fields.get("findings"):
-            threading.Thread(target=self._explain, args=(ev,), daemon=True).start()
+            # synchronous on purpose: the planner that emitted scan_done waits here, so the Scout
+            # explains BEFORE the Detective attacks (both planners). Capped so a slow model can't stall the demo.
+            self.emit("thinking", "scout", "Ministral Scout is reading the suspect code...")
+            t = threading.Thread(target=self._explain, args=(ev,), daemon=True)
+            t.start()
+            t.join(SCOUT_WAIT)
+        if self.narrate and type in NARRATE_TYPES:  # after the Scout, so they don't queue on the same local GPU
+            threading.Thread(target=self._narrate, args=(ev,), daemon=True).start()
         return ev
 
     def _explain(self, ev):
-        """Ministral Scout explains each suspect in the background; arrives ~25 s later, never blocks or changes the verdict."""
+        """Ministral Scout explains each suspect. Advice only: never changes the verdict (rules + attack decide)."""
         for f in ev["findings"]:
             try:
                 m = self.scout(f)
@@ -238,11 +244,24 @@ def make_handler(log: EventLog, gate: Gate):
     return H
 
 
+def _warm_ollama():
+    try:
+        import urllib.request
+        base = os.environ["VIGIL_BASE_URL"].rstrip("/")
+        body = json.dumps({"model": os.environ["VIGIL_MODEL"], "max_tokens": 1,
+                           "messages": [{"role": "user", "content": "ok"}]}).encode()
+        urllib.request.urlopen(urllib.request.Request(f"{base}/chat/completions", data=body,
+                               headers={"Content-Type": "application/json"}), timeout=120).read()
+    except Exception:
+        pass  # warm-up is best effort
+
+
 def make_scout(app: Path):
     """Ministral Scout = harness/vigil.py's explainer, pointed at local Ollama unless VIGIL_BASE_URL/VIGIL_MODEL say otherwise."""
     import vigil  # harness/ is on sys.path via tools
     os.environ.setdefault("VIGIL_BASE_URL", "http://localhost:11434/v1")
     os.environ.setdefault("VIGIL_MODEL", "vigil")
+    threading.Thread(target=_warm_ollama, daemon=True).start()  # load the 3B while the scan runs (cold start ~30 s)
 
     def scout(f: dict) -> dict:
         text = (app / f["file"]).read_text(encoding="utf-8")  # stays local: Ollama on this machine
