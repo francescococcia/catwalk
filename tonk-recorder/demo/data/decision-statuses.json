@@ -1,0 +1,50 @@
+[
+  {
+    "this": "did:key:z6Mk55e8gz3p3L6yAy3Z8fi7CCRsZFnpfWrSArEo6JWL2m2k",
+    "at": "2026-11-21T12:21:00Z",
+    "by": "hermes",
+    "decision": "did:key:z6Mk5Wy6kJstaekp34iXypEgZe9u5L3GfD5912WxFoA8g75m",
+    "status": "proposed",
+    "id": "did:key:z6Mk55e8gz3p3L6yAy3Z8fi7CCRsZFnpfWrSArEo6JWL2m2k"
+  },
+  {
+    "this": "did:key:z6Mk8jCE7tMvDQDin7UNnU2y2QLySy38WkK48R4JAXLcFozx",
+    "at": "2026-11-21T12:25:00Z",
+    "by": "lead",
+    "decision": "did:key:z6Mk5Wy6kJstaekp34iXypEgZe9u5L3GfD5912WxFoA8g75m",
+    "status": "rejected",
+    "id": "did:key:z6Mk8jCE7tMvDQDin7UNnU2y2QLySy38WkK48R4JAXLcFozx"
+  },
+  {
+    "this": "did:key:z6MkAmzwsjKKLQ3jrmRhJw82Mv3NUKtUYh71ZwnNYhqxVGQf",
+    "at": "2026-11-21T13:41:00Z",
+    "by": "lead",
+    "decision": "did:key:z6MkDcrSMqJt4RXSB6f28avnRoYd5iEUxkmuG2oDuv1vH4e6",
+    "status": "proposed",
+    "id": "did:key:z6MkAmzwsjKKLQ3jrmRhJw82Mv3NUKtUYh71ZwnNYhqxVGQf"
+  },
+  {
+    "this": "did:key:z6MkEQaQ3h38DZzHZwYUxZxaZ766PBurc9AcdcVKejx2u9To",
+    "at": "2026-11-21T12:35:00Z",
+    "by": "lead",
+    "decision": "did:key:z6MkGMsJhaYDVwjz8nsU2jAwdPFCRFru6stXokuPrYZcEBt2",
+    "status": "accepted",
+    "id": "did:key:z6MkEQaQ3h38DZzHZwYUxZxaZ766PBurc9AcdcVKejx2u9To"
+  },
+  {
+    "this": "did:key:z6MkHvJKhexVKYGuy6DkCTPSsUcK65GFzMEZ6LsgCM2jEVjj",
+    "at": "2026-11-21T13:05:00Z",
+    "by": "lead",
+    "decision": "did:key:z6MkFvMRB7cRVRvgZ3NxJ1YpMrBqZTvvE2FbC1ixYpSGdyia",
+    "status": "accepted",
+    "id": "did:key:z6MkHvJKhexVKYGuy6DkCTPSsUcK65GFzMEZ6LsgCM2jEVjj"
+  },
+  {
+    "this": "did:key:z6MkeNf52HpdEyShjZa1TcTkmkbVao43ryfgfxP9vBALmZr",
+    "at": "2026-11-21T13:45:00Z",
+    "by": "lead",
+    "decision": "did:key:z6MkDcrSMqJt4RXSB6f28avnRoYd5iEUxkmuG2oDuv1vH4e6",
+    "status": "accepted",
+    "id": "did:key:z6MkeNf52HpdEyShjZa1TcTkmkbVao43ryfgfxP9vBALmZr"
+  }
+]

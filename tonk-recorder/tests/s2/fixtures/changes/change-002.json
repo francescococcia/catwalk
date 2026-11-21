@@ -1,0 +1,22 @@
+{
+  "id": "chg-0002",
+  "session": "cc-session-1",
+  "turn": "cc-9f8e7d6c",
+  "parentSession": "vibe-session-aaa",
+  "agent": "goblin",
+  "harness": "claude",
+  "prompt": "Fix the deploy script <script>alert('xss')</script> and rotate the key",
+  "response": "Patched the script; the secret scan redacted the rotated key from the diff.",
+  "project": "mistral_hackathon",
+  "branch": "main",
+  "base": "9d3f1c2a1b4e5f60718293a4b5c6d7e8f901234",
+  "head": "7c6b5a493827160594a3b2c1d0e9f8a7b6c5d4e",
+  "commit": "b2c3d4e5f60718293a4b5c6d7e8f9012345678a",
+  "files": [
+    { "path": "scripts/deploy.sh", "status": "modified", "added": 900, "removed": 120 }
+  ],
+  "diff": null,
+  "diffBlob": "blob:sha256-9f8e7d6c5b4a39281706f5e4d3c2b1a09876543",
+  "redacted": true,
+  "at": "2026-11-21T11:00:00Z"
+}

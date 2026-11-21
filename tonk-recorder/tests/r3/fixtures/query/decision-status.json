@@ -1,0 +1,4 @@
+[
+  { "this": "did:key:z6MkFakeStatus1", "decision": "did:key:z6MkFakeDecision1", "status": "accepted:", "by": "agent-a", "at": "2026-11-20T10:05:00Z" },
+  { "this": "did:key:z6MkFakeStatus2", "decision": "did:key:z6MkFakeDecision2", "status": "rejected:", "by": "agent-a", "at": "2026-11-20T11:30:00Z" }
+]

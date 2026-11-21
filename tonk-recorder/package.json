@@ -1,0 +1,30 @@
+{
+  "name": "tonk-recorder",
+  "version": "0.1.2",
+  "description": "Thin npm wrapper around a pinned tonk CLI: creates/joins a Tonk space, publishes the recorder logic into the space, and installs it into the harness. Placeholder name per SPEC §11.6.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "bin": {
+    "tonk-recorder": "bin/tonk-recorder.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "dist/",
+    "packs/",
+    "instructions/",
+    "adapters/"
+  ],
+  "scripts": {
+    "build": "node src/cli/build.mjs",
+    "prepublishOnly": "node src/cli/build.mjs",
+    "pretest": "node src/cli/build.mjs",
+    "test": "node --test 'tests/*.test.mjs'"
+  },
+  "dependencies": {
+    "@tonk/cli": "0.8.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

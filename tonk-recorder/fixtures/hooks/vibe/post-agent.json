@@ -1,0 +1,9 @@
+{
+  "hook_event_name": "post_agent",
+  "session_id": "vibe-session-aaa",
+  "transcript_path": "/tmp/fake-home/.vibe/sessions/vibe-session-aaa.jsonl",
+  "cwd": "/tmp/fake-home/proj",
+  "agent_name": "hermes",
+  "turn_id": "turn-1",
+  "response_text": "Added src/hooks/tool.mjs with the four entry points and wired checkpoint sync."
+}

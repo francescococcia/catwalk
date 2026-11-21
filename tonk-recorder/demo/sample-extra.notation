@@ -1,0 +1,111 @@
+# demo/sample-extra.notation — extra hand-added sample data for the demo
+# space, beyond fixtures/records/* (all fake, offline). Continues the fixture
+# timeline (2026-11-21) so the decision-history view shows a real history:
+# a proposed-then-rejected decision, an accepted one that supersedes it, and
+# one decision that is about a recorded change (bound by query, cross-document).
+#
+# Evaluable after packs/recorder.notation + fixtures/records/*.notation.
+
+# --- named areas used as decision-about targets -----------------------------
+
+xyz.example.area!:
+  this: id:src-hooks
+  path: "src/hooks"
+
+# NB: a lens row is addressed by its value — two decision-about rows with the
+# same target are the SAME entity (latest `decision` wins), so each sample
+# decision below uses its own target id.
+xyz.example.area!:
+  this: id:checkpoint-sync
+  path: "src/hooks/sync.mjs"
+
+xyz.example.area!:
+  this: id:locks
+  path: "src/writer/locks"
+
+# --- decision-003: "sync every turn" — proposed, then rejected --------------
+
+decision!: &decision-sync-every-turn
+  this: ?d3
+  title: "Sync the space at every turn"
+  chosen: "tonk pull + push after every recorded change"
+  why: "Keeps every agent's view fresh immediately."
+  rejected: "Checkpoint syncing only"
+  by: "hermes"
+  at: "2026-11-21T12:20:00Z"
+
+decision-about!:
+  decision: ?d3
+  target: id:src-hooks
+
+decision-status!:
+  decision: ?d3
+  status: :proposed
+  by: "hermes"
+  at: "2026-11-21T12:21:00Z"
+
+decision-status!:
+  decision: ?d3
+  status: :rejected
+  by: "lead"
+  at: "2026-11-21T12:25:00Z"
+
+# --- decision-004: checkpoint sync — accepted, supersedes decision-003 ------
+
+decision!: &decision-checkpoint-sync
+  this: ?d4
+  title: "Checkpoint sync instead of every turn"
+  chosen: "Sync only at session start/end, every 10 turns, or on demand"
+  why: "Concurrent eval --no-sync writers collide on the revision lock (contracts/cli-checks.md); checkpoint sync keeps a swarm from fighting over the shared head."
+  rejected: "Sync at every turn"
+  supersedes: decision-sync-every-turn
+  by: "hermes"
+  at: "2026-11-21T12:30:00Z"
+
+decision-about!:
+  decision: ?d4
+  target: id:checkpoint-sync
+
+decision-status!:
+  decision: ?d4
+  status: :accepted
+  by: "lead"
+  at: "2026-11-21T12:35:00Z"
+
+# --- decision-005: writer lock — about an actual recorded change -------------
+# The change entity is bound by QUERY (it was asserted by change-001.notation
+# in an earlier document, so the query sees it; same-document assertions are
+# not visible to queries — contracts/records.md).
+
+change:
+  this: ?c
+  turn: "turn-1"
+
+decision!: &decision-writer-lock
+  this: ?d5
+  title: "Recorder takes its own lock around tonk writes"
+  chosen: "flock-style lock on $DATA_ROOT/locks/<space>.lock around every tonk eval, with retry on exit 4"
+  why: "tonk's revision.lock rejects concurrent writers (exit 4, nothing committed); the recorder serialises itself first and fails open after 3 attempts."
+  rejected: "Write directly and let tonk's lock reject; retry blindly"
+  by: "lead"
+  at: "2026-11-21T13:40:00Z"
+
+decision-about!:
+  decision: ?d5
+  target: ?c
+
+decision-about!:
+  decision: ?d5
+  target: id:locks
+
+decision-status!:
+  decision: ?d5
+  status: :proposed
+  by: "lead"
+  at: "2026-11-21T13:41:00Z"
+
+decision-status!:
+  decision: ?d5
+  status: :accepted
+  by: "lead"
+  at: "2026-11-21T13:45:00Z"

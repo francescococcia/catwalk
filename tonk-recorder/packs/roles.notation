@@ -1,0 +1,320 @@
+# packs/roles.notation — coordination pack: roles, agents, tasks, notes.
+#
+# Loaded after packs/recorder.notation (idempotent, same rules). Agents never
+# message each other directly: they coordinate through these records.
+#   role         a role installed on the space, with its instructions
+#   agent        an agent registering itself under a role (add-only; an
+#                agent's current role = its latest record by `at`)
+#   task         work one agent asks of a role
+#   task-status  add-only status of a task (:open is implied; :claimed, :done,
+#                :blocked); current = latest by `at`
+#   note         a message left for a role
+# All records are add-only, like decisions: never edit, add a newer record.
+
+attribute!: &role-name
+  description: "Role name, lower-case (builder, reviewer, …)"
+  the: tonk.recorder.role/name
+  as: text
+
+attribute!: &role-instructions
+  description: "What an agent holding this role does and how it works with the other roles"
+  the: tonk.recorder.role/instructions
+  as: text
+
+attribute!: &role-at
+  description: "Timestamp the role was installed, ISO 8601 UTC"
+  the: tonk.recorder.role/at
+  as: text
+
+concept!: &role
+  description: "A role installed on the space. Latest record per name wins."
+  with:
+    name: role-name
+    instructions: role-instructions
+    at: role-at
+
+attribute!: &agent-name
+  description: "Agent name (unique per working folder)"
+  the: tonk.recorder.agent/name
+  as: text
+
+attribute!: &agent-role
+  description: "Name of the role this agent plays"
+  the: tonk.recorder.agent/role
+  as: text
+
+attribute!: &agent-harness
+  description: "Harness the agent runs in (vibe, claude, …)"
+  the: tonk.recorder.agent/harness
+  as: text
+
+attribute!: &agent-at
+  description: "Timestamp of this registration, ISO 8601 UTC"
+  the: tonk.recorder.agent/at
+  as: text
+
+concept!: &agent
+  description: "An agent registering itself under a role. Add-only; current role = latest by at."
+  with:
+    name: agent-name
+    role: agent-role
+    harness: agent-harness
+    at: agent-at
+
+attribute!: &task-title
+  description: "One-line statement of the work"
+  the: tonk.recorder.task/title
+  as: text
+
+attribute!: &task-detail
+  description: "What done looks like, and anything the taker needs to know"
+  the: tonk.recorder.task/detail
+  as: text
+
+attribute!: &task-for
+  description: "Name of the role this task is for"
+  the: tonk.recorder.task/for
+  as: text
+
+attribute!: &task-by
+  description: "Agent that asked for the work"
+  the: tonk.recorder.task/by
+  as: text
+
+attribute!: &task-at
+  description: "Timestamp the task was added, ISO 8601 UTC"
+  the: tonk.recorder.task/at
+  as: text
+
+concept!: &task
+  description: "Work one agent asks of a role."
+  with:
+    title: task-title
+    detail: task-detail
+    for: task-for
+    by: task-by
+    at: task-at
+
+attribute!: &task-status-task
+  description: "Title of the task this status is about (exact text)"
+  the: tonk.recorder.task-status/task
+  as: text
+
+attribute!: &task-status-status
+  description: "claimed | done | blocked"
+  the: tonk.recorder.task-status/status
+  as: text
+
+attribute!: &task-status-by
+  description: "Agent that set this status"
+  the: tonk.recorder.task-status/by
+  as: text
+
+attribute!: &task-status-note
+  description: "One line: what was done, or what is blocking"
+  the: tonk.recorder.task-status/note
+  as: text
+
+attribute!: &task-status-at
+  description: "Timestamp of this status, ISO 8601 UTC — current status = latest at"
+  the: tonk.recorder.task-status/at
+  as: text
+
+concept!: &task-status
+  description: "Status of a task. Add-only; current = latest by at; no record = open."
+  with:
+    task: task-status-task
+    status: task-status-status
+    by: task-status-by
+    note: task-status-note
+    at: task-status-at
+
+attribute!: &note-to
+  description: "Name of the role this note is for (or all)"
+  the: tonk.recorder.note/to
+  as: text
+
+attribute!: &note-from
+  description: "Agent that left the note"
+  the: tonk.recorder.note/from
+  as: text
+
+attribute!: &note-body
+  description: "The message"
+  the: tonk.recorder.note/body
+  as: text
+
+attribute!: &note-at
+  description: "Timestamp of the note, ISO 8601 UTC"
+  the: tonk.recorder.note/at
+  as: text
+
+concept!: &note
+  description: "A message left for a role."
+  with:
+    to: note-to
+    from: note-from
+    body: note-body
+    at: note-at
+
+# --- role-recording: does a role's every turn get recorded automatically? ----
+# "auto"   — the hooks record every turn's change (prompt, reply, files, diff)
+# "manual" — the hooks record NOTHING for sessions in this role; the agent adds
+#            its own account (run + run-event) and uses discretion about what
+#            goes in. For roles that handle secrets (security).
+# Latest record per role wins; no record = auto.
+
+attribute!: &role-recording-role
+  description: "Name of the role this setting is for"
+  the: tonk.recorder.role-recording/role
+  as: text
+
+attribute!: &role-recording-mode
+  description: "auto | manual"
+  the: tonk.recorder.role-recording/mode
+  as: text
+
+attribute!: &role-recording-at
+  description: "Timestamp of this setting, ISO 8601 UTC — latest wins"
+  the: tonk.recorder.role-recording/at
+  as: text
+
+concept!: &role-recording
+  description: "Whether a role's turns are recorded automatically by the hooks. Latest per role wins; none = auto."
+  with:
+    role: role-recording-role
+    mode: role-recording-mode
+    at: role-recording-at
+
+# --- session-role: which role a harness session is running ------------------
+# Written by the hook from what the harness says the session's agent is
+# (Vibe: the agent configuration name — a subagent spawned by role name).
+
+attribute!: &session-role-session
+  description: "Harness session id"
+  the: tonk.recorder.session-role/session
+  as: text
+
+attribute!: &session-role-role
+  description: "Name of the role the session runs"
+  the: tonk.recorder.session-role/role
+  as: text
+
+attribute!: &session-role-agent
+  description: "Agent name of the session"
+  the: tonk.recorder.session-role/agent
+  as: text
+
+attribute!: &session-role-at
+  description: "Timestamp, ISO 8601 UTC — latest per session wins"
+  the: tonk.recorder.session-role/at
+  as: text
+
+concept!: &session-role
+  description: "The role a session runs. Add-only; latest per session wins."
+  with:
+    session: session-role-session
+    role: session-role-role
+    agent: session-role-agent
+    at: session-role-at
+
+# --- run + run-event: a replayable account an agent adds by hand ------------
+# A run is one piece of work told as ordered steps (a security check: scout
+# finds, detective proves, mechanic fixes, gatekeeper rules). The agent writes
+# it — never raw tool output, never secret values.
+
+attribute!: &run-id
+  description: "Run id, unique (e.g. vigil-2026-11-21T15-40-00Z)"
+  the: tonk.recorder.run/id
+  as: text
+
+attribute!: &run-tool
+  description: "What produced the run (vigil, …)"
+  the: tonk.recorder.run/tool
+  as: text
+
+attribute!: &run-about
+  description: "What the run was about: a task title, a file, a change"
+  the: tonk.recorder.run/about
+  as: text
+
+attribute!: &run-verdict
+  description: "Outcome in one word (PASS, FIXED, PROVEN, BLOCK, ERROR, …)"
+  the: tonk.recorder.run/verdict
+  as: text
+
+attribute!: &run-by
+  description: "Agent that did the run"
+  the: tonk.recorder.run/by
+  as: text
+
+attribute!: &run-at
+  description: "Timestamp the run was added, ISO 8601 UTC"
+  the: tonk.recorder.run/at
+  as: text
+
+concept!: &run
+  description: "One replayable piece of work, told as ordered run-events."
+  with:
+    id: run-id
+    tool: run-tool
+    about: run-about
+    verdict: run-verdict
+    by: run-by
+    at: run-at
+
+attribute!: &run-event-run
+  description: "Id of the run this step belongs to"
+  the: tonk.recorder.run-event/run
+  as: text
+
+attribute!: &run-event-seq
+  description: "Order of the step within the run, from 1"
+  the: tonk.recorder.run-event/seq
+  as: natural
+
+attribute!: &run-event-character
+  description: "Who acts in this step (scout, detective, mechanic, gatekeeper, …)"
+  the: tonk.recorder.run-event/character
+  as: text
+
+attribute!: &run-event-text
+  description: "The step in one plain sentence — no secret values"
+  the: tonk.recorder.run-event/text
+  as: text
+
+attribute!: &run-event-at
+  description: "Timestamp of the step, ISO 8601 UTC"
+  the: tonk.recorder.run-event/at
+  as: text
+
+concept!: &run-event
+  description: "One step of a run."
+  with:
+    run: run-event-run
+    seq: run-event-seq
+    character: run-event-character
+    text: run-event-text
+    at: run-event-at
+
+# --- starter roles ----------------------------------------------------------
+
+role!:
+  name: "builder"
+  instructions: "You write the code. Before starting, read the open tasks for builder and claim one (add a task-status claimed) so no one else takes it. Work only on what you claimed. When it is finished, add a task-status done with one line on what changed, then add a task for reviewer asking for a review of it. If you make a choice others must live with, record it as a decision. If you are blocked, add a task-status blocked saying on what."
+  at: "2026-11-21T00:00:00Z"
+
+role!:
+  name: "reviewer"
+  instructions: "You review what builders finish; you do not write features. Read the open tasks for reviewer and claim one. Read the change records and diffs for that work. If it is right, add a task-status done saying so. If it is not, add a task for builder that states exactly what must change and why, then mark your review task done. Leave a note for builder when something needs explaining rather than changing."
+  at: "2026-11-21T00:00:00Z"
+
+role!:
+  name: "security"
+  instructions: "You check that what builders ship is safe; you prove before you speak. Take tasks for security, and any builder task marked done that touched API routes, login or sessions, permissions, database migrations or secrets. You must use the Vigil harness for every check, never your own reading of the code: scan the changed folder with it, and when it says SUSPECT let it attack the locally running app. A finding is only real once that attack proves it. When a fix is applied and the attack is blocked afterwards, mark the task done. When a problem is proven but not fixed, add a task for builder stating the rule, the file and line, and how it was proven. Your turns are NOT recorded automatically: you decide what goes into the space. After each check, add your own account with the run command you were given: a few plain steps (scout: what looked wrong; detective: which attack proved it; mechanic: what the fix was; gatekeeper: the verdict). NEVER put into the space: response bodies, record contents, passwords, tokens, key values, or anything from .vigil/target.json. Refer to things by file, line and rule name only."
+  at: "2026-11-21T00:00:00Z"
+
+role-recording!:
+  role: "security"
+  mode: "manual"
+  at: "2026-11-21T00:00:00Z"

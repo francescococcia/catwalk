@@ -1,0 +1,8 @@
+{
+  "space": "recorder-demo",
+  "site": "/tmp/tonk-demo/site",
+  "project": "/tmp/tonk-demo/project",
+  "tonk": "tonk-dev",
+  "revisions": 15,
+  "exportedFrom": "tonk query --json + log"
+}

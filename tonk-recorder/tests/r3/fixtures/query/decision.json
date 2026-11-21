@@ -1,0 +1,4 @@
+[
+  { "this": "did:key:z6MkFakeDecision1", "title": "Use SQLite for local state", "chosen": "SQLite via better-sqlite3", "by": "agent-a", "at": "2026-11-20T10:00:00Z" },
+  { "this": "did:key:z6MkFakeDecision2", "title": "Use Postgres", "chosen": "Postgres", "by": "agent-b", "at": "2026-11-20T11:00:00Z" }
+]

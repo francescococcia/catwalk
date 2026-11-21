@@ -1,0 +1,6 @@
+{
+  "decision": "Store diffs larger than 64 KB as blobs",
+  "status": "accepted",
+  "by": "lead",
+  "at": "2026-11-21T13:05:00Z"
+}

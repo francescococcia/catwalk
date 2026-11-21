@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": ["Bash(git status:*)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "echo user-pretool-hook" }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "echo user-session-start-hook" }
+        ]
+      }
+    ]
+  }
+}

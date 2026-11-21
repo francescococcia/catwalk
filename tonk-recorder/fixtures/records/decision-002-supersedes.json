@@ -1,0 +1,10 @@
+{
+  "title": "Blob threshold is 64 KB, inline below",
+  "chosen": "Inline diffs up to and including 64 KB; blob above — never edit the older decision",
+  "why": "Clarifies the boundary case at exactly 64 KB after review.",
+  "rejected": "Blob everything, regardless of size",
+  "about": ["vibe-session-aaa:turn-1"],
+  "supersedes": "Store diffs larger than 64 KB as blobs",
+  "by": "lead",
+  "at": "2026-11-21T13:30:00Z"
+}

@@ -1,0 +1,192 @@
+VERSION                                          CHANGE  ENTITY           ATTRIBUTE                           VALUE
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/at             "2026-11-21T17:44:20Z"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/base           "ad9c8192a3b4c5d6e7f8091a2b3c4d5e6f7081a2"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/branch         "sim/pr-140"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/diff           "--- /dev/null\\n+++ b/docs/observability/usage.md\\n@@ new file, +240 lines (Quick Start, CLI/env/file config, export targets, precedence, SDK snippet, trace modes)\\n--- /dev/null\\n+++ b/docs/observability/semantic-conventions.md\\n@@ new file, +140 lines (metric table, span attribute reference, link to semconv/gen-ai)\\n--- /dev/null\\n+++ b/examples/telemetry_example.py\\n@@ new file, +100 lines (ObservabilitySDK context manager, sample span + token metric)\\n"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/harness        vibe:
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/head           "be0d8192a3b4c5d6e7f8091a2b3c4d5e6f7081a3"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/lines-added    480
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/lines-removed  0
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/project        "mistral_hackathon_test"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/prompt         "write the observability docs and a runnable telemetry example"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/redacted       false
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/response       "usage.md + semantic-conventions.md + examples/telemetry_example.py written; example run printed a console JSON span."
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-11  tonk.recorder.change/turn           "turn-pr140-11"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/at             "2026-11-21T17:51:40Z"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/base           "be0d8192a3b4c5d6e7f8091a2b3c4d5e6f7081a3"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/branch         "sim/pr-140"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/commit         "cf1e8192a3b4c5d6e7f8091a2b3c4d5e6f7081a4"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/harness        vibe:
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/head           "cf1e8192a3b4c5d6e7f8091a2b3c4d5e6f7081a4"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/lines-added    3400
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/lines-removed  170
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/project        "mistral_hackathon_test"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/prompt         "run the full verification block and commit everything as the PR"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/redacted       false
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/response       "git commit -m 'feat: add OpenTelemetry observability integration' → 24 files changed, +3400/−170, matching SPEC §8."
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-12  tonk.recorder.change/turn           "turn-pr140-12"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/at             "2026-11-21T17:37:20Z"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/base           "9c8b8192a3b4c5d6e7f8091a2b3c4d5e6f7081a"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/branch         "sim/pr-140"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/diff           "--- a/vibe/core/observability/config.py\\n+++ b/vibe/core/observability/config.py\\n@@ class ObservabilityConfig(BaseModel):\\n-    sampling_rate: float = 1.0\\n+    sampling_rate: float = Field(default=1.0, ge=0.0, le=1.0)\\n--- a/vibe/core/observability/tracing.py\\n+++ b/vibe/core/observability/tracing.py\\n@@ def build_llm_request_attributes(*, ..., tool_count, ...):\\n     attrs = {\\"gen_ai.request.model\\": model_name, \\"gen_ai.system\\": provider_name, ...}\\n     if tool_count is not None:\\n         attrs[\\"llm.request.tool_count\\"] = tool_count\\n-        # BUG: has_tools only set in the else branch\\n+        if tool_count > 0:\\n+            attrs[\\"llm.request.has_tools\\"] = True\\n"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/harness        vibe:
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/head           "ad9c8192a3b4c5d6e7f8091a2b3c4d5e6f7081a2"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/lines-added    9
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/lines-removed  3
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/project        "mistral_hackathon_test"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/prompt         "fix the 2 failing observability tests"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/redacted       false
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/response       "sampling_rate now Field(ge=0.0, le=1.0); has_tools set when tool_count>0. pytest tests/observability -q → 9 passed."
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-10  tonk.recorder.change/turn           "turn-pr140-10"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/at             "2026-11-21T17:29:10Z"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/base           "8b7a8192a3b4c5d6e7f8091a2b3c4d5e6f70819"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/branch         "sim/pr-140"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/diff           "--- /dev/null\\n+++ b/tests/observability/test_basic_functionality.py\\n@@ new file, +150 lines\\n+def test_config_defaults():\\n+    c = ObservabilityConfig()\\n+    assert c.enabled is False\\n+    assert c.export_target == \\"console\\"\\n+    assert c.sampling_rate == 1.0\\n+    assert c.otlp_endpoint == \\"http://localhost:4318\\"\\n+def test_sampling_rate_out_of_range_raises():\\n+    with pytest.raises(ValidationError):\\n+        ObservabilityConfig(sampling_rate=1.5)\\n--- /dev/null\\n+++ b/tests/observability/test_tracing_helpers.py\\n@@ new file, +110 lines\\n+def test_build_llm_request_attributes():\\n+    attrs = build_llm_request_attributes(model_name=\\"mistral-large\\", provider_name=\\"mistral\\",\\n+        temperature=0.3, max_tokens=1024, streaming=False, tool_count=2, endpoint=\\"https://api.mistral.ai/v1/chat/completions\\")\\n+    assert attrs[\\"gen_ai.request.model\\"] == \\"mistral-large\\"\\n+    assert attrs[\\"llm.request.tool_count\\"] == 2\\n+    assert attrs[\\"llm.request.has_tools\\"] is True\\n"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/harness        vibe:
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/head           "9c8b8192a3b4c5d6e7f8091a2b3c4d5e6f7081a"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/lines-added    260
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/lines-removed  0
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/project        "mistral_hackathon_test"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/prompt         "write tests/observability with 9 tests covering config defaults, SDK lifecycle, tracing helpers"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/redacted       false
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/response       "Tests written; first pytest run shows 2 failures (sampling_rate bound not enforced, has_tools attribute missing)."
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+23@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-09  tonk.recorder.change/turn           "turn-pr140-09"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/at             "2026-11-21T17:26:00Z"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/base           "7a6f708192a3b4c5d6e7f8091a2b3c4d5e6f708"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/branch         "sim/pr-140"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/diff           "--- a/vibe/core/llm/backend/mistral.py\\n+++ b/vibe/core/llm/backend/mistral.py\\n@@ guarded import block with _METRICS_AVAILABLE\\n+def _record_genai_metrics(duration_s, prompt_tokens, completion_tokens, model_name):\\n+    ...  # gen_ai.system = \\"mistral\\"\\n+    # called from complete(), complete_streaming() and the SDKError / httpx.RequestError handlers\\n--- a/vibe/core/agent.py\\n+++ b/vibe/core/agent.py\\n+try:\\n+    from vibe.core.observability.tracing import trace_agent_execution_async\\n+except ImportError:\\n+    def trace_agent_execution_async(f): return f\\n+class Agent:\\n+    @trace_agent_execution_async\\n+    async def act(self, ...): ...\\n--- a/vibe/core/programmatic.py\\n+++ b/vibe/core/programmatic.py\\n+@trace_agent_execution\\n+def run_programmatic(...): ...\\n--- a/vibe/core/tools/base.py\\n+++ b/vibe/core/tools/base.py\\n+@trace_tool_execution_async\\n+async def invoke(self, ...): ...\\n--- a/vibe/core/tools/manager.py\\n+++ b/vibe/core/tools/manager.py\\n+try:\\n+    from vibe.core.observability.tracing import trace_tool_execution\\n+except ImportError:\\n+    def trace_tool_execution(f): return f\\n"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/harness        vibe:
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/head           "8b7a8192a3b4c5d6e7f8091a2b3c4d5e6f70819"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/lines-added    210
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/lines-removed  30
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/project        "mistral_hackathon_test"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/prompt         "instrument the mistral backend metrics and decorate Agent.act, run_programmatic, BaseTool.invoke"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/redacted       false
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/response       "All call sites decorated with guarded no-op fallbacks; import check of all 8 modules passes with and without the extra."
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-08  tonk.recorder.change/turn           "turn-pr140-08"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/at             "2026-11-21T17:11:00Z"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/base           "4d3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/branch         "sim/pr-140"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/diff           "--- a/vibe/core/llm/backend/generic.py\\n+++ b/vibe/core/llm/backend/generic.py\\n@@ from __future__ import annotations\\n+from opentelemetry.trace import SpanKind\\n+from vibe.core.observability.tracing import (\\n+    LLM_REQUEST_ATTRIBUTES,\\n+    async_run_in_trace_span,\\n+    build_llm_request_attributes,\\n+    run_in_trace_span_async,\\n+)\\n+from vibe.core.observability.metrics import get_metrics_manager, GENAI_CLIENT_TOKEN_USAGE\\n\\n class GenericBackend(LLMBackend):\\n     async def complete(self, messages, model, **kwargs):\\n+        ... run_in_trace_span_async(\\"LLMRequest\\", ...) around the request ...\\n"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/harness        vibe:
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/head           "5e4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/lines-added    12
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/lines-removed  0
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/project        "mistral_hackathon_test"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/prompt         "instrument GenericBackend.complete() with an LLMRequest span and genai metrics"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/redacted       false
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/response       "Added the span — but the top-level otel import breaks the no-extra install. Fixing next turn."
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-05  tonk.recorder.change/turn           "turn-pr140-05"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/at             "2026-11-21T17:23:10Z"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/base           "6f5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/branch         "sim/pr-140"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/diff           "--- a/vibe/cli/entrypoint.py\\n+++ b/vibe/cli/entrypoint.py\\n@@ def main() -> None:\\n-    def _body():\\n-        args = parse_arguments()\\n-        ...\\n-    if OBSERVABILITY_AVAILABLE:\\n-        run_in_trace_span(\\"UserInteraction\\", lambda payload: _body(), span_kind=SpanKind.SERVER)\\n-    else:\\n-        _body()\\n+    args = parse_arguments()\\n+    ...  # telemetry overrides, load_config, ObservabilitySDK init in try/except (yellow warning on failure)\\n+\\n+    def _run_cli_flow():\\n+        ...  # previous main() body, unchanged\\n+\\n+    _maybe_trace_user_interaction()\\n+\\n+def _maybe_trace_user_interaction():\\n+    if OBSERVABILITY_AVAILABLE and tracing possible:\\n+        def _execute(payload):\\n+            span.set_attribute(\\"cli.mode\\", ...); span.set_attribute(\\"cli.resume\\", ...)\\n+            payload metadata input = {\\"argv\\": sys.argv[1:], \\"agent\\": args.agent}\\n+        run_in_trace_span(\\"UserInteraction\\", _execute, span_kind=SpanKind.SERVER,\\n+                          initial_attributes={\\"genai.operation.name\\": \\"user.interaction\\"})\\n+    else:\\n+        _run_cli_flow()\\n"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/harness        vibe:
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/head           "7a6f708192a3b4c5d6e7f8091a2b3c4d5e6f708"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/lines-added    96
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/lines-removed  40
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/project        "mistral_hackathon_test"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/prompt         "fix entrypoint: parse flags first, then wrap only the CLI flow in the UserInteraction span"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/redacted       false
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/response       "Restructured main() into nested _run_cli_flow() and _maybe_trace_user_interaction(); vibe --help shows the Telemetry group."
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-07  tonk.recorder.change/turn           "turn-pr140-07"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/at             "2026-11-21T17:18:00Z"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/base           "5e4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/branch         "sim/pr-140"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/diff           "--- a/vibe/core/llm/backend/generic.py\\n+++ b/vibe/core/llm/backend/generic.py\\n@@ from __future__ import annotations\\n-from opentelemetry.trace import SpanKind\\n-from vibe.core.observability.tracing import (\\n-    LLM_REQUEST_ATTRIBUTES,\\n-    async_run_in_trace_span,\\n-    build_llm_request_attributes,\\n-    run_in_trace_span_async,\\n-)\\n-from vibe.core.observability.metrics import get_metrics_manager, GENAI_CLIENT_TOKEN_USAGE\\n+try:\\n+    from opentelemetry.trace import SpanKind\\n+    from vibe.core.observability.tracing import (\\n+        LLM_REQUEST_ATTRIBUTES, async_run_in_trace_span,\\n+        build_llm_request_attributes, run_in_trace_span_async,\\n+    )\\n+    from vibe.core.observability.metrics import (\\n+        GENAI_CLIENT_OPERATION_DURATION, GENAI_CLIENT_TOKEN_USAGE, get_metrics_manager,\\n+    )\\n+    _LLM_TRACING_AVAILABLE = True\\n+except ImportError:\\n+    SpanKind = None\\n+    LLM_REQUEST_ATTRIBUTES = {}\\n+    run_in_trace_span_async = None\\n+    async_run_in_trace_span = None\\n+    build_llm_request_attributes = None\\n+    get_metrics_manager = None\\n+    GENAI_CLIENT_TOKEN_USAGE = \\"gen_ai.client.token.usage\\"\\n+    GENAI_CLIENT_OPERATION_DURATION = \\"gen_ai.client.operation.duration\\"\\n+    _LLM_TRACING_AVAILABLE = False\\n+\\n+def _record_genai_metrics(duration_s, prompt_tokens=0, completion_tokens=0, model_name=\\"\\", provider_name=\\"\\"):\\n+    ...  # token.usage counter with gen_ai.token.type=input/output, duration histogram in seconds\\n+\\n class GenericBackend(LLMBackend):\\n     async def complete(self, messages, model, **kwargs):\\n+        async def _perform_request():\\n+            ...  # original request code\\n+        if _LLM_TRACING_AVAILABLE:\\n+            await run_in_trace_span_async(\\"LLMRequest\\", _execute, span_kind=SpanKind.CLIENT, initial_attributes=LLM_REQUEST_ATTRIBUTES)\\n+        else:\\n+            ...  # plain call, still timed for metrics\\n"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/harness        vibe:
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/head           "6f5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/lines-added    95
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/lines-removed  12
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/project        "mistral_hackathon_test"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/prompt         "fix the import error: guard all observability imports and finish the complete()/complete_streaming() instrumentation"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/redacted       false
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/response       "Guarded imports with _LLM_TRACING_AVAILABLE=False fallback; no-extra import passes again, tests green."
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+22@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-06  tonk.recorder.change/turn           "turn-pr140-06"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/at             "2026-11-21T17:09:00Z"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/base           "3c2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/branch         "sim/pr-140"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/diff           "--- a/vibe/cli/entrypoint.py\\n+++ b/vibe/cli/entrypoint.py\\n@@ def main() -> None:\\n-    args = parse_arguments()\\n+    def _body():\\n+        args = parse_arguments()\\n+        ...  # entire old body, indented\\n+    if OBSERVABILITY_AVAILABLE:\\n+        run_in_trace_span(\\"UserInteraction\\", lambda payload: _body(), span_kind=SpanKind.SERVER)\\n+    else:\\n+        _body()\\n"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/harness        vibe:
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/head           "4d3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/lines-added    14
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/lines-removed  6
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/project        "mistral_hackathon_test"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/prompt         "wrap the CLI main() in a UserInteraction trace span"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/redacted       false
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/response       "Wrapped all of main() — then realized the span starts before parse_arguments(), so the SDK is never initialized. Redoing it."
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-04  tonk.recorder.change/turn           "turn-pr140-04"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/at             "2026-11-21T15:55:30Z"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/base           "1a0f1e2d3c4b5a69788796a5b4c3d2e1f0a1b2c3"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/branch         "sim/pr-140"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/diff           "--- a/pyproject.toml\\n+++ b/pyproject.toml\\n@@ -20,14 +20,15 @@ dependencies = [\\n     \\"rich>=13.0.0\\",\\n     \\"textual>=0.80.0\\",\\n-    \\"opentelemetry-api>=1.39.0\\",\\n-    \\"opentelemetry-sdk>=1.39.0\\",\\n-    \\"opentelemetry-exporter-otlp>=1.39.0\\",\\n-    \\"opentelemetry-exporter-otlp-proto-grpc>=1.39.0\\",\\n-    \\"opentelemetry-exporter-otlp-proto-http>=1.39.0\\",\\n-    \\"pyyaml>=6.0\\",\\n ]\\n\\n+[project.optional-dependencies]\\n+telemetry = [\\n+    \\"opentelemetry-api>=1.39.0\\",\\n+    \\"opentelemetry-sdk>=1.39.0\\",\\n+    \\"opentelemetry-exporter-otlp>=1.39.0\\",\\n+    \\"opentelemetry-exporter-otlp-proto-grpc>=1.39.0\\",\\n+    \\"opentelemetry-exporter-otlp-proto-http>=1.39.0\\",\\n+    \\"pyyaml>=6.0\\",\\n+]\\n--- a/uv.lock\\n+++ b/uv.lock\\n@@ ... +246 lines of opentelemetry-* / pyyaml package entries\\n"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/harness        vibe:
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/head           "2b1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/lines-added    256
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/lines-removed  9
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/project        "mistral_hackathon_test"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/prompt         "move the telemetry deps into an optional extra and regenerate uv.lock"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/redacted       false
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/response       "Moved deps to [project.optional-dependencies] telemetry, ran uv lock && uv sync --extra telemetry — both green."
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-02  tonk.recorder.change/turn           "turn-pr140-02"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/at             "2026-11-21T16:21:30Z"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/base           "2b1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/branch         "sim/pr-140"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/diff           "--- /dev/null\\n+++ b/vibe/core/observability/semconv.py\\n@@ new file, +120 lines\\n+GENAI_CLIENT_TOKEN_USAGE = \\"gen_ai.client.token.usage\\"\\n+GENAI_CLIENT_OPERATION_DURATION = \\"gen_ai.client.operation.duration\\"\\n+GEN_AI_SYSTEM = \\"gen_ai.system\\"\\n+GEN_AI_OPERATION_NAME = \\"gen_ai.operation.name\\"\\n+SYSTEM_MISTRAL_VIBE = \\"mistral-vibe\\"\\n+OP_CHAT = \\"chat\\"\\n+def get_llm_request_attributes(): ...\\n--- /dev/null\\n+++ b/vibe/core/observability/config.py\\n@@ new file, +210 lines\\n+class ObservabilityConfig(BaseModel):\\n+    enabled: bool = False\\n+    export_target: Literal[\\"console\\", \\"otlp\\", \\"file\\", \\"none\\"] = \\"console\\"\\n+    sampling_rate: float = Field(default=1.0, ge=0.0, le=1.0)\\n+    otlp_endpoint: str = \\"http://localhost:4318\\"\\n+    session_based_trace: bool = False\\n+class ObservabilitySettings(BaseSettings):\\n+    model_config = SettingsConfigDict(env_prefix=\\"MISTRAL_VIBE_TELEMETRY_\\", env_file=\\".env\\")\\n+def load_config(*, cli_overrides=None, config_path=None) -> ObservabilityConfig: ...\\n--- /dev/null\\n+++ b/vibe/core/observability/tracing.py\\n@@ new file, +330 lines\\n+def run_in_trace_span(name, func, span_kind=SpanKind.INTERNAL, initial_attributes=None): ...\\n+def run_in_trace_span_async(...): ...\\n+async def async_run_in_trace_span(..., as_root_span=False): ...  # async context manager\\n+def build_llm_request_attributes(*, model_name, provider_name, temperature, max_tokens, streaming, tool_count, endpoint): ...\\n+def trace_agent_execution(func): ...\\n+def trace_tool_execution_async(func): ...\\n--- /dev/null\\n+++ b/vibe/core/observability/sdk.py\\n@@ new file, +180 lines\\n+class ObservabilitySDK:\\n+    def initialize(self) -> bool: ...  # TracerProvider(sampler=ParentBased(TraceIdRatioBased(rate))), MeterProvider, LoggerProvider\\n--- /dev/null\\n+++ b/vibe/core/observability/exporters/otlp.py\\n@@ new file, +80 lines\\n+def create_otlp_span_exporter(endpoint, headers): ...  # OTLPSpanExporter(endpoint=.../v1/traces)\\n"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/harness        vibe:
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/head           "3c2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/lines-added    1180
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/lines-removed  0
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/project        "mistral_hackathon_test"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/prompt         "scaffold vibe/core/observability with semconv, config, metrics, tracing, sdk and exporters/"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/redacted       false
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/response       "Package created; 'from vibe.core.observability import ObservabilitySDK, ObservabilityConfig' imports cleanly."
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-03  tonk.recorder.change/turn           "turn-pr140-03"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/agent          "vibe-goblin-computer-0307"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/at             "2026-11-21T15:53:00Z"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/base           "47451efb36295fe10b2be2ed67c35b2c676b3d56"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/branch         "sim/pr-140"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/commit         "661588de0ccee6338de8546749d70513b5b8f837"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/diff           "--- a/pyproject.toml\\n+++ b/pyproject.toml\\n@@ -20,6 +20,14 @@ dependencies = [\\n     \\"rich>=13.0.0\\",\\n     \\"textual>=0.80.0\\",\\n+    \\"opentelemetry-api>=1.39.0\\",\\n+    \\"opentelemetry-sdk>=1.39.0\\",\\n+    \\"opentelemetry-exporter-otlp>=1.39.0\\",\\n+    \\"opentelemetry-exporter-otlp-proto-grpc>=1.39.0\\",\\n+    \\"opentelemetry-exporter-otlp-proto-http>=1.39.0\\",\\n+    \\"pyyaml>=6.0\\",\\n ]\\n"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/harness        vibe:
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/head           "1a0f1e2d3c4b5a69788796a5b4c3d2e1f0a1b2c3"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/lines-added    8
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/lines-removed  0
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/project        "mistral_hackathon_test"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/prompt         "add the opentelemetry dependencies to pyproject.toml and update the lockfile"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/redacted       false
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/response       "Added the six packages — but into the wrong list (main dependencies); caught it on review before locking."
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/session        "e7ee182d-4ba7-fcf4-91b1-7644dcf940eb"
+21@GfBJKDx5TtyLfRZnebGq4wuiFZS1rtKg8SCD8boZFD3y  assert  change-pr140-01  tonk.recorder.change/turn           "turn-pr140-01"

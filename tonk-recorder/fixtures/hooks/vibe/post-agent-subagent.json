@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "post_agent",
+  "session_id": "vibe-session-bbb",
+  "parent_session_id": "vibe-session-aaa",
+  "transcript_path": "/tmp/fake-home/.vibe/sessions/vibe-session-bbb.jsonl",
+  "cwd": "/tmp/fake-home/proj",
+  "agent_name": "tonk-distiller",
+  "turn_id": "turn-1",
+  "response_text": "Subagent turn: wrote a scratch note file."
+}

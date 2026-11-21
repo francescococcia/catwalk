@@ -1,0 +1,41 @@
+[
+  {
+    "this": "did:key:zDec1",
+    "id": "did:key:zDec1",
+    "name": "decision-sync-every-turn",
+    "title": "Sync the space at every turn",
+    "chosen": "pull + push after every change",
+    "why": "Keeps every view fresh.",
+    "rejected": "Checkpoint syncing only",
+    "supersedes": null,
+    "about": ["id:src-hooks"],
+    "by": "hermes",
+    "at": "2026-11-21T12:20:00Z"
+  },
+  {
+    "this": "did:key:zDec2",
+    "id": "did:key:zDec2",
+    "name": "decision-checkpoint-sync",
+    "title": "Checkpoint sync instead of every turn",
+    "chosen": "Sync at session start/end, every 10 turns, or on demand",
+    "why": "Concurrent writers collide on the revision lock.",
+    "rejected": "Sync at every turn",
+    "supersedes": "did:key:zDec1",
+    "about": ["id:checkpoint-sync"],
+    "by": "hermes",
+    "at": "2026-11-21T12:30:00Z"
+  },
+  {
+    "this": "did:key:zDec3",
+    "id": "did:key:zDec3",
+    "name": "decision-writer-lock",
+    "title": "Recorder takes its own lock around tonk writes",
+    "chosen": "flock-style lock around every tonk eval, retry on exit 4",
+    "why": "tonk's revision.lock rejects concurrent writers.",
+    "rejected": null,
+    "supersedes": null,
+    "about": ["did:key:zChange1", "id:locks"],
+    "by": "lead",
+    "at": "2026-11-21T13:40:00Z"
+  }
+]

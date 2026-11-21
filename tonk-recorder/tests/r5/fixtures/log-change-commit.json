@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "tonk.log-changes.v1",
+  "rows": [
+    { "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1", "edition": 4, "change": "assert", "entity": "did:key:z6MkGycfjubJ1C8nDaf5d45p4Q1YkzJBntC7pV1QVv8976Tk", "attribute": "tonk.recorder.change/session", "value": "vibe-session-aaa", "supersedes": [] },
+    { "version": "4@GJKNZreUUTS9sMGcEMUecN9ptqXoxyHN8FCsyWWW15U1", "edition": 4, "change": "assert", "entity": "did:key:z6MkGycfjubJ1C8nDaf5d45p4Q1YkzJBntC7pV1QVv8976Tk", "attribute": "tonk.recorder.change/commit", "value": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678", "supersedes": [] }
+  ]
+}
