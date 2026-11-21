@@ -75,6 +75,10 @@ class LLM:
             log = self.debug_dir / f"{name}.attempt{attempt}.txt"
             log.write_text(f"MODEL: {model}  ({dt:.1f}s)  usage={json.dumps(usage)}\n\n=== SYSTEM ===\n{system}\n\n=== USER ===\n{user}\n\n=== RESPONSE ===\n{txt}\n")
             self.calls.append({"name": name, "model": model, "seconds": round(dt, 1), "usage": usage, "attempt": attempt})
+            if not txt.strip():  # reasoning models can spend the whole budget thinking: retry with more room, never echo an empty assistant turn (API 400)
+                max_tokens = min(max_tokens * 2, 32000)
+                last_err = ValueError("empty response")
+                continue
             try:
                 obj = _parse_json(txt)
                 last_obj = obj
