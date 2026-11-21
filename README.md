@@ -149,6 +149,8 @@ Apache 2.0, text + vision, built for edge/on-device:
 
 Good for: local/offline agents, cheap classifiers/routers inside a bigger Large 4 pipeline, on-device demos (Vibe CLI supports offline local models).
 
+**Deep dive (usage, tools, local running, security): [MINISTRAL.md](MINISTRAL.md)**
+
 ## Other current Mistral models
 
 - **Mistral Small 4** — hybrid instruct/reasoning/coding (Apache 2.0); default LLM in the voice agent SDK.
