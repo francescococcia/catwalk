@@ -75,14 +75,14 @@ const evalDocs = (env) =>
   fs.existsSync(env.STUB_EVALS) ? fs.readFileSync(env.STUB_EVALS, "utf8").split("\n---\n").filter((s) => s.trim()) : [];
 const isPullPush = (c) => /(^| )pull$|(^| )push$/.test(c);
 
-test("unbound folder: zero tonk calls; session-start tells the agent how to connect, other events say nothing", (t) => {
+test("not connected to a space: the agent is ALWAYS told at launch how to connect; nothing recorded, zero tonk calls", (t) => {
   const e = makeEnv(t, { bound: false });
   const r = runHook(e.env, "session-start", stdinFor("session-start.json", e.proj));
   assert.equal(r.status, 0);
   const ctx = JSON.parse(r.stdout).hook_specific_output.additional_context;
   assert.match(ctx, /not connected to a Tonk space/);
-  assert.match(ctx, /tonk-recorder new <space-name>/);
-  assert.match(ctx, /tonk-recorder join '<link>'/);
+  assert.match(ctx, /new <space-name>/);
+  assert.match(ctx, /join '<link>'/);
   assert.match(ctx, /never repeat it back/);
   assert.ok(r.durationMs < 400, `unbound session-start took ${r.durationMs}ms`);
   const r2 = runHook(e.env, "post-agent", stdinFor("post-agent.json", e.proj));

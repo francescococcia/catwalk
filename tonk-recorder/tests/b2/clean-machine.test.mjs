@@ -52,7 +52,7 @@ test('clean machine: join + AGENTS.md bootstrap block → working plugin', () =>
   assert.equal(r.status, 0, r.stderr);
 
   // working plugin layout on the "machine"
-  const pd = path.join(fx.home, '.vibe', 'plugins', 'tonk-recorder');
+  const pd = path.join(fx.proj, '.vibe', 'plugins', 'tonk-recorder');
   assert.deepEqual(tree(pd), ['ai.mistral.vibe/', 'ai.mistral.vibe/hooks.toml', 'plugin.json', 'tool.mjs']);
   const manifest = JSON.parse(read(path.join(pd, 'plugin.json')));
   assert.equal(manifest.name, 'tonk-recorder');
@@ -86,5 +86,5 @@ test('clean machine: tampered logic blob is refused (install exit 2)', () => {
   const r = runBash(sh, { cwd: fx.proj, env: fx.env });
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /sha256 mismatch/);
-  assert.equal(fs.existsSync(path.join(fx.home, '.vibe', 'plugins', 'tonk-recorder')), false);
+  assert.equal(fs.existsSync(path.join(fx.proj, '.vibe', 'plugins', 'tonk-recorder')), false);
 });

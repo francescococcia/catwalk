@@ -5,6 +5,7 @@
 //   2. the pinned dependency: <pkg>/node_modules/@tonk/cli/bin/tonk.js
 //      (bin entry of @tonk/cli 0.8.0, run under this Node)
 // If neither exists we fail readably; there is deliberately no PATH fallback.
+import { devTonkBin } from "../hooks/identity.mjs";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -24,6 +25,10 @@ export function resolveTonkBin(env = process.env) {
   if (env.TONK_BIN) {
     return { bin: env.TONK_BIN, viaNode: /\.(mjs|cjs|js)$/i.test(env.TONK_BIN) };
   }
+  // The dev-channel build, when this machine has it: the only tonk with
+  // revision history (`tonk log` / `restore`). See hooks/identity.mjs.
+  const dev = devTonkBin(env);
+  if (dev) return { bin: dev, viaNode: false };
   // npm may hoist the pinned dep to an ancestor node_modules — walk up, but
   // only accept a candidate whose node_modules also contains THIS package
   // (i.e. a real install tree), never an unrelated ancestor like $HOME.

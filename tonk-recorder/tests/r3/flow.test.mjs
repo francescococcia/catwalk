@@ -195,3 +195,23 @@ test("session-start note: an agent with no role is told to take one", (t) => {
   assert.match(ctx, /## You have no role yet/);
   assert.match(ctx, /tonk-recorder role <name>/);
 });
+
+test("a brand-new project (git init, no commits yet) still records its first turn", (t) => {
+  const e = makeEnv(t);
+  const fresh = path.join(e.root, "fresh");
+  fs.mkdirSync(fresh);
+  git(fresh, ["init", "-q", "-b", "main", "."]);
+  const reg = path.join(e.home, "Library", "Application Support", "tonk", "spaces.json");
+  const j = JSON.parse(fs.readFileSync(reg, "utf8"));
+  j.bindings[fresh] = "testspace";
+  fs.writeFileSync(reg, JSON.stringify(j));
+  assert.equal(runHook(e.env, "session-start", payload("session_start", fresh)).status, 0);
+  runHook(e.env, "pre-agent", payload("pre_agent", fresh, { prompt: "start the site", turn_id: "t1" }));
+  fs.writeFileSync(path.join(fresh, "index.html"), "<h1>hi</h1>\n");
+  const r = runHook(e.env, "post-agent", payload("post_agent", fresh, { turn_id: "t1", response_text: "done" }));
+  assert.equal(r.stderr, "", "no fail-open error");
+  const change = evalDocs(e.env).find((d) => d.includes("change!:"));
+  assert.ok(change, "change record written");
+  assert.match(change, /branch: "main"/);
+  assert.match(change, /commit: "\(no commits yet\)"/);
+});

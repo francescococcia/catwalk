@@ -63,7 +63,7 @@ export async function cmdJoin(argv, { env = process.env, cwd = process.cwd() } =
   const staged = toolCachePath(version, env);
   fs.mkdirSync(path.dirname(staged), { recursive: true });
   fs.writeFileSync(staged, blobRes.buffer);
-  await installPlugin({ home: home(env), version, toolSource: blobRes.buffer, harness, env });
+  await installPlugin({ home: process.cwd(), version, toolSource: blobRes.buffer, harness, env });
 
   // who this agent is here, and let every worktree of this repo find the space
   const space = boundSpace(cwd, env);

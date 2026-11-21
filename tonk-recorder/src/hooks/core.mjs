@@ -57,10 +57,12 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
   // §6.1 binding rule — first and fast (pure local fs reads).
   const binding = resolveSpace(payload.cwd, { env, spaceArg });
   if (!binding) {
-    // Installed but this project is not connected: record nothing, and at
-    // session start tell the agent the recorder exists and how to connect, so
-    // "create a space" / "join this link" in chat just works.
-    if (payload.event === "session-start" && env.TONK_RECORDER_QUIET !== "1") {
+    // Not connected to a space: record nothing, no state, no tonk calls.
+    // But the plugin is only installed in folders someone ran `connect` in, so
+    // ALWAYS tell the agent at launch that the recorder is here and how to
+    // connect — otherwise "create a space" / "join this link" in chat goes
+    // nowhere. (Do not make this silent again.)
+    if (payload.event === "session-start") {
       return { code: 0, stdout: formatOutput(harness, "session-start", { additionalContext: buildUnconnectedContext({ env }) }) };
     }
     return empty;
@@ -167,10 +169,10 @@ export async function handleEvent(payload, { env = process.env, spaceArg, now = 
             prompt: (payload.turnId != null ? getPrompt(root, sessionId, payload.turnId) : null) ?? "(prompt not captured)",
             response: payload.responseText ?? null,
             project: projectName(payload.cwd),
-            branch,
+            branch: branch || "(detached)",
             base: prev,
             head: next,
-            commit: headCommit(payload.cwd),
+            commit: headCommit(payload.cwd) || "(no commits yet)", // a brand-new project still records
             files: d.files,
             linesAdded: d.totals.added,
             linesRemoved: d.totals.removed,

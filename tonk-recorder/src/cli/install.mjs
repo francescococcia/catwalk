@@ -91,11 +91,11 @@ export async function installPlugin({ home, version, toolSource, harness = "vibe
       { env, cwd: process.cwd() },
     );
     if (r.code !== 0) throw new Error(`vibe installer failed (exit ${r.code}): ${r.stderr.trim()}`);
-    return { harness, pluginDir: pluginDir({ HOME: home }), version };
+    return { harness, pluginDir: pluginDir(home), version };
   }
 
   // Fallback until H1 lands: write the §4.1 layout directly.
-  const dir = pluginDir({ HOME: home });
+  const dir = pluginDir(home);
   fs.mkdirSync(path.join(dir, "ai.mistral.vibe"), { recursive: true });
   fs.writeFileSync(path.join(dir, "plugin.json"), JSON.stringify(pluginManifest(version), null, 2) + "\n");
   fs.writeFileSync(path.join(dir, "tool.mjs"), toolSource);
@@ -109,9 +109,9 @@ export async function uninstallPlugin({ home, harness = "all", env = process.env
   const vibeInstaller = path.join(PKG_ROOT, "adapters", "vibe", "install.mjs");
   if (exists(vibeInstaller) && exists(path.join(home, ".vibe", "plugins", PKG_NAME))) {
     const r = await runNode(vibeInstaller, ["uninstall", "--harness", "vibe", "--home", home], { env, cwd: process.cwd() });
-    if (r.code === 0) removed.push(pluginDir({ HOME: home }));
+    if (r.code === 0) removed.push(pluginDir(home));
   }
-  const dir = pluginDir({ HOME: home });
+  const dir = pluginDir(home);
   if (exists(dir)) {
     fs.rmSync(dir, { recursive: true, force: true });
     if (!removed.includes(dir)) removed.push(dir);
@@ -134,7 +134,7 @@ export async function uninstallPlugin({ home, harness = "all", env = process.env
 /** Installed version from the plugin manifest, or null. */
 export function installedVersion(env = process.env) {
   try {
-    const p = path.join(pluginDir(env), "plugin.json");
+    const p = path.join(pluginDir(process.cwd()), "plugin.json");
     if (!exists(p)) return null;
     return JSON.parse(fs.readFileSync(p, "utf8")).version ?? null;
   } catch {

@@ -31,13 +31,15 @@ test("new: full sequence on a clean temp dir + paste line", async (t) => {
   assert.ok(calls.some((a) => a[0] === "eval" && a.includes("-c") && a[a.length - 1].includes("tool!:")), "tool record asserted");
   assert.ok(calls.some((a) => a[0] === "space" && a[1] === "agents" && a[2] === "get"), "agents get");
   assert.ok(calls.some((a) => a[0] === "space" && a[1] === "agents" && a[2] === "set"), "agents set");
-  assert.ok(calls.some((a) => a[0] === "invite"), "invite minted");
-
-  // paste line on stdout (link printed, never written to files — SPEC §8)
-  assert.match(r.stdout, /npx --yes tonk-recorder join 'https:\/\/tonk\.example\.invalid\/join#stub-invite-token' --agent-name/);
+  // a new space is LOCAL: no account attach, no invite — nothing that needs a sign-in
+  assert.ok(!calls.some((a) => a[0] === "invite"), "new mints no invite");
+  assert.ok(!calls.some((a) => a[0] === "space" && a[1] === "link"), "new does not attach the space to an account");
+  assert.ok(!calls.some((a) => a[0] === "push" || a[0] === "pull"), "new touches no remote");
+  assert.match(r.stdout, /local to this machine/);
+  assert.match(r.stdout, /invite/);
 
   // hooks installed into the (fake) harness — §4.1 plugin layout
-  const pdir = pluginDirOf(ws.home);
+  const pdir = pluginDirOf(ws.project);
   const manifest = JSON.parse(fs.readFileSync(path.join(pdir, "plugin.json"), "utf8"));
   assert.equal(manifest.name, "tonk-recorder");
   assert.equal(manifest.version, "0.1.0");
@@ -68,7 +70,7 @@ test("join: installs the plugin layout from the space (verify + sha256)", async 
   assert.ok(calls.some((a) => a[0] === "blob" && a[1] === "cat" && a[2].startsWith("blob:")), "blob fetched");
 
   // plugin layout installed for the joining agent
-  const pdir = pluginDirOf(home2);
+  const pdir = pluginDirOf(ws.project);
   assert.ok(fs.existsSync(path.join(pdir, "plugin.json")), "plugin.json installed");
   const staged = path.join(home2, ".tonk", "tools", "tonk-recorder", "0.1.0", "tool.mjs");
   assert.ok(fs.existsSync(staged), "staged at §3.3 bootstrap path");
@@ -90,10 +92,14 @@ test("join: refuses a tampered blob (sha256 mismatch)", async (t) => {
   fs.writeFileSync(path.join(ws.state, "blobs", rec.blob.replace("blob:", "")), "// tampered\n");
   const home2 = path.join(ws.dir, "home2");
   fs.mkdirSync(home2, { recursive: true });
-  const r = await runCli(["join", FAKE_LINK, "--agent-name", "mallory"], { cwd: ws.project, env: { ...ws.env, HOME: home2 } });
+  // join runs in a *different* project folder (project-local install), so we
+  // can assert nothing was installed there
+  const proj2 = path.join(ws.dir, "proj2");
+  fs.mkdirSync(proj2, { recursive: true });
+  const r = await runCli(["join", FAKE_LINK, "--agent-name", "mallory"], { cwd: proj2, env: { ...ws.env, HOME: home2 } });
   assert.equal(r.code, 1);
   assert.match(r.stderr, /sha256 mismatch/i);
-  assert.ok(!fs.existsSync(pluginDirOf(home2)), "nothing installed");
+  assert.ok(!fs.existsSync(pluginDirOf(proj2)), "nothing installed");
 });
 
 test("join: refuses an untrusted publisher (SPEC §8)", async (t) => {
@@ -156,10 +162,10 @@ test("status: shows binding + hook state after new", async (t) => {
 test("uninstall: removes plugin + local state", async (t) => {
   const ws = makeWorkspace(t);
   await runCli(["new", "projx"], { cwd: ws.project, env: ws.env });
-  assert.ok(fs.existsSync(pluginDirOf(ws.home)));
+  assert.ok(fs.existsSync(pluginDirOf(ws.project)));
   const r = await runCli(["uninstall"], { cwd: ws.project, env: ws.env });
   assert.equal(r.code, 0, r.stderr);
-  assert.ok(!fs.existsSync(pluginDirOf(ws.home)), "plugin dir removed");
+  assert.ok(!fs.existsSync(pluginDirOf(ws.project)), "plugin dir removed");
   assert.ok(!fs.existsSync(path.join(ws.home, ".tonk", "tools", "tonk-recorder")), "tools cache removed");
 });
 

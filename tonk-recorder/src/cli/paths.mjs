@@ -22,9 +22,12 @@ export function homeDir(env = process.env) {
   return h;
 }
 
-/** User-level Vibe plugin dir (SPEC §4.1). */
-export function pluginDir(env = process.env) {
-  return path.join(homeDir(env), ".vibe", "plugins", PKG_NAME);
+/** Vibe plugin dir. Callers pass the *install root*: the project folder for a
+ * project-local plugin (default — the recorder only exists in folders that
+ * connected), or HOME for a legacy user-level install. */
+export function pluginDir(root = process.cwd(), env = process.env) {
+  if (path.isAbsolute(root)) return path.join(root, ".vibe", "plugins", PKG_NAME);
+  return path.join(homeDir(env), ".vibe", "plugins", PKG_NAME); // old { HOME } call style
 }
 
 /** Bootstrap tools root used by the no-wrapper paste path (SPEC §3.3). */

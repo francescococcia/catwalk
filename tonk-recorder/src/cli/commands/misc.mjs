@@ -5,12 +5,62 @@ import { spawn } from "node:child_process";
 import { runTonk, tonkOk } from "../tonk.mjs";
 import { pluginDir, DIST_TOOL, homeDir } from "../paths.mjs";
 import { installedVersion, uninstallPlugin } from "../install.mjs";
+import { linkSpace, linkPage } from "./link.mjs";
+import { resolveSpace } from "../../hooks/binding.mjs";
+import { readIdentity } from "../../hooks/identity.mjs";
 import { checkForUpdate } from "../../update/check.mjs";
 import { runTonkTool } from "../../update/check.mjs";
 import { parseArgs, opt, pasteLine, inviteLink, resolveInstructions, ensureDist, PKG_VERSION } from "./shared.mjs";
 
+/** Does this space have a remote yet? (`tonk invite` on a local-only space
+ *  prints an error but exits 0, so ask `tonk remote` instead.) */
+export async function hasRemote(opts) {
+  const r = await runTonk(["remote", "--json"], opts);
+  try {
+    return (JSON.parse(r.stdout).rows || []).length > 0;
+  } catch {
+    return !/no remotes registered/i.test(r.stdout + r.stderr);
+  }
+}
+
+/**
+ * `invite` — print an invite link. A space is created local-only (no remote,
+ * no sign-in); the FIRST invite is what gives it a home: it attaches the
+ * space to the person's Tonk account on tonk.foundation (browser approval;
+ * they sign in there if asked), pushes what is in it, then mints the link.
+ */
 export async function cmdInvite(argv, opts = {}) {
-  const link = await inviteLink(opts);
+  const env = opts.env ?? process.env;
+  const cwd = opts.cwd ?? process.cwd();
+  const args = parseArgs(argv);
+  if (!(await hasRemote({ env, cwd }))) {
+    // the space this folder is bound to, else the one `new` / `join` recorded for it
+    const name = resolveSpace(cwd, { env })?.space ?? readIdentity(cwd, env)?.space;
+    const binding = name ? { space: name } : null;
+    if (!binding) {
+      const err = new Error("this folder is not connected to a space — run `tonk-recorder new <name>` first");
+      err.exitCode = 1;
+      throw err;
+    }
+    console.log(`Space '${binding.space}' is local to this machine, so there is nowhere to invite anyone to yet.`);
+    console.log(`Attaching it to your Tonk account at ${linkPage(env, opt(args, "via"))}.`);
+    console.log("Approve it in the browser window that opens; sign in to Tonk there if asked.");
+    const linked = await linkSpace(binding.space, { env, cwd, via: opt(args, "via"), noOpen: Boolean(args["no-open"]) });
+    if (!linked.ok) {
+      const err = new Error(
+        `the space was not attached (${linked.timedOut ? "timed out waiting for approval" : `tonk space link exited ${linked.code}`}), so no invite was made. It is still a working local space; run \`tonk-recorder invite\` again when ready.`,
+      );
+      err.exitCode = 1;
+      throw err;
+    }
+    // send structure, roles, logic and everything recorded so far, so the joiner finds them
+    try {
+      await tonkOk(["push"], { env, cwd, timeoutMs: 60000 });
+    } catch (e) {
+      console.log(`(first push failed: ${e.message.split("\n")[0]} — the joiner may find the space empty until \`tonk-recorder sync\` succeeds)`);
+    }
+  }
+  const link = await inviteLink({ env, cwd });
   console.log(link);
   console.log("");
   console.log("paste line for the next agent:");
@@ -29,8 +79,8 @@ export async function cmdStatus(argv, { env = process.env, cwd = process.cwd() }
     process.stdout.write(`(no tonk binding resolvable here: ${err.message})\n`);
   }
   // hook state
-  const pdir = pluginDir(env);
-  const installed = installedVersion(env);
+  const pdir = pluginDir(process.cwd());
+  const installed = installedVersion();
   const hooksToml = path.join(pdir, "ai.mistral.vibe", "hooks.toml");
   console.log(`plugin: ${fs.existsSync(path.join(pdir, "plugin.json")) ? `installed at ${pdir} (v${installed ?? "?"})` : "not installed"}`);
   console.log(`hooks:  ${fs.existsSync(hooksToml) ? "present (" + hooksToml + ")" : "not present"}`);
@@ -65,7 +115,7 @@ const HOOK_EVENTS = new Set(["session-start", "pre-agent", "post-agent", "sessio
  *  wins (SPEC §2 — every agent runs the logic stored in its space). */
 export function resolveInstalledTool(env = process.env) {
   if (env.TONK_RECORDER_TOOL) return env.TONK_RECORDER_TOOL;
-  const pd = path.join(pluginDir(env), "tool.mjs");
+  const pd = path.join(pluginDir(process.cwd()), "tool.mjs");
   if (fs.existsSync(pd)) return pd;
   const root = path.join(homeDir(env), ".tonk", "tools", "tonk-recorder");
   try {
@@ -104,7 +154,7 @@ export async function cmdInstructions() {
 }
 
 export async function cmdUninstall(argv, { env = process.env } = {}) {
-  const removed = await uninstallPlugin({ home: homeDir(env), harness: "all", env });
+  const removed = await uninstallPlugin({ home: process.cwd(), harness: "all", env });
   for (const p of removed) console.log(`removed ${p}`);
   console.log(`hooks and local state removed. The space binding itself stays — remove it with \`tonk space unbind\` if you want.`);
   return 0;
