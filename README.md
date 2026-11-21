@@ -1,5 +1,26 @@
 # Le Chonk in London — Mistral Vibe Hackathon
 
+## Vigil: try it (teammates start here)
+Vigil is a security skill for Vibe that **proves before it speaks**. Rules spot a suspect, Ministral (local) explains it, the Detective agent attacks your own app to prove it, applies a fix, and attacks again to prove the fix works. A live cartoon page shows it all.
+
+Needs: Node 22.5+, Python 3.12+, [uv](https://docs.astral.sh/uv/), optional [Ollama](https://ollama.com) for Ministral.
+
+```powershell
+# 1. the target app (terminal 1)
+cd demo-app; npm install; npm run dev:3001
+# 2. Ministral, local (one time; skip to run without it)
+ollama pull ministral-3:3b
+ollama create vigil -f harness/Modelfile
+# 3. Vigil (terminal 2, repo root), then open http://127.0.0.1:8765/
+uv run --project engine engine/run.py demo-app
+```
+- Add `--ask` to require an Approve click, `--no-narrate` to skip Ministral, and `--mode mistral` (with `MISTRAL_API_KEY` set) to use the hosted Large 4 agent.
+- After a FIXED run, reset the demo bug: `Copy-Item engine\fixtures\orders_id_route.ts.orig "demo-app\app\api\orders\[id]\route.ts" -Force`
+- Tests: `python harness/test_vigil.py` · `uv run --project engine engine/test_engine.py` (needs demo-app running) · `uv run --project engine python engine/test_mistral_layer.py`
+- How the parts fit: [engine/CONTRACT.md](engine/CONTRACT.md) · Vibe skill: [.vibe/skills/vigil/SKILL.md](.vibe/skills/vigil/SKILL.md) · scanner: [harness/README.md](harness/README.md)
+
+---
+
 One-day hackathon run by Mistral. **Saturday 21 November 2026, 08:30–20:30**, Fora – Chancery House, 53–64 Chancery Ln, London WC2A 1QS.
 
 - Event page: https://luma.com/le-chonk-in-london
