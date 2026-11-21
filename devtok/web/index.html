@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevTok Web</title>
+<link rel="stylesheet" href="/web/style.css">
+</head>
+<body>
+<main id="start" class="screen">
+  <h1>DevTok</h1>
+  <p class="muted">Understand a PR in reels, then approve it.</p>
+  <form id="jobForm" class="card">
+    <label>Pull request link<input id="prUrl" type="url" required placeholder="https://github.com/owner/repo/pull/123"></label>
+    <label>GitHub token (optional, sent once as a header, never stored)<input id="token" type="password" autocomplete="off"></label>
+    <button type="submit">Make my reels</button>
+    <ol id="progress" class="progress"></ol>
+    <p id="jobError" class="error"></p>
+  </form>
+  <section class="card">
+    <h2>Load demo</h2>
+    <div id="jobs" class="jobs"></div>
+    <div class="row">
+      <button type="button" id="fixtureBtn" class="secondary">Load fixture feed</button>
+      <label class="secondary filebtn">Open manifest JSON<input id="fileIn" type="file" accept="application/json,.json" hidden></label>
+    </div>
+  </section>
+</main>
+
+<main id="feedScreen" class="screen" hidden>
+  <header class="bar">
+    <button type="button" id="backBtn" class="ghost" aria-label="Back to start">&larr;</button>
+    <nav id="roles" class="roles" aria-label="Role"></nav>
+  </header>
+  <div id="feed" class="feed" tabindex="0" aria-label="Reels feed"></div>
+</main>
+
+<template id="tReel">
+  <section class="page reel">
+    <video playsinline loop muted preload="metadata"></video>
+    <button type="button" class="unmute ghost">Tap for sound</button>
+    <div class="overlay">
+      <h2 class="title"></h2>
+      <p class="hook"></p>
+      <p class="sub" aria-live="polite"></p>
+    </div>
+  </section>
+</template>
+<script src="/web/app.js"></script>
+</body>
+</html>

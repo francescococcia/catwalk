@@ -1,0 +1,213 @@
+{
+ "role": "paying_manager",
+ "role_label": "Manager",
+ "arc": "fixture",
+ "pr": {
+  "title": "Fix IDOR on /api/orders/[id] <script>alert(1)</script>",
+  "number": 42,
+  "repo": "demo/demo-app",
+  "url": "https://github.com/demo/demo-app/pull/42",
+  "author": "alice",
+  "merged_at": null,
+  "stats": {
+   "files": 1,
+   "added": 1,
+   "deleted": 1
+  },
+  "commits": [
+   {
+    "sha": "abc1234",
+    "message": "Enforce order ownership"
+   }
+  ],
+  "files": [
+   {
+    "path": "app/api/orders/[id]/route.ts",
+    "added": 1,
+    "deleted": 1,
+    "kind": "code"
+   }
+  ]
+ },
+ "graph": {
+  "summary": "Orders API",
+  "components": [],
+  "edges": []
+ },
+ "items": [
+  {
+   "type": "video",
+   "id": "r1",
+   "order": 1,
+   "title": "Orders now check ownership",
+   "hook": "Anyone could read anyone's order.",
+   "scene_type": "code",
+   "focus_component_id": "orders_api",
+   "path_component_ids": [
+    "orders_api"
+   ],
+   "narration": "Before this PR, any logged-in user could read any order. Just by changing the id in the URL.",
+   "on_screen_text": "Orders now check ownership",
+   "duration_s": 3,
+   "shots": [
+    {
+     "t_start": 0,
+     "t_end": 1.5,
+     "narration": "Before this PR, any logged-in user could read any order.",
+     "caption": "Before this PR, any logged-in user could read any order.",
+     "visual": null,
+     "highlight_component_id": null,
+     "code_ref_id": null
+    },
+    {
+     "t_start": 1.5,
+     "t_end": 3,
+     "narration": "Just by changing the id in the URL.",
+     "caption": "Just by changing the id in the URL.",
+     "visual": null,
+     "highlight_component_id": null,
+     "code_ref_id": null
+    }
+   ],
+   "code_refs": [],
+   "break_it": null,
+   "retain_facts": [],
+   "video": "fixture_reel.mp4",
+   "video_is_mock": false
+  },
+  {
+   "type": "video",
+   "id": "r2",
+   "order": 2,
+   "title": "404, not 403",
+   "hook": "Same answer as not found.",
+   "scene_type": "code",
+   "focus_component_id": "orders_api",
+   "path_component_ids": [
+    "orders_api"
+   ],
+   "narration": "Someone else's order now returns 404. So the id leaks nothing.",
+   "on_screen_text": "404, not 403",
+   "duration_s": 3,
+   "shots": [
+    {
+     "t_start": 0,
+     "t_end": 1.5,
+     "narration": "Someone else's order now returns 404.",
+     "caption": "Someone else's order now returns 404.",
+     "visual": null,
+     "highlight_component_id": null,
+     "code_ref_id": null
+    },
+    {
+     "t_start": 1.5,
+     "t_end": 3,
+     "narration": "So the id leaks nothing.",
+     "caption": "So the id leaks nothing.",
+     "visual": null,
+     "highlight_component_id": null,
+     "code_ref_id": null
+    }
+   ],
+   "code_refs": [],
+   "break_it": null,
+   "retain_facts": [],
+   "video": "fixture_reel.mp4",
+   "video_is_mock": false
+  },
+  {
+   "type": "quiz",
+   "id": "q1",
+   "after_video_id": "r2",
+   "video_ids": [
+    "r1",
+    "r2"
+   ],
+   "pass_threshold": 0.5,
+   "questions": [
+    {
+     "id": "q1a",
+     "label": "Ownership",
+     "prompt": "What does alice get for bob's order after the fix?",
+     "choices": [
+      "HTTP 200",
+      "HTTP 403",
+      "HTTP 404"
+     ],
+     "correct_index": 2,
+     "explanation": "404, same as a missing order, so ids leak nothing.",
+     "linked_video_ids": [
+      "r2"
+     ]
+    }
+   ]
+  },
+  {
+   "type": "video",
+   "id": "r3",
+   "order": 3,
+   "title": "What to check",
+   "hook": "Owner can still read their own.",
+   "scene_type": "code",
+   "focus_component_id": "orders_api",
+   "path_component_ids": [
+    "orders_api"
+   ],
+   "narration": "Control: alice still reads her own order. Approve once the re-attack is blocked.",
+   "on_screen_text": "What to check",
+   "duration_s": 3,
+   "shots": [
+    {
+     "t_start": 0,
+     "t_end": 1.5,
+     "narration": "Control: alice still reads her own order.",
+     "caption": "Control: alice still reads her own order.",
+     "visual": null,
+     "highlight_component_id": null,
+     "code_ref_id": null
+    },
+    {
+     "t_start": 1.5,
+     "t_end": 3,
+     "narration": "Approve once the re-attack is blocked.",
+     "caption": "Approve once the re-attack is blocked.",
+     "visual": null,
+     "highlight_component_id": null,
+     "code_ref_id": null
+    }
+   ],
+   "code_refs": [],
+   "break_it": null,
+   "retain_facts": [],
+   "video": "fixture_reel.mp4",
+   "video_is_mock": false
+  },
+  {
+   "type": "verdict"
+  }
+ ],
+ "summary": {
+  "verdict_suggestion": "approve",
+  "headline": "Orders API now enforces ownership",
+  "what_changed": [
+   "GET /api/orders/[id] returns 404 unless you own the order"
+  ],
+  "why": "Any user could read any order (IDOR).",
+  "risks": [
+   {
+    "title": "Other routes may lack the same check",
+    "severity": "medium",
+    "mitigation": "Run Vigil on every route"
+   }
+  ],
+  "checklist": [
+   {
+    "text": "Re-attack is blocked",
+    "kind": "verify",
+    "blocking": true
+   }
+  ],
+  "cost_impact": null,
+  "user_impact": "Private orders stay private."
+ }
+}

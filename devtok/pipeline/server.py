@@ -11,6 +11,8 @@ API
   GET  /api/jobs/<id>/manifest/<role>
   GET  /api/jobs/<id>/explain/<role>
   GET  /media/<file>             mp4 with HTTP Range (AVPlayer needs it)
+  GET  /api/security             threat register + "Vigil proved it" slide from the newest Vigil run log (redacted evidence only)
+  GET  /  and  /web/<file>       web version of the app (devtok/web); `--port 8770` if Vigil's live page holds 8765
 """
 import argparse
 import subprocess
@@ -37,6 +39,54 @@ STAGES = ["fetch", "ingest", "graph", *pipeline.ROLES, "render"]
 RENDER = ROOT / "renderer" / "build.py"
 LOCK = threading.Lock()
 RUNNING = {}
+WEB = ROOT / "web"
+REPO = ROOT.parent
+
+
+def vigil_slide():
+    """Newest Vigil run log that proved an attack -> slide dict. Only evidence.body_redacted leaves the server."""
+    # newest full story (proof + fix) first; the harness fixture is the fallback for a fresh checkout
+    logs = sorted((REPO / "engine" / "runs").glob("*.jsonl"), key=lambda f: f.stat().st_mtime, reverse=True) + [REPO / "harness" / "fixtures" / "run" / "run.jsonl"]
+    for log in logs:
+        try:
+            ev = [json.loads(l) for l in log.read_text(encoding="utf-8").splitlines() if l.strip()]
+        except (OSError, ValueError):
+            continue
+        proofs = [e for e in ev if e.get("type") == "proof"]
+        proven = next((e for e in proofs if e.get("status") == "PROVEN"), None)
+        if not proven or not any(e.get("type") == "fix_proposed" for e in ev):
+            continue
+        after = [e for e in proofs if e["seq"] > proven["seq"]]
+        fix = next((e for e in ev if e.get("type") == "fix_proposed"), {})
+        expl = next((e for e in ev if e.get("type") == "explanation"), {})
+        verdict = next((e for e in reversed(ev) if e.get("type") == "verdict"), {})
+        evid = proven.get("evidence") or {}
+        return {"source": log.name, "attack": proven.get("attack"), "text": proven.get("text"), "explanation": expl.get("text"),
+                "rule": expl.get("rule"), "file": re.sub(r"/+", "/", (fix.get("file") or expl.get("file") or "").replace("\\", "/")).removeprefix(REPO.as_posix() + "/"),
+                "evidence": {k: evid.get(k) for k in ("request", "status_code", "body_redacted")},
+                "control": (proven.get("control") or {}).get("detail"), "diff": "\n".join(l for l in (fix.get("diff") or "").splitlines() if not l.startswith(("---", "+++"))),
+                "reattack": after[-1].get("status") if after else None, "reattack_text": after[-1].get("text") if after else None,
+                "verdict": verdict.get("result"), "verdict_text": verdict.get("text")}
+    return None
+
+
+def security_payload():
+    sec = ROOT / "security"
+    reg = json.loads((sec / "threats.json").read_text(encoding="utf-8"))
+    rep = sec / "vigil-report.json"
+    stds = []
+    slide = vigil_slide()
+    std_map = ROOT.parent / "harness" / "standards.json"
+    if slide and std_map.exists():  # chips for the PROVEN attack first (read another user's record = IDOR)
+        idor = json.loads(std_map.read_text(encoding="utf-8")).get("nextjs-api-no-ownership", {})
+        stds += [v for k in ("owasp_top10_2021", "owasp_api_2023", "cwe") if (v := idor.get(k))]
+    if rep.exists():
+        for f in json.loads(rep.read_text(encoding="utf-8")).get("findings", []):
+            for k in ("owasp_top10_2021", "owasp_api_2023", "cwe"):
+                v = (f.get("standards") or {}).get(k)
+                if v and v != "n/a" and v not in stds:
+                    stds.append(v)
+    return {"threats": reg.get("threats", []), "last_report": reg.get("last_report"), "standards": stds, "slide": slide}
 
 
 def job_id_for(owner, repo, num):
@@ -172,6 +222,12 @@ class H(BaseHTTPRequestHandler):
 
     def do_GET(self):
         parts = [p for p in self.path.split("?")[0].split("/") if p]
+        if parts in ([], ["web"]):
+            return self._file(WEB, "index.html")
+        if len(parts) >= 2 and parts[0] == "web":
+            return self._file(WEB, "/".join(parts[1:]))
+        if parts == ["api", "security"]:
+            return self._json(security_payload())
         if parts == ["api", "health"]:
             return self._json({"ok": True, "roles": list(pipeline.ROLES)})
         if parts == ["api", "jobs"]:
@@ -222,6 +278,18 @@ class H(BaseHTTPRequestHandler):
             RUNNING[jid] = threading.Thread(target=worker, args=(jid, st["pr_url"], token, roles), daemon=True)
             RUNNING[jid].start()
         self._json(st, 202)
+
+    def _file(self, base, rel):
+        f = (base / rel).resolve()
+        if not f.is_file() or base.resolve() not in f.parents:  # no path traversal out of devtok/web
+            return self._json({"error": "not found"}, 404)
+        body = f.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", mimetypes.guess_type(f.name)[0] or "application/octet-stream")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
 
     def _media(self, name):
         f = MEDIA / name
