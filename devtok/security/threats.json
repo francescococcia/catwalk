@@ -1,0 +1,122 @@
+{
+  "schema": "devtok.threats.v1",
+  "threats": [
+    {
+      "id": "T1",
+      "title": "GitHub token exposure",
+      "where": "app -> server X-GitHub-Token; pipeline/github.py",
+      "severity": "high",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T2",
+      "title": "Unauthenticated job server (jobs + cached private PR data readable by anyone who can reach it)",
+      "where": "pipeline/server.py",
+      "severity": "high",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T3",
+      "title": "Prompt injection via PR body/diff/commits/README steering narration, quiz or verdict suggestion",
+      "where": "pipeline/run.py, pipeline/inserts.py",
+      "severity": "high",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T4",
+      "title": "Secrets in diffs sent to the Mistral API (weak redaction)",
+      "where": "pipeline/ingest.py",
+      "severity": "medium",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T5",
+      "title": "Unbounded retention of PR text, prompts and manifests on disk",
+      "where": "storage/jobs, out/*/debug",
+      "severity": "medium",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T6",
+      "title": "Path traversal on file serving",
+      "where": "pipeline/server.py /media, renderer/render.mjs",
+      "severity": "medium",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T7",
+      "title": "HTML/script injection into renderer overlays from LLM text",
+      "where": "renderer/src/main.js",
+      "severity": "medium",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T8",
+      "title": "Subprocess calls with model-produced data",
+      "where": "renderer/build.py",
+      "severity": "low",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T9",
+      "title": "Cleartext HTTP between app and server (ATS NSAllowsArbitraryLoads)",
+      "where": "app/DevTok/Info.plist, Network.swift",
+      "severity": "high",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T10",
+      "title": "SSRF through the PR link",
+      "where": "pipeline/github.py",
+      "severity": "low",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T11",
+      "title": "Supply chain: models/packages without hash pinning",
+      "where": "claude-animation-skills kit",
+      "severity": "medium",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T12",
+      "title": "Resource exhaustion: no diff size cap, Chrome renders per job",
+      "where": "pipeline/server.py, renderer/build.py",
+      "severity": "medium",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    },
+    {
+      "id": "T13",
+      "title": "Approval integrity once approval posts to GitHub",
+      "where": "app verdict screen",
+      "severity": "medium",
+      "status": "open",
+      "source": "devtok-self-review",
+      "findings": []
+    }
+  ]
+}

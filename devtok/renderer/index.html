@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DevTok reel renderer</title>
+<style>
+  @font-face { font-family: 'Cap'; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2') format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'Cap'; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); font-weight: 800; }
+  @font-face { font-family: 'Inter'; src: url('fonts/inter-600-normal.woff2') format('woff2'); font-weight: 600; }
+  @font-face { font-family: 'Inter'; src: url('fonts/inter-700-normal.woff2') format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'Mono'; src: url('fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  #stage { position: relative; width: 720px; height: 1560px; overflow: hidden; background: #05070d; }
+  canvas { display: block; }
+  .ov { position: absolute; left: 0; right: 0; pointer-events: none; }
+  #top { top: 210px; padding: 0 44px; font: 700 22px/1.2 'Inter', sans-serif; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+  #top .chip { display: inline-block; padding: 5px 12px; border-radius: 99px; background: #ff2d6f; margin-right: 8px; font-size: 18px; letter-spacing: .5px; }
+  #top .role { display: inline-block; padding: 5px 12px; border-radius: 99px; background: rgba(0,0,0,.35); font-size: 18px; }
+  #top .title { margin-top: 12px; font: 800 38px/1.1 'Cap', sans-serif; letter-spacing: -.5px; }
+  #hook { top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 60px;
+          font: 800 58px/1.05 'Cap', sans-serif; color: #fff; text-shadow: 0 4px 24px rgba(0,0,0,.55); background: rgba(10,20,60,.35); }
+  #cap { top: 375px; padding: 0 44px; }
+  #cap .c { display: inline-block; padding: 8px 16px; border-radius: 14px; background: #ffd23f; color: #111; font: 800 34px/1.1 'Cap', sans-serif; text-transform: uppercase; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  #cap .sub2 { margin-top: 10px; display: inline-block; padding: 6px 12px; border-radius: 10px; background: rgba(0,0,0,.55); color: #fff; font: 700 22px 'Inter', sans-serif; }
+  #sub { top: 1330px; text-align: center; font: 800 50px/1.1 'Cap', sans-serif; color: #fff; padding: 0 48px;
+         text-shadow: 0 0 2px rgba(0,0,0,.7), 0 3px 12px rgba(0,0,0,.6); -webkit-text-stroke: .8px rgba(0,0,0,.35); }
+  #sub b { color: #ffd23f; }
+  #code { left: 36px; right: 36px; top: 660px; border-radius: 22px; background: rgba(16,18,26,.94); box-shadow: 0 18px 50px rgba(0,0,0,.45);
+          border: 2px solid #2fd47a; overflow: hidden; transform-origin: 50% 100%; }
+  #code .hd { display: flex; justify-content: space-between; padding: 12px 18px; background: rgba(255,255,255,.06); color: #cfe; font: 500 19px 'Mono', monospace; }
+  #code .why { padding: 8px 18px 4px; color: #ffd23f; font: 600 19px/1.3 'Inter', sans-serif; }
+  #code .ln { display: flex; font: 500 19px/1.55 'Mono', monospace; color: #e8ecf5; white-space: pre; padding-right: 14px; }
+  #code .ln .n { width: 64px; text-align: right; padding-right: 12px; color: rgba(255,255,255,.35); flex: none; }
+  #code .ln .p { width: 18px; color: #3ee07f; flex: none; }
+  #code .ln.hl { background: rgba(255,210,63,.18); }
+  #code .ln.add { background: rgba(62,224,127,.07); }
+  #code .ln.brk { background: rgba(255,60,60,.32); }
+  #code .ln.brk .t { text-decoration: line-through; text-decoration-color: #ff3b3b; text-decoration-thickness: 3px; }
+  #code .bi { padding: 10px 18px 14px; color: #ff8080; font: 700 20px/1.3 'Inter', sans-serif; background: rgba(255,60,60,.12); }
+  #code .t .k { color: #ff73bf; } #code .t .s { color: #ffc773; } #code .t .c { color: #7d8597; } #code .t .ty { color: #8cffd9; }
+  #shade { top: 0; height: 600px; background: linear-gradient(rgba(8,16,40,.72), rgba(8,16,40,.35) 60%, rgba(8,16,40,0)); }
+  #insWrap { position: absolute; left: 100px; top: 380px; width: 520px; height: 924px; border-radius: 30px; overflow: hidden; opacity: 0;
+             box-shadow: 0 24px 70px rgba(0,0,0,.55); border: 3px solid rgba(255,255,255,.85); background: #000; }
+  #ins { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #insTag { position: absolute; left: 16px; bottom: 16px; padding: 6px 12px; border-radius: 99px; background: rgba(255,255,255,.16); color: #fff; font: 700 18px 'Inter', sans-serif; }
+  #styWrap { position: absolute; left: 0; top: 260px; width: 720px; height: 1280px; display: none; }
+  #sty { width: 100%; height: 100%; display: block; }
+  #top .sty { background: #ff7a1a; margin-left: 8px; text-transform: uppercase; }
+  #fade { position: absolute; inset: 0; background: #000; opacity: 0; }
+  #flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, rgba(255,40,40,.0) 30%, rgba(255,30,30,.55) 100%); opacity: 0; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <div id="flash" class="ov"></div>
+  <div id="styWrap"><video id="sty" muted playsinline preload="auto"></video></div>
+  <div id="insWrap"><video id="ins" muted playsinline preload="auto"></video><div id="insTag"></div></div>
+  <div id="shade" class="ov"></div>
+  <div id="top" class="ov"></div>
+  <div id="cap" class="ov"></div>
+  <div id="code" class="ov" style="opacity:0"></div>
+  <div id="sub" class="ov"></div>
+  <div id="hook" class="ov" style="opacity:0"></div>
+  <div id="fade"></div>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

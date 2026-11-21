@@ -1,0 +1,17 @@
+# generated / local only
+storage/
+out/
+media/
+renderer/work/
+renderer/node_modules
+renderer/fonts
+kit
+app/build/
+app/build-device/
+app/*.xcodeproj
+app/DevTok/Resources/*.mp4
+app/DevTok/Resources/*manifest_*.json
+app/DevTok/Resources/*explain_*.md
+.env
+*.pyc
+__pycache__/
